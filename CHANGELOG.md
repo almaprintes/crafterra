@@ -1,10 +1,3 @@
-## v0.1.5
-- Rehechos los iconos de inventario como recortes transparentes WebP de 96×96, sin textos ni bordes de captura.
-- `object-fit: contain` para impedir recortes dentro de tarjetas.
-- 110 objetos totales, con nueva familia de minerales, gemas y lingotes.
-- 140 recetas y 15 colecciones.
-- Caché PWA renovada para forzar la carga de los nuevos assets.
-
 # CHANGELOG
 
 ## v0.1.3
