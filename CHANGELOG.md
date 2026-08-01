@@ -12,3 +12,9 @@
 - Corregido bloqueo indefinido en la pantalla de inicio en Safari/iPhone cuando IndexedDB no responde, está bloqueado o tarda demasiado.
 - Añadido guardado alternativo local y watchdog de arranque para que la interfaz siempre pueda abrir.
 - Actualizada la caché PWA para forzar la sustitución de la build v0.1.0.
+
+## v0.1.2
+- Arranque endurecido para Safari/iOS.
+- Migración segura de partidas incompletas.
+- Autorreparación de Service Worker/cachés si el módulo principal no inicia.
+- Recursos críticos versionados y navegación network-first.
