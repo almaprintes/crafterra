@@ -26,3 +26,9 @@
 - Migración segura de partidas incompletas.
 - Autorreparación de Service Worker/cachés si el módulo principal no inicia.
 - Recursos críticos versionados y navegación network-first.
+
+
+## 0.1.7
+- Integrados 160 elementos de la infografía como catálogo jugable.
+- 160 miniaturas únicas extraídas y optimizadas a WebP; ninguna se reutiliza entre esos elementos.
+- Recetario ampliado a 230 recetas y nuevas ramas de construcción, herrería, alquimia, decoración y consumibles.
