@@ -1,6 +1,6 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#101b2d"><meta name="description" content="CRAFTERRA — De una piedra a las estrellas."><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="css/game.css?v=0.1.7"><title>CRAFTERRA</title></head><body>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#101b2d"><meta name="description" content="CRAFTERRA — De una piedra a las estrellas."><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="css/game.css?v=0.1.8"><title>CRAFTERRA</title></head><body>
 <div id="splash"><img src="assets/logo.svg" alt="CRAFTERRA"><div class="loader"></div></div>
-<div id="app" hidden><header><button class="brand" data-view="world"><img src="assets/icon.svg" alt=""><span>CRAFTERRA<small>v0.1.7</small></span></button><div class="wallet"><span class="coin"></span><b id="coins">0</b><span>◆</span><b id="level">1</b></div><button class="iconbtn" id="settingsBtn" aria-label="Ajustes">⚙</button></header>
+<div id="app" hidden><header><button class="brand" data-view="world"><img src="assets/icon.svg" alt=""><span>CRAFTERRA<small>v0.1.8</small></span></button><div class="wallet"><span class="coin"></span><b id="coins">0</b><span>◆</span><b id="level">1</b></div><button class="iconbtn" id="settingsBtn" aria-label="Ajustes">⚙</button></header>
 <main><section id="view-world" class="view active"><div class="world-head"><div><small id="eraLabel">ERA I</small><h1 id="eraName">Naturaleza</h1><p id="missionHint">Arrastra un objeto sobre otro.</p></div><button id="dailyBtn" class="daily">DESAFÍO<br><b>DIARIO</b></button></div><div id="world" aria-label="Mundo evolutivo"><div class="sky"></div><div id="worldTiles"></div><div id="worldBuildings"></div></div><div id="questStrip"></div></section>
 <section id="view-craft" class="view"><div class="panel-title"><div><small>TALLER</small><h2>Laboratorio de ideas</h2></div><button id="clearBoard">Limpiar</button></div><div id="stationBar"></div><div id="craftBoard" aria-label="Mesa de crafting"><p class="board-help">Toca recursos para añadirlos. Arrastra una pieza sobre otra para fusionar.</p></div><div class="inventory"><div class="inventory-head"><b>INVENTARIO</b><input id="itemSearch" placeholder="Buscar" aria-label="Buscar objeto"></div><div id="inventoryGrid"></div></div></section>
 <section id="view-book" class="view"><div class="panel-title"><div><small>ARCHIVO DEL INVENTOR</small><h2>Enciclopedia</h2></div><b id="bookCount"></b></div><div id="filters" class="filters"></div><div id="bookGrid" class="book-grid"></div></section>
@@ -16,13 +16,13 @@ setTimeout(async function(){
  if(window.__CRAF_BOOT_OK)return;
  const splash=document.getElementById('splash');
  if(!splash)return;
- const repaired=sessionStorage.getItem('crafterra-repair-013');
+ const repaired=sessionStorage.getItem('crafterra-repair-018');
  if(!repaired){
-  sessionStorage.setItem('crafterra-repair-013','1');
+  sessionStorage.setItem('crafterra-repair-018','1');
   try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}}catch(_){}
   try{if('caches' in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(_){}
-  const u=new URL(location.href);u.searchParams.set('repair','013-'+Date.now());location.replace(u.href);return;
+  const u=new URL(location.href);u.searchParams.set('repair','018-'+Date.now());location.replace(u.href);return;
  }
- splash.innerHTML='<div style="max-width:320px;padding:24px;text-align:center;color:#fff;font-family:system-ui"><img src="assets/icon.svg?v=0.1.7" alt="" style="width:72px"><h2 style="margin:14px 0 8px">No se pudo iniciar CRAFTERRA</h2><p style="opacity:.8;font-size:14px">La caché ya fue reparada. Vuelve a cargar esta página. Si persiste, abre la versión con <b>?repair=1</b>.</p><small style="opacity:.55">'+(window.__CRAF_LAST_ERROR||'Módulo principal no iniciado')+'</small></div>';
+ splash.innerHTML='<div style="max-width:320px;padding:24px;text-align:center;color:#fff;font-family:system-ui"><img src="assets/icon.svg?v=0.1.8" alt="" style="width:72px"><h2 style="margin:14px 0 8px">No se pudo iniciar CRAFTERRA</h2><p style="opacity:.8;font-size:14px">La caché ya fue reparada. Vuelve a cargar esta página. Si persiste, abre la versión con <b>?repair=1</b>.</p><small style="opacity:.55">'+(window.__CRAF_LAST_ERROR||'Módulo principal no iniciado')+'</small></div>';
 },5000);
-</script><script defer src="js/crafterra.bundle.js?v=0.1.7"></script></body></html>
+</script><script defer src="js/crafterra.bundle.js?v=0.1.8"></script></body></html>
