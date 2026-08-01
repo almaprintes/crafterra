@@ -1,0 +1,238 @@
+﻿n,id,name,category,art
+1,stone,Piedra,Naturaleza,webp
+2,wood,Madera,Naturaleza,webp
+3,water,Agua,Naturaleza,webp
+4,fire,Fuego,Calor,glyph
+5,earth,Tierra,Naturaleza,webp
+6,sharp_stone,Piedra tallada,Herramientas,webp
+7,stick,Mango,Materiales,glyph
+8,coal,Carbón,Calor,webp
+9,steam,Vapor,Energía,glyph
+10,mud,Barro,Materiales,glyph
+11,sand,Arena,Materiales,webp
+12,seed,Semilla,Agricultura,glyph
+13,flint,Pedernal,Minerales,glyph
+14,campfire,Hoguera,Calor,glyph
+15,axe,Hacha,Herramientas,glyph
+16,planks,Tablones,Construcción,webp
+17,clay,Arcilla,Materiales,webp
+18,wheat,Trigo,Agricultura,glyph
+19,kiln,Horno,Estaciones,glyph
+20,brick,Ladrillo,Construcción,webp
+21,glass,Vidrio,Materiales,webp
+22,torch,Antorcha,Calor,webp
+23,handle,Empuñadura,Herramientas,glyph
+24,hammer,Martillo,Herramientas,webp
+25,pickaxe,Pico,Herramientas,glyph
+26,saw,Sierra,Herramientas,glyph
+27,ore,Mineral,Minerales,glyph
+28,copper,Cobre,Minerales,webp
+29,iron,Hierro,Minerales,webp
+30,metal,Metal,Materiales,glyph
+31,steel,Acero,Materiales,glyph
+32,gold,Oro,Minerales,webp
+33,emerald,Esmeralda,Minerales,webp
+34,redstone,Cristal rojo,Minerales,glyph
+35,obsidian,Obsidiana,Minerales,webp
+36,lapis,Lapislázuli,Minerales,webp
+37,diamond,Diamante,Minerales,webp
+38,bone,Hueso,Materiales,webp
+39,amethyst,Amatista,Minerales,webp
+40,iron_ingot,Lingote de hierro,Materiales,webp
+41,copper_ingot,Lingote de cobre,Materiales,webp
+42,gold_ingot,Lingote de oro,Materiales,webp
+43,steel_ingot,Lingote de acero,Materiales,webp
+44,dark_ingot,Lingote umbrío,Materiales,glyph
+45,alloy,Aleación reforzada,Materiales,glyph
+46,gem_dust,Polvo de gema,Materiales,webp
+47,wheel,Rueda,Mecánica,webp
+48,axle,Eje,Mecánica,webp
+49,gear,Engranaje,Mecánica,webp
+50,rope,Cuerda,Materiales,webp
+51,fabric,Tela,Materiales,glyph
+52,door,Puerta,Construcción,glyph
+53,window,Ventana,Construcción,glyph
+54,roof,Tejado,Construcción,glyph
+55,shelter,Refugio,Construcción,glyph
+56,house,Casa,Construcción,glyph
+57,field,Campo,Agricultura,glyph
+58,flour,Harina,Alimentos,glyph
+59,dough,Masa,Alimentos,glyph
+60,bread,Pan,Alimentos,webp
+61,workbench,Mesa de trabajo,Estaciones,glyph
+62,forge,Forja,Estaciones,glyph
+63,mill,Molino,Estaciones,glyph
+64,pulley,Polea,Mecánica,webp
+65,cart,Carro,Transporte,glyph
+66,machine,Máquina,Mecánica,glyph
+67,factory,Fábrica,Construcción,glyph
+68,magnet,Imán,Electricidad,glyph
+69,wire,Cable,Electricidad,glyph
+70,coil,Bobina,Electricidad,glyph
+71,generator,Generador,Estaciones,glyph
+72,electricity,Electricidad,Energía,glyph
+73,filament,Filamento,Electricidad,glyph
+74,bulb,Bombilla,Electricidad,glyph
+75,battery,Batería,Electricidad,glyph
+76,motor,Motor,Mecánica,glyph
+77,vehicle,Vehículo,Transporte,glyph
+78,bridge,Puente,Construcción,glyph
+79,lens,Lente,Ciencia,glyph
+80,microscope,Microscopio,Ciencia,glyph
+81,telescope,Telescopio,Ciencia,glyph
+82,laboratory,Laboratorio,Estaciones,glyph
+83,experiment,Experimento,Ciencia,glyph
+84,workshop,Taller mecánico,Estaciones,glyph
+85,electric_shop,Taller eléctrico,Estaciones,glyph
+86,computer,Computadora,Tecnología,glyph
+87,chip,Chip,Tecnología,glyph
+88,radio,Radio,Tecnología,glyph
+89,antenna,Antena,Tecnología,glyph
+90,signal,Señal,Conceptos,glyph
+91,star_map,Mapa estelar,Espacio,glyph
+92,observatory,Observatorio,Estaciones,glyph
+93,fuel,Combustible,Energía,glyph
+94,rocket,Cohete,Espacio,glyph
+95,space_pad,Plataforma espacial,Estaciones,glyph
+96,satellite,Satélite,Espacio,glyph
+97,pressure,Presión,Conceptos,glyph
+98,time,Tiempo,Conceptos,glyph
+99,life,Vida,Conceptos,glyph
+100,heat,Calor,Conceptos,glyph
+101,motion,Movimiento,Conceptos,glyph
+102,technology,Tecnología,Conceptos,glyph
+103,lightning,Rayo cautivo,Secretos,glyph
+104,crystal,Cristal prismático,Secretos,glyph
+105,automaton,Autómata,Secretos,glyph
+106,moon_bread,Pan lunar,Secretos,glyph
+107,eternal_flame,Llama eterna,Secretos,glyph
+108,sky_garden,Jardín celeste,Secretos,glyph
+109,oracle,Oráculo mecánico,Secretos,glyph
+110,star_seed,Semilla estelar,Secretos,glyph
+111,wool,Lana,Recursos básicos,webp
+112,silver,Plata,Minerales,webp
+113,tin,Estaño,Minerales,webp
+114,lead,Plomo,Minerales,webp
+115,aluminum,Aluminio,Minerales,webp
+116,titanium,Titanio,Minerales,webp
+117,crystal_gem,Cristal,Gemas y cristales,webp
+118,ruby,Rubí,Gemas y cristales,webp
+119,sapphire,Zafiro,Gemas y cristales,webp
+120,topaz,Topacio,Gemas y cristales,webp
+121,opal,Ópalo,Gemas y cristales,webp
+122,quartz,Cuarzo,Gemas y cristales,webp
+123,leather,Piel,Recursos naturales,webp
+124,feather,Pluma,Recursos naturales,webp
+125,resin,Resina,Recursos naturales,webp
+126,sulfur,Azufre,Recursos naturales,webp
+127,salt,Sal,Recursos naturales,webp
+128,sap,Savia,Recursos naturales,webp
+129,silver_ingot,Lingote de plata,Materiales avanzados,webp
+130,tin_ingot,Lingote de estaño,Lingotes y aleaciones,webp
+131,lead_ingot,Lingote de plomo,Lingotes y aleaciones,webp
+132,bronze,Bronce,Lingotes y aleaciones,webp
+133,brass,Latón,Lingotes y aleaciones,webp
+134,electrum,Electrum,Lingotes y aleaciones,webp
+135,invar,Invar,Lingotes y aleaciones,webp
+136,mithril,Mithril,Lingotes y aleaciones,webp
+137,iron_bar,Barra de hierro,Componentes elaborados,webp
+138,copper_bar,Barra de cobre,Componentes elaborados,webp
+139,gold_bar,Barra de oro,Componentes elaborados,webp
+140,iron_plate,Placa de hierro,Componentes elaborados,webp
+141,nail,Clavo,Componentes elaborados,webp
+142,screw,Tornillo,Componentes elaborados,webp
+143,hinge,Bisagra,Componentes elaborados,webp
+144,spring,Muelle,Componentes elaborados,webp
+145,lever,Palanca,Mecanismos,webp
+146,switch,Interruptor,Mecanismos,webp
+147,valve,Válvula,Mecanismos,webp
+148,clock,Reloj,Mecanismos,webp
+149,stone_pickaxe,Pico de piedra,Herramientas,webp
+150,stone_axe,Hacha de piedra,Herramientas,webp
+151,stone_shovel,Pala de piedra,Herramientas,webp
+152,iron_pickaxe,Pico de hierro,Herramientas,webp
+153,iron_axe,Hacha de hierro,Herramientas,webp
+154,iron_shovel,Pala de hierro,Herramientas,webp
+155,scissors,Tijeras,Herramientas,webp
+156,iron_sword,Espada de hierro,Armas,webp
+157,steel_sword,Espada de acero,Armas,webp
+158,bow,Arco,Armas,webp
+159,arrow,Flecha,Armas,webp
+160,dagger,Daga,Armas,webp
+161,mace,Maza,Armas,webp
+162,wood_shield,Escudo de madera,Armas,webp
+163,iron_shield,Escudo de hierro,Armas,webp
+164,timber,Madera,Construcción,webp
+165,beam,Viga,Construcción,webp
+166,stripped_log,Tronco pelado,Construcción,webp
+167,wood_stairs,Escalera de madera,Construcción,webp
+168,stone_stairs,Escalera de piedra,Construcción,webp
+169,stone_tile,Baldosa de piedra,Construcción,webp
+170,window_frame,Marco de vidrio,Construcción,webp
+171,wood_door,Puerta de madera,Construcción,webp
+172,iron_door,Puerta de hierro,Construcción,webp
+173,trapdoor,Trampilla,Construcción,webp
+174,wood_fence,Valla de madera,Construcción,webp
+175,iron_fence,Valla de hierro,Construcción,webp
+176,table,Mesa,Mobiliario y decoración,webp
+177,chair,Silla,Mobiliario y decoración,webp
+178,bed,Cama,Mobiliario y decoración,webp
+179,chest,Cofre,Mobiliario y decoración,webp
+180,shelf,Estantería,Mobiliario y decoración,webp
+181,lamp,Lámpara,Mobiliario y decoración,webp
+182,painting,Cuadro,Mobiliario y decoración,webp
+183,rug,Alfombra,Mobiliario y decoración,webp
+184,flowerpot,Maceta,Mobiliario y decoración,webp
+185,bench,Banco,Mobiliario y decoración,webp
+186,barrel,Barril,Mobiliario y decoración,webp
+187,crate,Cajón,Mobiliario y decoración,webp
+188,lantern,Farol,Mobiliario y decoración,webp
+189,sculpture,Escultura,Mobiliario y decoración,webp
+190,banner,Bandera,Mobiliario y decoración,webp
+191,empty_flask,Frasco vacío,Alquimia,webp
+192,health_potion,Poción de salud,Alquimia,webp
+193,mana_potion,Poción de maná,Alquimia,webp
+194,strength_potion,Poción de fuerza,Alquimia,webp
+195,vision_potion,Poción de visión,Alquimia,webp
+196,fire_potion,Poción de fuego,Alquimia,webp
+197,poison_potion,Poción de veneno,Alquimia,webp
+198,speed_potion,Poción de velocidad,Alquimia,webp
+199,iron_powder,Polvo de hierro,Alquimia,webp
+200,copper_powder,Polvo de cobre,Alquimia,webp
+201,gold_powder,Polvo de oro,Alquimia,webp
+202,silver_powder,Polvo de plata,Alquimia,webp
+203,crystal_powder,Polvo de cristal,Alquimia,webp
+204,emerald_powder,Polvo de esmeralda,Alquimia,webp
+205,ruby_powder,Polvo de rubí,Alquimia,webp
+206,obsidian_powder,Polvo de obsidiana,Alquimia,webp
+207,treasure_map,Mapa del tesoro,Objetos especiales,webp
+208,compass,Brújula,Objetos especiales,webp
+209,hourglass,Reloj de arena,Objetos especiales,webp
+210,ancient_book,Libro antiguo,Objetos especiales,webp
+211,parchment,Pergamino,Objetos especiales,webp
+212,bronze_key,Llave de bronce,Objetos especiales,webp
+213,silver_key,Llave de plata,Objetos especiales,webp
+214,gold_key,Llave de oro,Objetos especiales,webp
+215,copper_coin,Moneda de cobre,Objetos especiales,webp
+216,silver_coin,Moneda de plata,Objetos especiales,webp
+217,gold_coin,Moneda de oro,Objetos especiales,webp
+218,small_bag,Saco pequeño,Objetos especiales,webp
+219,large_bag,Saco grande,Objetos especiales,webp
+220,iron_ring,Anillo de hierro,Objetos especiales,webp
+221,gold_ring,Anillo de oro,Objetos especiales,webp
+222,silver_ring,Anillo de plata,Objetos especiales,webp
+223,apple,Manzana,Comida y consumibles,webp
+224,raw_meat,Carne cruda,Comida y consumibles,webp
+225,cooked_meat,Carne cocinada,Comida y consumibles,webp
+226,raw_fish,Pescado crudo,Comida y consumibles,webp
+227,cooked_fish,Pescado cocinado,Comida y consumibles,webp
+228,carrot,Zanahoria,Comida y consumibles,webp
+229,potato,Patata,Comida y consumibles,webp
+230,mushroom,Seta,Comida y consumibles,webp
+231,milk,Leche,Comida y consumibles,webp
+232,cheese,Queso,Comida y consumibles,webp
+233,honey,Miel,Comida y consumibles,webp
+234,soup,Sopa,Comida y consumibles,webp
+235,stew,Guiso,Comida y consumibles,webp
+236,cake,Pastel,Comida y consumibles,webp
+237,water_bottle,Botella de agua,Comida y consumibles,webp

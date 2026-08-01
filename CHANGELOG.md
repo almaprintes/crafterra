@@ -32,3 +32,12 @@
 - Integrados 160 elementos de la infografía como catálogo jugable.
 - 160 miniaturas únicas extraídas y optimizadas a WebP; ninguna se reutiliza entre esos elementos.
 - Recetario ampliado a 230 recetas y nuevas ramas de construcción, herrería, alquimia, decoración y consumibles.
+
+## 0.2.0
+- Reconstrucción completa del catálogo maestro: 237 objetos únicos.
+- 232 recetas explícitas y lógicas; eliminado el generador de relleno.
+- Todos los objetos son alcanzables desde los cinco recursos iniciales.
+- Eliminado `Cristal rojo` y referencias heredadas inválidas.
+- 21 colecciones y 28 misiones alineadas con la nueva progresión.
+- Migración de guardado a schema 3 con limpieza segura de IDs obsoletos.
+- Nueva progresión de 7 eras y caché PWA v0.2.0.

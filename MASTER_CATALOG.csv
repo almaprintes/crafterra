@@ -1,0 +1,238 @@
+﻿#,id,nombre,categoria,era,rareza
+1,stone,Piedra,Recursos,1,COMÚN
+2,wood,Madera,Recursos,1,COMÚN
+3,water,Agua,Recursos,1,COMÚN
+4,fire,Fuego,Recursos,1,COMÚN
+5,earth,Tierra,Recursos,1,COMÚN
+6,cut_stone,Piedra tallada,Materiales,1,COMÚN
+7,handle,Mango,Componentes,1,COMÚN
+8,coal,Carbón,Recursos,1,COMÚN
+9,flint,Pedernal,Minerales,1,COMÚN
+10,campfire,Hoguera,Estaciones,1,COMÚN
+11,rope,Cuerda,Materiales,1,COMÚN
+12,iron,Hierro,Minerales,2,INUSUAL
+13,copper,Cobre,Minerales,2,INUSUAL
+14,tin,Estaño,Minerales,2,INUSUAL
+15,clay,Arcilla,Materiales,1,COMÚN
+16,sand,Arena,Materiales,1,COMÚN
+17,glass,Vidrio,Materiales,2,INUSUAL
+18,salt,Sal,Recursos,1,COMÚN
+19,sulfur,Azufre,Minerales,2,INUSUAL
+20,gold,Oro,Minerales,3,RARO
+21,silver,Plata,Minerales,3,RARO
+22,quartz,Cuarzo,Gemas,2,INUSUAL
+23,amethyst,Amatista,Gemas,3,RARO
+24,emerald,Esmeralda,Gemas,4,ÉPICO
+25,diamond,Diamante,Gemas,5,LEGENDARIO
+26,lapis,Lapislázuli,Gemas,3,RARO
+27,obsidian,Obsidiana,Minerales,3,RARO
+28,bone,Hueso,Recursos,1,COMÚN
+29,leather,Cuero,Materiales,2,INUSUAL
+30,plant_fiber,Fibra vegetal,Recursos,1,COMÚN
+31,fabric,Tela,Materiales,2,INUSUAL
+32,wool,Lana,Recursos,2,INUSUAL
+33,feather,Pluma,Recursos,1,COMÚN
+34,resin,Resina,Recursos,2,INUSUAL
+35,charcoal,Carbón vegetal,Recursos,1,COMÚN
+36,ash,Ceniza,Recursos,1,COMÚN
+37,wax,Cera,Recursos,2,INUSUAL
+38,herbs,Hierbas,Recursos,1,COMÚN
+39,mushroom,Hongo,Recursos,1,COMÚN
+40,bark,Pedazo de corteza,Recursos,1,COMÚN
+41,stick,Palo,Materiales,1,COMÚN
+42,plank,Tablón,Construcción,2,INUSUAL
+43,beam,Viga,Construcción,2,INUSUAL
+44,nail,Clavo,Componentes,3,RARO
+45,wire,Alambre,Componentes,3,RARO
+46,gear,Engranaje,Mecánica,3,RARO
+47,chain,Cadena,Componentes,3,RARO
+48,hinge,Bisagra,Componentes,3,RARO
+49,screw,Tornillo,Componentes,4,ÉPICO
+50,spring,Muelle,Componentes,4,ÉPICO
+51,iron_ingot,Lingote de hierro,Metalurgia,2,INUSUAL
+52,copper_ingot,Lingote de cobre,Metalurgia,2,INUSUAL
+53,tin_ingot,Lingote de estaño,Metalurgia,2,INUSUAL
+54,gold_ingot,Lingote de oro,Metalurgia,3,RARO
+55,silver_ingot,Lingote de plata,Metalurgia,3,RARO
+56,bronze,Bronce,Metalurgia,3,RARO
+57,steel,Acero,Metalurgia,4,ÉPICO
+58,metal_plate,Placa metálica,Componentes,4,ÉPICO
+59,metal_pipe,Tubo metálico,Componentes,4,ÉPICO
+60,rivet,Remache,Componentes,4,ÉPICO
+61,stone_axe,Hacha de piedra,Herramientas,1,COMÚN
+62,stone_pickaxe,Pico de piedra,Herramientas,1,COMÚN
+63,flint_knife,Cuchillo de pedernal,Herramientas,1,COMÚN
+64,stone_hammer,Martillo de piedra,Herramientas,1,COMÚN
+65,iron_axe,Hacha de hierro,Herramientas,3,RARO
+66,iron_pickaxe,Pico de hierro,Herramientas,3,RARO
+67,iron_hammer,Martillo de hierro,Herramientas,3,RARO
+68,saw,Sierra,Herramientas,3,RARO
+69,shovel,Pala,Herramientas,3,RARO
+70,tongs,Tenazas,Herramientas,3,RARO
+71,stone_spear,Lanza de piedra,Armas,2,INUSUAL
+72,iron_spear,Lanza de hierro,Armas,3,RARO
+73,bow,Arco,Armas,2,INUSUAL
+74,arrow,Flecha,Armas,2,INUSUAL
+75,iron_sword,Espada de hierro,Armas,3,RARO
+76,dagger,Daga,Armas,3,RARO
+77,mace,Maza,Armas,4,ÉPICO
+78,wood_shield,Escudo de madera,Armas,2,INUSUAL
+79,iron_shield,Escudo de hierro,Armas,4,ÉPICO
+80,iron_helmet,Casco de hierro,Armas,4,ÉPICO
+81,brick,Ladrillo,Construcción,2,INUSUAL
+82,mortar,Mortero,Construcción,2,INUSUAL
+83,stone_block,Bloque de piedra,Construcción,2,INUSUAL
+84,workbench,Mesa de trabajo,Estaciones,2,INUSUAL
+85,kiln,Horno,Estaciones,2,INUSUAL
+86,forge,Forja,Estaciones,3,RARO
+87,anvil,Yunque,Estaciones,3,RARO
+88,barrel,Barril,Almacenamiento,2,INUSUAL
+89,chest,Cofre,Almacenamiento,3,RARO
+90,wood_crate,Caja de madera,Almacenamiento,2,INUSUAL
+91,torch,Antorcha,Iluminación,1,COMÚN
+92,lantern,Farol,Iluminación,3,RARO
+93,candle,Vela,Iluminación,2,INUSUAL
+94,table,Mesa,Mobiliario,2,INUSUAL
+95,chair,Silla,Mobiliario,2,INUSUAL
+96,bed,Cama,Mobiliario,2,INUSUAL
+97,shelf,Estantería,Mobiliario,2,INUSUAL
+98,wardrobe,Armario,Mobiliario,3,RARO
+99,bench,Banco,Mobiliario,2,INUSUAL
+100,rug,Alfombra,Mobiliario,2,INUSUAL
+101,wood_bowl,Cuenco de madera,Cocina,2,INUSUAL
+102,clay_bowl,Cuenco de arcilla,Cocina,2,INUSUAL
+103,clay_jug,Jarra de arcilla,Cocina,2,INUSUAL
+104,glass_bottle,Botella de vidrio,Cocina,3,RARO
+105,wood_bucket,Cubo de madera,Cocina,2,INUSUAL
+106,pot,Olla,Cocina,3,RARO
+107,pan,Sartén,Cocina,3,RARO
+108,wood_spoon,Cuchara de madera,Cocina,2,INUSUAL
+109,mortar_pestle,Mortero y mano,Cocina,2,INUSUAL
+110,grill,Parrilla,Cocina,3,RARO
+111,wheat,Trigo,Alimentos,2,INUSUAL
+112,flour,Harina,Alimentos,2,INUSUAL
+113,bread,Pan,Alimentos,2,INUSUAL
+114,raw_meat,Carne cruda,Alimentos,2,INUSUAL
+115,cooked_meat,Carne cocinada,Alimentos,2,INUSUAL
+116,fish,Pescado,Alimentos,2,INUSUAL
+117,cooked_fish,Pescado cocinado,Alimentos,2,INUSUAL
+118,apple,Manzana,Alimentos,2,INUSUAL
+119,berries,Bayas,Alimentos,2,INUSUAL
+120,honey,Miel,Alimentos,2,INUSUAL
+121,carrot,Zanahoria,Alimentos,2,INUSUAL
+122,potato,Patata,Alimentos,2,INUSUAL
+123,onion,Cebolla,Alimentos,2,INUSUAL
+124,tomato,Tomate,Alimentos,2,INUSUAL
+125,corn,Maíz,Alimentos,2,INUSUAL
+126,egg,Huevo,Alimentos,2,INUSUAL
+127,milk,Leche,Alimentos,2,INUSUAL
+128,cheese,Queso,Alimentos,3,RARO
+129,seeds,Semillas,Agricultura,1,COMÚN
+130,compost,Compost,Agricultura,2,INUSUAL
+131,oil,Aceite,Alquimia,3,RARO
+132,alcohol,Alcohol,Alquimia,3,RARO
+133,coal_powder,Polvo de carbón,Alquimia,2,INUSUAL
+134,sulfur_powder,Polvo de azufre,Alquimia,2,INUSUAL
+135,bone_powder,Polvo de hueso,Alquimia,2,INUSUAL
+136,herbal_extract,Extracto de hierbas,Alquimia,3,RARO
+137,healing_potion,Poción curativa,Alquimia,3,RARO
+138,energy_potion,Poción de energía,Alquimia,4,ÉPICO
+139,antidote,Antídoto,Alquimia,3,RARO
+140,ink,Tinta,Alquimia,3,RARO
+141,paper,Papel,Conocimiento,3,RARO
+142,parchment,Pergamino,Conocimiento,3,RARO
+143,book,Libro,Conocimiento,3,RARO
+144,map,Mapa,Conocimiento,3,RARO
+145,writing_quill,Pluma de escribir,Conocimiento,3,RARO
+146,ruler,Regla,Conocimiento,3,RARO
+147,drawing_compass,Compás de dibujo,Conocimiento,4,ÉPICO
+148,magnifying_glass,Lupa,Conocimiento,4,ÉPICO
+149,compass,Brújula,Exploración,4,ÉPICO
+150,hourglass,Reloj de arena,Conocimiento,4,ÉPICO
+151,pulley,Polea,Mecánica,3,RARO
+152,wood_wheel,Rueda de madera,Mecánica,3,RARO
+153,reinforced_wheel,Rueda reforzada,Mecánica,4,ÉPICO
+154,crank,Manivela,Mecánica,3,RARO
+155,lever,Palanca,Mecánica,3,RARO
+156,axle,Eje,Mecánica,3,RARO
+157,bearing,Rodamiento,Mecánica,4,ÉPICO
+158,simple_mechanism,Mecanismo simple,Mecánica,4,ÉPICO
+159,advanced_mechanism,Mecanismo avanzado,Mecánica,5,LEGENDARIO
+160,lock,Cerradura,Mecánica,4,ÉPICO
+161,key,Llave,Mecánica,4,ÉPICO
+162,padlock,Candado,Mecánica,4,ÉPICO
+163,bell,Campana,Mecánica,4,ÉPICO
+164,piping,Tubería,Mecánica,4,ÉPICO
+165,valve,Válvula,Mecánica,4,ÉPICO
+166,hand_pump,Bomba manual,Mecánica,4,ÉPICO
+167,bellows,Fuelle,Estaciones,3,RARO
+168,hand_mill,Molino manual,Estaciones,3,RARO
+169,press,Prensa,Estaciones,4,ÉPICO
+170,loom,Telar,Estaciones,4,ÉPICO
+171,wood_door,Puerta de madera,Construcción,2,INUSUAL
+172,reinforced_door,Puerta reforzada,Construcción,4,ÉPICO
+173,window,Ventana,Construcción,3,RARO
+174,ladder,Escalera,Construcción,2,INUSUAL
+175,fence,Valla,Construcción,2,INUSUAL
+176,stone_wall,Muro de piedra,Construcción,3,RARO
+177,brick_wall,Muro de ladrillo,Construcción,3,RARO
+178,wood_floor,Suelo de madera,Construcción,3,RARO
+179,roof,Tejado,Construcción,3,RARO
+180,stone_pillar,Pilar de piedra,Construcción,3,RARO
+181,stone_arch,Arco de piedra,Construcción,4,ÉPICO
+182,wood_bridge,Puente de madera,Construcción,4,ÉPICO
+183,stone_bridge,Puente de piedra,Construcción,4,ÉPICO
+184,cart,Carro,Transporte,3,RARO
+185,wheelbarrow,Carretilla,Transporte,3,RARO
+186,raft,Balsa,Transporte,2,INUSUAL
+187,boat,Bote,Transporte,3,RARO
+188,oar,Remo,Transporte,2,INUSUAL
+189,sail,Vela náutica,Transporte,3,RARO
+190,anchor,Ancla,Transporte,4,ÉPICO
+191,backpack,Mochila,Exploración,3,RARO
+192,canteen,Cantimplora,Exploración,3,RARO
+193,sack,Saco,Exploración,2,INUSUAL
+194,tent,Tienda de campaña,Exploración,3,RARO
+195,bedroll,Saco de dormir,Exploración,3,RARO
+196,firestarter,Pedernal y acero,Exploración,3,RARO
+197,repair_kit,Kit de reparación,Exploración,4,ÉPICO
+198,grappling_rope,Cuerda con gancho,Exploración,4,ÉPICO
+199,spyglass,Catalejo,Exploración,4,ÉPICO
+200,explorer_lantern,Linterna de explorador,Exploración,4,ÉPICO
+201,polished_lens,Lente pulida,Tecnología,4,ÉPICO
+202,prism,Prisma,Tecnología,4,ÉPICO
+203,magnet,Imán,Tecnología,4,ÉPICO
+204,copper_coil,Bobina de cobre,Tecnología,4,ÉPICO
+205,precision_spring,Resorte de precisión,Tecnología,5,LEGENDARIO
+206,precision_gear,Engranaje de precisión,Tecnología,5,LEGENDARIO
+207,clockwork,Relojería,Tecnología,5,LEGENDARIO
+208,cable,Cable,Tecnología,5,LEGENDARIO
+209,insulator,Aislante,Tecnología,5,LEGENDARIO
+210,switch,Interruptor,Tecnología,5,LEGENDARIO
+211,primitive_battery,Batería rudimentaria,Electricidad,5,LEGENDARIO
+212,dynamo,Dinamo,Electricidad,5,LEGENDARIO
+213,simple_motor,Motor simple,Electricidad,5,LEGENDARIO
+214,bulb,Bombilla,Electricidad,5,LEGENDARIO
+215,electric_lamp,Lámpara eléctrica,Electricidad,5,LEGENDARIO
+216,fuse,Fusible,Electricidad,5,LEGENDARIO
+217,connector,Conector,Electricidad,5,LEGENDARIO
+218,electric_panel,Panel eléctrico,Electricidad,6,LEGENDARIO
+219,generator,Generador,Electricidad,6,LEGENDARIO
+220,electromagnet,Electroimán,Electricidad,6,LEGENDARIO
+221,thermometer,Termómetro,Ciencia,5,LEGENDARIO
+222,barometer,Barómetro,Ciencia,5,LEGENDARIO
+223,microscope,Microscopio,Ciencia,5,LEGENDARIO
+224,telescope,Telescopio,Ciencia,5,LEGENDARIO
+225,balance,Balanza,Ciencia,5,LEGENDARIO
+226,graduated_cylinder,Probeta,Ciencia,5,LEGENDARIO
+227,flask,Matraz,Ciencia,5,LEGENDARIO
+228,distiller,Destilador,Ciencia,5,LEGENDARIO
+229,reagent,Reactivo,Ciencia,5,LEGENDARIO
+230,science_kit,Kit científico,Ciencia,6,LEGENDARIO
+231,advanced_alloy,Aleación avanzada,Tecnología,6,LEGENDARIO
+232,optical_glass,Cristal óptico,Tecnología,6,LEGENDARIO
+233,precision_mechanism,Mecanismo de precisión,Tecnología,6,LEGENDARIO
+234,advanced_motor,Motor avanzado,Tecnología,6,LEGENDARIO
+235,accumulator,Acumulador,Tecnología,6,LEGENDARIO
+236,complex_machine,Máquina compleja,Tecnología,7,SECRETO
+237,tech_core,Núcleo tecnológico,Tecnología,7,SECRETO
