@@ -1,5 +1,5 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js';import{CONFIG}from'./config.js';import{initDB,save,reset,exportSave}from'./db.js';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js';import{RewardedAdsProvider,StoreProvider}from'./providers.js';
-let S,board=[],filter='Todos',goal='missions',bookMode='items';const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
+let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 const EXPEDITIONS=[
 {id:'quarry',name:'Cantera cercana',icon:'🪨',desc:'Roca expuesta y vetas superficiales. Ideal para empezar.',requires:[],durations:[5,15,30],loot:[['stone',65],['flint',16],['coal',14],['clay',5]]},
@@ -127,6 +127,7 @@ function renderBook(){
  const filters=$('#filters'),grid=$('#bookGrid'),library=$('#hintLibrary');
  if(bookMode==='hints'){
    filters.hidden=true;grid.hidden=true;library.hidden=false;
+   filters.style.display='none';grid.style.display='none';library.style.display='grid';
    $('#bookCount').textContent=`${hintEntries.length} pistas`;
    if(!hintEntries.length){
      library.innerHTML=`<div class="hint-empty"><span>💡</span><h3>Tu cuaderno de pistas está vacío</h3><p>Cada pista que compres quedará guardada aquí permanentemente.</p></div>`;
@@ -146,6 +147,7 @@ function renderBook(){
    return
  }
  filters.hidden=false;grid.hidden=false;library.hidden=true;
+ filters.style.display='flex';grid.style.display='grid';library.style.display='none';
  const cats=['Todos',...new Set(ITEMS.map(x=>x.category))];
  filters.innerHTML=cats.map(x=>`<button class="${filter===x?'selected':''}" data-filter="${x}">${x}</button>`).join('');
  const list=ITEMS.filter(x=>filter==='Todos'||x.category===filter);
@@ -166,11 +168,14 @@ function hasRecipeMaterials(r){
 }
 function hintKey(r){return `${[r.a,r.b].filter(Boolean).sort().join('+')}>${r.result}`}
 function eligibleHintRecipes(){
+ if(!S.hintLibrary||typeof S.hintLibrary!=='object')S.hintLibrary={};
  return RECIPES.filter(r=>{
-   if(!r||!r.result)return false;
-   if(S.discovered[r.result]||stockOf(r.result)>0)return false;
-   if(S.hintLibrary?.[hintKey(r)])return false;
-   return hasRecipeMaterials(r)
+   try{
+     if(!r||!r.result)return false;
+     if(S.discovered?.[r.result]||stockOf(r.result)>0)return false;
+     if(S.hintLibrary[hintKey(r)])return false;
+     return hasRecipeMaterials(r)
+   }catch(_){return false}
  })
 }
 function pickHintRecipe(){
@@ -229,9 +234,16 @@ function confirmShopOffer(id){
  const o=SHOP_OFFERS[id];if(!o)return;
  if(o.currency==='store'){toast('Esta compra todavía no está disponible.');return}
  if(id==='hint'){
-   const r=pickHintRecipe();
-   if(!r){
-     modal(`<div class="shop-confirm"><small>PISTAS</small><h2>💡 No hay una pista útil ahora mismo</h2><p>Las pistas solo se ofrecen para recetas aún no descubiertas y cuyos materiales ya tengas en cantidad suficiente.</p><button class="primary" data-shop-close>Aceptar</button></div>`);
+   try{
+     pendingHint=pickHintRecipe();
+     if(!pendingHint){
+       modal(`<div class="shop-confirm"><small>PISTAS</small><h2>💡 No hay una pista útil ahora mismo</h2><p>Ahora mismo no tienes materiales para ninguna receta desconocida que pueda recibir una pista nueva. No se te cobrará nada.</p><button class="primary" data-shop-close>Aceptar</button></div>`);
+       return
+     }
+   }catch(err){
+     console.error('[CRAFTERRA] Error preparando pista:',err);
+     pendingHint=null;
+     modal(`<div class="shop-confirm"><small>PISTAS</small><h2>💡 No pude preparar una pista</h2><p>No se ha cobrado ninguna moneda. Vuelve a intentarlo.</p><button class="primary" data-shop-close>Aceptar</button></div>`);
      return
    }
  }
@@ -248,10 +260,23 @@ async function buy(t){
    if(S.coins<o.price){close();toast('No tienes monedas suficientes.');return}
    let hintRecipe=null;
    if(t==='hint'){
-     hintRecipe=pickHintRecipe();
-     if(!hintRecipe){
+     try{
+       if(!S.hintLibrary||typeof S.hintLibrary!=='object')S.hintLibrary={};
+       hintRecipe=pendingHint;
+       if(!hintRecipe || S.discovered?.[hintRecipe.result] || !hasRecipeMaterials(hintRecipe) || S.hintLibrary[hintKey(hintRecipe)]){
+         hintRecipe=pickHintRecipe();
+       }
+       if(!hintRecipe){
+         pendingHint=null;
+         close();
+         modal(`<div class="shop-confirm"><small>PISTAS</small><h2>💡 No hay una pista útil ahora mismo</h2><p>No se ha descontado ninguna moneda.</p><button class="primary" data-shop-close>Aceptar</button></div>`);
+         return
+       }
+     }catch(err){
+       console.error('[CRAFTERRA] Error comprando pista:',err);
+       pendingHint=null;
        close();
-       toast('Ahora mismo no hay ninguna pista útil para comprar.');
+       toast('No se pudo preparar la pista. No se ha cobrado nada.');
        return
      }
    }
@@ -272,6 +297,7 @@ async function buy(t){
        text:hintRecipe?.hints?.[0]||'Prueba a combinar algunos de los materiales que ya tienes.',
        purchasedAt:Date.now()
      };
+     pendingHint=null;
    }
    await persist();
    renderShop();
@@ -305,7 +331,7 @@ const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add
  if(!canPlaceFromInventory(add)){toast(`No tienes más ${item(add)?.name||'unidades'} disponibles.`);return}
  board.push(add);renderBoard()
 }const bm=e.target.closest('[data-book-mode]')?.dataset.bookMode;if(bm){bookMode=bm;renderBook();return}
-const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){confirmShopOffer(o);return}
-const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){buy(shopConfirm);return}
+const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm);return}
+const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o);return}
 if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=()=>{const p=PUZZLES[new Date().getDate()%PUZZLES.length];modal(`<h2>Desafío diario</h2><p>Consigue <b>${item(p.target).name}</b> en un máximo de ${p.limit} fusiones.</p><strong>Recompensa: ${CONFIG.dailyReward} monedas</strong><button class="primary" id="dailyPlay">Comenzar</button>`);setTimeout(()=>$('#dailyPlay').onclick=()=>{close();playPuzzle(p.id)})};$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
