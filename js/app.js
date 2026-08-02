@@ -265,7 +265,105 @@ function renderBook(){
  $('#bookCount').textContent=`${Object.keys(S.discovered).length} / ${ITEMS.length}`;
  grid.innerHTML=list.map(i=>`<button class="card ${S.discovered[i.id]?'':'locked'}" data-detail="${i.id}">${S.discovered[i.id]?icon(i):'<span class="unknown">?</span>'}<b>${S.discovered[i.id]?i.name:'Desconocido'}</b><small>${S.discovered[i.id]?i.rarity:'???'}</small></button>`).join('')
 }
-function detail(id){const i=item(id);if(!S.discovered[id])return;const rs=RECIPES.filter(r=>r.result===id);modal(`<div class="detail">${icon(i)}<h2>${i.name}</h2><b>${i.rarity} · ${i.category} · ERA ${i.era}</b><p>${i.description}</p><h3>Recetas conocidas</h3>${rs.map(r=>S.discovered[r.a]&&S.discovered[r.b]?`<p>${item(r.a).name} + ${item(r.b).name} → ${i.name}</p>`:'<p>??? + ??? → '+i.name+'</p>').join('')||'<p>Elemento primario.</p>'}</div>`)}
+
+function learnedRecipesFor(result){
+ return RECIPES.filter(r=>r.result===result&&S.knownRecipes?.[r.id])
+}
+function directPlan(target){
+ const routes=learnedRecipesFor(target);
+ if(!routes.length)return{ok:false,reason:'unknown'};
+ const original=Object.fromEntries(ITEMS.map(i=>[i.id,stockOf(i.id)]));
+ const routePlans=[];
+ for(const root of routes){
+   const sim={...original},cost={},missing={},path=[],visiting=new Set();
+   const consume=(id,qty)=>{
+     if(qty<=0)return true;
+     const available=Math.max(0,sim[id]||0);
+     const use=Math.min(available,qty);
+     if(use){sim[id]-=use;cost[id]=(cost[id]||0)+use;qty-=use}
+     if(qty<=0)return true;
+     if(visiting.has(id)){missing[id]=(missing[id]||0)+qty;return false}
+     const recipes=learnedRecipesFor(id);
+     if(!recipes.length){missing[id]=(missing[id]||0)+qty;return false}
+     visiting.add(id);
+     // Current catalogue normally has one learned route. If there are several,
+     // try each in order and keep the first route that can be fulfilled.
+     for(let n=0;n<qty;n++){
+       let built=false;
+       for(const r of recipes){
+         const sim0={...sim},cost0={...cost},missing0={...missing},pathLen=path.length;
+         const okA=consume(r.a,1),okB=okA&&consume(r.b,1);
+         if(okA&&okB){path.push(r.id);built=true;break}
+         Object.keys(sim).forEach(k=>delete sim[k]);Object.assign(sim,sim0);
+         Object.keys(cost).forEach(k=>delete cost[k]);Object.assign(cost,cost0);
+         Object.keys(missing).forEach(k=>delete missing[k]);Object.assign(missing,missing0);
+         path.length=pathLen
+       }
+       if(!built){missing[id]=(missing[id]||0)+1}
+     }
+     visiting.delete(id);
+     return !missing[id]
+   };
+   const okA=consume(root.a,1),okB=okA&&consume(root.b,1);
+   const ok=okA&&okB&&Object.keys(missing).length===0;
+   routePlans.push({ok,root,cost,missing,path})
+ }
+ const valid=routePlans.filter(x=>x.ok);
+ if(valid.length){
+   valid.sort((x,y)=>{
+     const ax=Object.values(x.cost).reduce((n,q)=>n+q,0),ay=Object.values(y.cost).reduce((n,q)=>n+q,0);
+     return ax-ay
+   });
+   return valid[0]
+ }
+ return routePlans[0]||{ok:false,reason:'unknown'}
+}
+function directCostHTML(plan){
+ const entries=Object.entries(plan.cost||{}).filter(([,q])=>q>0);
+ if(!entries.length)return'<p class="muted">No requiere materiales.</p>';
+ return `<div class="direct-cost">${entries.map(([id,q])=>`<div>${icon(item(id))}<span><b>${item(id).name}</b><small>Tienes ${stockOf(id)}</small></span><strong>×${q}</strong></div>`).join('')}</div>`
+}
+function directMissingHTML(plan){
+ const entries=Object.entries(plan.missing||{}).filter(([,q])=>q>0);
+ if(!entries.length)return'';
+ return `<div class="direct-missing"><small>TE FALTA</small>${entries.map(([id,q])=>`<span>${item(id)?.name||id} ×${q}</span>`).join('')}</div>`
+}
+function recipeChainHTML(id,depth=0,seen=new Set()){
+ if(depth>8||seen.has(id))return'';
+ const rs=learnedRecipesFor(id);if(!rs.length)return'';
+ const r=rs[0];seen.add(id);
+ const line=`<div class="chain-line" style="--depth:${depth}"><span>${item(r.a).name} + ${item(r.b).name}</span><b>→ ${item(id).name}</b></div>`;
+ return recipeChainHTML(r.a,depth+1,new Set(seen))+recipeChainHTML(r.b,depth+1,new Set(seen))+line
+}
+function showDirectCraft(id){
+ const it=item(id),plan=directPlan(id);
+ if(!S.knownRecipes||!learnedRecipesFor(id).length){toast('Todavía no has aprendido cómo fabricar este objeto.');return}
+ modal(`<div class="direct-modal"><small>FABRICACIÓN DIRECTA</small><div class="direct-title">${icon(it)}<div><h2>${it.name}</h2><span>Posees ×${stockOf(id)}</span></div></div><p>CRAFTERRA realizará automáticamente los pasos intermedios que ya hayas aprendido.</p><h3>Se descontará de tu inventario</h3>${directCostHTML(plan)}${directMissingHTML(plan)}<button class="primary" data-direct-confirm="${id}" ${plan.ok?'':'disabled'}>${plan.ok?'FABRICAR AHORA':'MATERIALES INSUFICIENTES'}</button><button class="direct-chain-btn" data-direct-chain="${id}">Ver cadena aprendida</button></div>`)
+}
+function showDirectChain(id){
+ const html=recipeChainHTML(id);
+ modal(`<div class="direct-modal"><small>CADENA APRENDIDA</small><h2>${item(id).name}</h2><p>Estos pasos se ejecutan virtualmente al usar Fabricación directa.</p><div class="recipe-chain">${html||'<p>No hay pasos intermedios.</p>'}</div><button class="primary" data-direct-back="${id}">Volver</button></div>`)
+}
+async function executeDirectCraft(id){
+ const plan=directPlan(id);
+ if(!plan.ok){showDirectCraft(id);return}
+ for(const [mat,q] of Object.entries(plan.cost))S.stock[mat]=Math.max(0,stockOf(mat)-q);
+ S.stock[id]=stockOf(id)+1;
+ S.crafted[id]=(S.crafted[id]||0)+1;
+ await persist();
+ close();
+ renderCraft();
+ renderBook();
+ toast(`${item(id).name} fabricado · +1`)
+}
+
+function detail(id){
+ const i=item(id);if(!S.discovered[id])return;
+ const rs=RECIPES.filter(r=>r.result===id);
+ const learned=rs.filter(r=>S.knownRecipes?.[r.id]);
+ const plan=learned.length?directPlan(id):null;
+ modal(`<div class="detail">${icon(i)}<h2>${i.name}</h2><b>${i.rarity} · ${i.category} · ERA ${i.era}</b><p>${i.description}</p><div class="detail-stock">En inventario <strong>×${stockOf(id)}</strong></div><h3>Recetas</h3>${rs.map(r=>S.knownRecipes?.[r.id]?`<p class="known-recipe">✓ ${item(r.a).name} + ${item(r.b).name} → ${i.name}</p>`:'<p>??? + ??? → '+i.name+'</p>').join('')||'<p>Elemento primario.</p>'}${learned.length?`<div class="direct-card"><small>RECETA APRENDIDA</small><b>⚡ Fabricación directa</b><p>${plan?.ok?'Puedes fabricarlo sin construir manualmente los componentes intermedios.':'Conoces la receta, pero ahora mismo te faltan materiales para completar toda la cadena.'}</p><button class="primary" data-direct-craft="${id}">${plan?.ok?'FABRICAR':'VER MATERIALES'}</button></div>`:''}</div>`)
+}
 function renderGoals(){const list=goal==='missions'?MISSIONS:goal==='puzzles'?PUZZLES:goal==='collections'?COLLECTIONS:ACHIEVEMENTS;$('#goalsList').innerHTML=list.map(x=>{let done=goal==='collections'?x.items.every(i=>S.discovered[i]):goal==='achievements'?!!S.achievements[x.id]:!!S.discovered[x.target];let sub=goal==='collections'?`${x.items.filter(i=>S.discovered[i]).length}/${x.items.length}`:goal==='puzzles'?`Objetivo: ${item(x.target).name} · ${x.limit} fusiones`:goal==='missions'?`Descubre ${item(x.target).name}`:`Meta ${x.value}`;return`<article class="goal ${done?'done':''}"><span>${done?'✓':'◇'}</span><div><b>${x.name}</b><small>${sub}</small></div><strong>+${x.reward||x.coins} ◆</strong>${goal==='puzzles'?`<button data-puzzle="${x.id}">Jugar</button>`:''}</article>`}).join('')}
 
 function recipeNeeds(r){
@@ -521,5 +619,9 @@ const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add
 }const bm=e.target.closest('[data-book-mode]')?.dataset.bookMode;if(bm){bookMode=bm;renderBook();return}
 const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm);return}
 const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o);return}
-if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
+if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const dc=e.target.closest('[data-direct-craft]')?.dataset.directCraft;if(dc){showDirectCraft(dc);return}
+const dcf=e.target.closest('[data-direct-confirm]')?.dataset.directConfirm;if(dcf){executeDirectCraft(dcf);return}
+const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
+const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
+const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
