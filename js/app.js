@@ -83,9 +83,114 @@ function tickExpeditions(){
 }
 
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),1900)}function modal(html){$('#modalBody').innerHTML=html;$('#modal').hidden=false}function close(){ $('#modal').hidden=true }
-function evaluateProgress(){let bonus=0;MISSIONS.forEach(m=>{if(S.discovered[m.target]&&!S.missions[m.id]){S.missions[m.id]=true;bonus+=m.reward;S.xp+=m.xp}});COLLECTIONS.forEach(c=>{if(c.items.every(id=>S.discovered[id])&&!S.collections[c.id]){S.collections[c.id]=true;bonus+=c.coins;S.xp+=c.xp}});const metrics=[Object.keys(S.discovered).length,S.stats.merges,Object.keys(S.collections).length,S.world.length];ACHIEVEMENTS.forEach(a=>{if(metrics[a.type]>=a.value&&!S.achievements[a.id]){S.achievements[a.id]=true;bonus+=a.reward}});if(bonus){S.coins+=bonus;S.level=1+Math.floor(S.xp/250)}}
-async function persist(){evaluateProgress();await save(S);renderHeader()}
-function renderHeader(){ $('#coins').textContent=S.coins.toLocaleString('es');$('#level').textContent=S.level;const e=eraFor(S);$('#eraLabel').textContent=`ERA ${['I','II','III','IV','V','VI','VII'][e]}`;$('#eraName').textContent=CONFIG.eras[e][0]}
+function evaluateProgress(){
+ let bonus=0;
+ const awards=[];
+ MISSIONS.forEach(m=>{
+   if(S.discovered[m.target]&&!S.missions[m.id]){
+     S.missions[m.id]=true;bonus+=m.reward;S.xp+=m.xp
+   }
+ });
+ COLLECTIONS.forEach(c=>{
+   if(c.items.every(id=>S.discovered[id])&&!S.collections[c.id]){
+     S.collections[c.id]=true;
+     bonus+=c.coins;S.xp+=c.xp;
+     awards.push({kind:'collection',name:c.name,coins:c.coins,xp:c.xp})
+   }
+ });
+ const metrics=[Object.keys(S.discovered).length,S.stats.merges,Object.keys(S.collections).length,S.world.length];
+ ACHIEVEMENTS.forEach(x=>{
+   if(metrics[x.type]>=x.value&&!S.achievements[x.id]){
+     S.achievements[x.id]=true;
+     bonus+=x.reward;
+     awards.push({kind:'achievement',name:x.name,coins:x.reward,xp:0})
+   }
+ });
+ if(bonus){S.coins+=bonus;S.level=1+Math.floor(S.xp/250)}
+ return awards
+}
+let rewardQueue=[],rewardShowing=false;
+function displayedCoins(){
+ const raw=$('#coins')?.textContent||'0';
+ const n=Number(raw.replace(/[^0-9]/g,''));
+ return Number.isFinite(n)?n:S.coins
+}
+function setCoinText(n){
+ const el=$('#coins');
+ if(el)el.textContent=Math.round(n).toLocaleString('es')
+}
+function animateCoins(from,to,duration=900){
+ return new Promise(resolve=>{
+   if(from===to){setCoinText(to);resolve();return}
+   const start=performance.now();
+   const step=now=>{
+     const p=Math.min(1,(now-start)/duration);
+     const eased=1-Math.pow(1-p,3);
+     setCoinText(from+(to-from)*eased);
+     if(p<1)requestAnimationFrame(step);
+     else{setCoinText(to);resolve()}
+   };
+   requestAnimationFrame(step)
+ })
+}
+function ensureRewardLayer(){
+ let layer=$('#rewardLayer');
+ if(!layer){
+   layer=document.createElement('div');
+   layer.id='rewardLayer';
+   layer.className='reward-layer';
+   document.body.append(layer)
+ }
+ return layer
+}
+function queueRewards(awards,coinEnd){
+ if(!awards.length)return;
+ rewardQueue.push({awards,coinEnd});
+ runRewardQueue()
+}
+async function runRewardQueue(){
+ if(rewardShowing||!rewardQueue.length)return;
+ rewardShowing=true;
+ while(rewardQueue.length){
+   const batch=rewardQueue.shift();
+   const layer=ensureRewardLayer();
+   const start=displayedCoins();
+   const target=batch.coinEnd;
+   const coinAnim=animateCoins(start,target,1100);
+   for(const award of batch.awards){
+     const pop=document.createElement('div');
+     pop.className=`reward-pop ${award.kind}`;
+     pop.innerHTML=`<div class="reward-symbol">${award.kind==='collection'?'🏆':'★'}</div><div class="reward-copy"><small>${award.kind==='collection'?'COLECCIÓN COMPLETADA':'LOGRO CONSEGUIDO'}</small><b>${award.name}</b><span>+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}</span></div>`;
+     layer.append(pop);
+     requestAnimationFrame(()=>pop.classList.add('show'));
+     await new Promise(r=>setTimeout(r,1800));
+     pop.classList.remove('show');
+     await new Promise(r=>setTimeout(r,280));
+     pop.remove()
+   }
+   await coinAnim;
+   const wallet=document.querySelector('.wallet');
+   wallet?.classList.add('reward-pulse');
+   setTimeout(()=>wallet?.classList.remove('reward-pulse'),650)
+ }
+ rewardShowing=false
+}
+async function persist(){
+ const before=S.coins;
+ const awards=evaluateProgress();
+ await save(S);
+ if(awards.length){
+   renderHeader(before);
+   queueRewards(awards,S.coins)
+ }else renderHeader()
+}
+function renderHeader(coinOverride=null){
+ $('#coins').textContent=(coinOverride===null?S.coins:coinOverride).toLocaleString('es');
+ $('#level').textContent=S.level;
+ const e=eraFor(S);
+ $('#eraLabel').textContent=`ERA ${['I','II','III','IV','V','VI','VII'][e]}`;
+ $('#eraName').textContent=CONFIG.eras[e][0]
+}
 function showView(v){$$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop()}
 function renderWorld(){const tiles=$('#worldTiles');tiles.innerHTML=Array.from({length:25},(_,i)=>`<i style="--x:${i%5};--y:${Math.floor(i/5)}"></i>`).join('');$('#worldBuildings').innerHTML=S.world.map((id,i)=>`<button class="building" style="--x:${(i*2)%5};--y:${Math.floor(i/3)%5}" data-item="${id}">${icon(item(id))}<small>${item(id).name}</small></button>`).join('');const next=MISSIONS.find(m=>!S.discovered[m.target]);$('#missionHint').textContent=next?`Objetivo: ${next.name}`:'¡Has completado la campaña!';$('#questStrip').innerHTML=next?`<b>${next.name}</b><span>Descubre ${item(next.target).name}</span><strong>+${next.reward}</strong>`:'<b>Horizonte alcanzado</b><span>Sigue experimentando</span>';renderExpeditionPanel()}
 function stockOf(id){return Math.max(0,Number(S.stock?.[id]||0))}
