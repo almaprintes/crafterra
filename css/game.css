@@ -46,3 +46,6 @@
 .reward-copy span{font-size:12px;font-weight:900;color:#ffd86b}
 .wallet.reward-pulse{animation:walletRewardPulse .65s ease}
 @keyframes walletRewardPulse{0%,100%{transform:scale(1)}35%{transform:scale(1.09);filter:brightness(1.45)}65%{transform:scale(1.04)}}
+
+.reward-pop.mission{border-color:#78bdf088}
+.reward-pop.mission .reward-copy small{color:#8ed0ff}
