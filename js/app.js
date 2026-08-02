@@ -88,7 +88,9 @@ function evaluateProgress(){
  const awards=[];
  MISSIONS.forEach(m=>{
    if(S.discovered[m.target]&&!S.missions[m.id]){
-     S.missions[m.id]=true;bonus+=m.reward;S.xp+=m.xp
+     S.missions[m.id]=true;
+     bonus+=m.reward;S.xp+=m.xp;
+     awards.push({kind:'mission',name:m.name,coins:m.reward,xp:m.xp})
    }
  });
  COLLECTIONS.forEach(c=>{
@@ -160,7 +162,9 @@ async function runRewardQueue(){
    for(const award of batch.awards){
      const pop=document.createElement('div');
      pop.className=`reward-pop ${award.kind}`;
-     pop.innerHTML=`<div class="reward-symbol">${award.kind==='collection'?'🏆':'★'}</div><div class="reward-copy"><small>${award.kind==='collection'?'COLECCIÓN COMPLETADA':'LOGRO CONSEGUIDO'}</small><b>${award.name}</b><span>+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}</span></div>`;
+     const symbol=award.kind==='collection'?'🏆':award.kind==='mission'?'◇':'★';
+     const title=award.kind==='collection'?'COLECCIÓN COMPLETADA':award.kind==='mission'?'MISIÓN COMPLETADA':'LOGRO CONSEGUIDO';
+     pop.innerHTML=`<div class="reward-symbol">${symbol}</div><div class="reward-copy"><small>${title}</small><b>${award.name}</b><span>+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}</span></div>`;
      layer.append(pop);
      requestAnimationFrame(()=>pop.classList.add('show'));
      await new Promise(r=>setTimeout(r,1800));
