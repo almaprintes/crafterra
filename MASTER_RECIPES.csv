@@ -2,8 +2,9 @@
 r1,stone,stone,cut_stone
 r2,wood,cut_stone,handle
 r3,earth,fire,coal
-r4,stone,fire,flint
-r5,wood,flint,campfire
+r4,stone,cut_stone,flint
+r5,wood,flint,fire
+r233,fire,stone,campfire
 r6,plant_fiber,plant_fiber,rope
 r7,earth,water,clay
 r8,stone,water,sand
