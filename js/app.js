@@ -123,8 +123,98 @@ async function doMerge(i,j){
 function renderBook(){const cats=['Todos',...new Set(ITEMS.map(x=>x.category))];$('#filters').innerHTML=cats.map(x=>`<button class="${filter===x?'selected':''}" data-filter="${x}">${x}</button>`).join('');const list=ITEMS.filter(x=>filter==='Todos'||x.category===filter);$('#bookCount').textContent=`${Object.keys(S.discovered).length} / ${ITEMS.length}`;$('#bookGrid').innerHTML=list.map(i=>`<button class="card ${S.discovered[i.id]?'':'locked'}" data-detail="${i.id}">${S.discovered[i.id]?icon(i):'<span class="unknown">?</span>'}<b>${S.discovered[i.id]?i.name:'Desconocido'}</b><small>${S.discovered[i.id]?i.rarity:'???'}</small></button>`).join('')}
 function detail(id){const i=item(id);if(!S.discovered[id])return;const rs=RECIPES.filter(r=>r.result===id);modal(`<div class="detail">${icon(i)}<h2>${i.name}</h2><b>${i.rarity} · ${i.category} · ERA ${i.era}</b><p>${i.description}</p><h3>Recetas conocidas</h3>${rs.map(r=>S.discovered[r.a]&&S.discovered[r.b]?`<p>${item(r.a).name} + ${item(r.b).name} → ${i.name}</p>`:'<p>??? + ??? → '+i.name+'</p>').join('')||'<p>Elemento primario.</p>'}</div>`)}
 function renderGoals(){const list=goal==='missions'?MISSIONS:goal==='puzzles'?PUZZLES:goal==='collections'?COLLECTIONS:ACHIEVEMENTS;$('#goalsList').innerHTML=list.map(x=>{let done=goal==='collections'?x.items.every(i=>S.discovered[i]):goal==='achievements'?!!S.achievements[x.id]:!!S.discovered[x.target];let sub=goal==='collections'?`${x.items.filter(i=>S.discovered[i]).length}/${x.items.length}`:goal==='puzzles'?`Objetivo: ${item(x.target).name} · ${x.limit} fusiones`:goal==='missions'?`Descubre ${item(x.target).name}`:`Meta ${x.value}`;return`<article class="goal ${done?'done':''}"><span>${done?'✓':'◇'}</span><div><b>${x.name}</b><small>${sub}</small></div><strong>+${x.reward||x.coins} ◆</strong>${goal==='puzzles'?`<button data-puzzle="${x.id}">Jugar</button>`:''}</article>`}).join('')}
-function renderShop(){const offers=[['Recursos básicos','Un lote de los cinco elementos',100,'resources'],['Pista suave','Una orientación para tu siguiente paso',40,'hint'],['Cofre del inventor','Recompensa de prueba',0,'ad'],['Puñado de monedas','2.500 monedas','—','buy'],['Bolsa de monedas','7.500 monedas','—','buy'],['Tema aurora','Personalización futura','—','buy']];$('#shopList').innerHTML=offers.map((x,i)=>`<article class="offer"><span class="shopicon">${i<3?'◇':'◆'}</span><div><b>${x[0]}</b><small>${x[1]}</small></div><button data-offer="${x[3]}">${x[2]} ${typeof x[2]==='number'?'◆':''}</button></article>`).join('')}
-async function buy(t){if(t==='resources'){if(S.coins<100)return toast('No tienes monedas suficientes.');S.coins-=100;toast('Recursos añadidos al taller.')}else if(t==='hint'){if(S.coins<40)return toast('No tienes monedas suficientes.');S.coins-=40;S.stats.hints++;const r=RECIPES.find(r=>!S.discovered[r.result]&&S.discovered[r.a]);toast(r?r.hints[0]:'Sigue experimentando.')}else if(t==='ad'){try{const r=await ads.show('coins',S);S.coins+=r.reward;toast(`Recompensa de prueba: +${r.reward} monedas`)}catch(e){toast(e.message)}}else{const r=await store.purchase();toast(r.message)}persist()}
+const SHOP_OFFERS={
+ resources:{
+   id:'resources',name:'Suministros básicos',icon:'📦',price:100,currency:'coins',
+   desc:'Recursos naturales para seguir experimentando.',
+   contents:{stone:5,wood:5,water:3,earth:3,sand:3}
+ },
+ hint:{
+   id:'hint',name:'Pista suave',icon:'💡',price:40,currency:'coins',
+   desc:'Una orientación contextual para una receta que aún no has descubierto.'
+ },
+ ad:{
+   id:'ad',name:'Cofre del inventor',icon:'🎁',price:0,currency:'rewarded',
+   desc:'Mira un anuncio opcional y recibe una recompensa de monedas.'
+ },
+ coins_small:{
+   id:'coins_small',name:'Puñado de monedas',icon:'◆',price:null,currency:'store',
+   desc:'2.500 monedas. Compra real aún no activada en esta versión.'
+ },
+ coins_large:{
+   id:'coins_large',name:'Bolsa de monedas',icon:'◆',price:null,currency:'store',
+   desc:'7.500 monedas. Compra real aún no activada en esta versión.'
+ },
+ aurora:{
+   id:'aurora',name:'Tema aurora',icon:'🌌',price:null,currency:'store',
+   desc:'Personalización futura. Todavía no disponible.'
+ }
+};
+function shopContentsHTML(contents,showTotals=false){
+ return Object.entries(contents).map(([id,q])=>{
+   const it=item(id),total=stockOf(id)+(showTotals?q:0);
+   return `<div class="shop-line">${icon(it)}<div><b>${it.name}</b>${showTotals?`<small>Ahora tienes ${total}</small>`:''}</div><strong>×${q}</strong></div>`
+ }).join('')
+}
+function renderShop(){
+ const offers=Object.values(SHOP_OFFERS);
+ $('#shopList').innerHTML=offers.map(o=>{
+   const disabled=o.currency==='store';
+   const action=o.currency==='coins'?`${o.price} ◆`:o.currency==='rewarded'?'VER ANUNCIO':'PRÓXIMAMENTE';
+   const detail=o.contents?Object.entries(o.contents).map(([id,q])=>`${item(id).name} ×${q}`).join(' · '):o.desc;
+   return `<article class="offer ${disabled?'disabled':''}">
+     <span class="shopicon">${o.icon}</span>
+     <div><b>${o.name}</b><small>${detail}</small></div>
+     <button ${disabled?'disabled':''} data-offer="${o.id}">${action}</button>
+   </article>`
+ }).join('')
+}
+function confirmShopOffer(id){
+ const o=SHOP_OFFERS[id];if(!o)return;
+ if(o.currency==='store'){toast('Esta compra todavía no está disponible.');return}
+ if(o.currency==='rewarded'){
+   modal(`<div class="shop-confirm"><small>RECOMPENSA OPCIONAL</small><h2>${o.icon} ${o.name}</h2><p>${o.desc}</p><div class="shop-balance"><span>Coste</span><b>1 anuncio</b></div><button class="primary" data-shop-confirm="${o.id}">Ver anuncio y recibir monedas</button></div>`);
+   return
+ }
+ const after=S.coins-o.price;
+ modal(`<div class="shop-confirm"><small>CONFIRMAR COMPRA</small><h2>${o.icon} ${o.name}</h2><p>${o.desc}</p>${o.contents?`<div class="shop-contents">${shopContentsHTML(o.contents)}</div>`:''}<div class="shop-balance"><span>Tu saldo</span><b>${S.coins.toLocaleString('es')} ◆</b></div><div class="shop-balance after"><span>Después de comprar</span><b>${Math.max(0,after).toLocaleString('es')} ◆</b></div><button class="primary" data-shop-confirm="${o.id}">Comprar por ${o.price} ◆</button><button class="shop-cancel" data-shop-cancel>Cancelar</button></div>`)
+}
+async function buy(t){
+ const o=SHOP_OFFERS[t];if(!o)return;
+ if(o.currency==='coins'){
+   if(S.coins<o.price){close();toast('No tienes monedas suficientes.');return}
+   S.coins-=o.price;
+   if(o.contents){
+     for(const [id,q] of Object.entries(o.contents)){
+       S.stock[id]=stockOf(id)+q;
+       if(!S.discovered[id])S.discovered[id]=Date.now()
+     }
+   }else if(t==='hint'){
+     S.stats.hints++;
+   }
+   await persist();
+   renderShop();
+   if(o.contents){
+     modal(`<div class="shop-receipt"><small>COMPRA REALIZADA</small><h2>✓ ${o.name}</h2><p>Los materiales ya están en tu inventario.</p><div class="shop-contents">${shopContentsHTML(o.contents,true)}</div><div class="shop-balance"><span>Saldo restante</span><b>${S.coins.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Aceptar</button></div>`)
+   }else{
+     close();
+     const r=RECIPES.find(r=>!S.discovered[r.result]&&S.discovered[r.a]);
+     modal(`<div class="shop-receipt"><small>PISTA ADQUIRIDA</small><h2>💡 Una pista para ti</h2><p>${r?r.hints[0]:'Sigue experimentando con los elementos que ya conoces.'}</p><div class="shop-balance"><span>Saldo restante</span><b>${S.coins.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Aceptar</button></div>`)
+   }
+   return
+ }
+ if(o.currency==='rewarded'){
+   try{
+     const r=await ads.show('coins',S);
+     S.coins+=r.reward;
+     await persist();
+     renderShop();
+     modal(`<div class="shop-receipt"><small>RECOMPENSA RECIBIDA</small><h2>🎁 +${r.reward.toLocaleString('es')} monedas</h2><p>Se han añadido directamente a tu saldo.</p><div class="shop-balance"><span>Nuevo saldo</span><b>${S.coins.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Aceptar</button></div>`)
+   }catch(e){close();toast(e.message)}
+   return
+ }
+ toast('Esta compra todavía no está disponible.')
+}
 function playPuzzle(id){const p=PUZZLES.find(x=>x.id===id);board=[...p.resources];showView('craft');renderBoard();toast(`Puzle: fabrica ${item(p.target).name} en ${p.limit} fusiones`)}
 function settings(){modal(`<h2>Ajustes</h2><div class="settings"><button id="exportBtn">Exportar partida</button><button id="resetBtn">Reiniciar progreso</button><a href="tools/recipe-editor.html">Editor de recetas</a><p>Sonido y vibración respetan las preferencias del dispositivo. Todo el progreso se guarda localmente.</p><small>CRAFTERRA v${CONFIG.version} · DEVELOPMENT</small></div>`);setTimeout(()=>{$('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(exportSave(S));a.download='crafterra-save.json';a.click()};$('#resetBtn').onclick=async()=>{if(confirm('¿Reiniciar todo el progreso?')){await reset();location.reload()}}})}
 function bind(){document.addEventListener('click',e=>{
@@ -133,5 +223,7 @@ if(expStart){e.preventDefault();e.stopPropagation();startExpedition(expStart.dat
 const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add=e.target.closest('[data-add]')?.dataset.add;if(add){
  if(!canPlaceFromInventory(add)){toast(`No tienes más ${item(add)?.name||'unidades'} disponibles.`);return}
  board.push(add);renderBoard()
-}const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const o=e.target.closest('[data-offer]')?.dataset.offer;if(o)buy(o);const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=()=>{const p=PUZZLES[new Date().getDate()%PUZZLES.length];modal(`<h2>Desafío diario</h2><p>Consigue <b>${item(p.target).name}</b> en un máximo de ${p.limit} fusiones.</p><strong>Recompensa: ${CONFIG.dailyReward} monedas</strong><button class="primary" id="dailyPlay">Comenzar</button>`);setTimeout(()=>$('#dailyPlay').onclick=()=>{close();playPuzzle(p.id)})};$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
+}const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){confirmShopOffer(o);return}
+const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){buy(shopConfirm);return}
+if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=()=>{const p=PUZZLES[new Date().getDate()%PUZZLES.length];modal(`<h2>Desafío diario</h2><p>Consigue <b>${item(p.target).name}</b> en un máximo de ${p.limit} fusiones.</p><strong>Recompensa: ${CONFIG.dailyReward} monedas</strong><button class="primary" id="dailyPlay">Comenzar</button>`);setTimeout(()=>$('#dailyPlay').onclick=()=>{close();playPuzzle(p.id)})};$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
