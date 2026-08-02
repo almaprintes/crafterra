@@ -1,1 +1,57 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editor de recetas · CRAFTERRA</title><style>body{font:15px system-ui;background:#0d1929;color:#eaf4ff;max-width:1100px;margin:auto;padding:24px}a{color:#70e1a1}header{display:flex;justify-content:space-between}section{background:#172a40;padding:18px;border-radius:18px;margin:15px 0}label{display:grid;gap:5px}form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}input,select,button,textarea{font:inherit;padding:10px;border-radius:9px;border:1px solid #456;background:#0d1929;color:white}button{background:#277b5c}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #ffffff18}.bad{color:#ff8b83}.good{color:#70e1a1}@media(max-width:700px){form{grid-template-columns:1fr 1fr}table{font-size:11px}}</style></head><body><header><div><small>HERRAMIENTA OFFLINE</small><h1>Editor de recetas</h1></div><a href="../index.html">← Volver al juego</a></header><section><form id="form"><label>Ingrediente A<select id="a"></select></label><label>Ingrediente B<select id="b"></select></label><label>Resultado<select id="result"></select></label><label>Estación<select id="station"></select></label><label>XP<input id="xp" type="number" min="0" value="20"></label><label>Monedas<input id="reward" type="number" min="0" value="25"></label><label>Rareza<select id="rarity"><option>COMÚN</option><option>INUSUAL</option><option>RARO</option><option>ÉPICO</option><option>LEGENDARIO</option><option>SECRETO</option></select></label><label>Era<input id="era" type="number" min="1" max="7" value="1"></label><button type="submit">Añadir receta local</button><button type="button" id="validate">Validar y balancear</button><button type="button" id="export">Exportar JSON</button><button type="button" id="clear">Descartar cambios</button></form></section><section><h2>Informe</h2><div id="report"></div></section><section><h2>Recetas <span id="count"></span></h2><table><thead><tr><th>ID</th><th>Ingredientes</th><th>Resultado</th><th>Era</th><th>Economía</th></tr></thead><tbody id="rows"></tbody></table></section><script type="module" src="editor.js"></script></body></html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editor de recetas · CRAFTERRA</title><style>body{font:15px system-ui;background:#0d1929;color:#eaf4ff;max-width:1100px;margin:auto;padding:24px}a{color:#70e1a1}header{display:flex;justify-content:space-between}section{background:#172a40;padding:18px;border-radius:18px;margin:15px 0}label{display:grid;gap:5px}form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}input,select,button,textarea{font:inherit;padding:10px;border-radius:9px;border:1px solid #456;background:#0d1929;color:white}button{background:#277b5c}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #ffffff18}.bad{color:#ff8b83}.good{color:#70e1a1}#editorGate{min-height:calc(100vh - 48px);display:grid;place-items:center}
+.gate-card{width:min(390px,100%);box-sizing:border-box;background:#172a40;border:1px solid #ffffff18;border-radius:22px;padding:24px;box-shadow:0 20px 50px #0008;text-align:center}
+.gate-card .lock{font-size:46px}.gate-card h1{margin:8px 0}.gate-card p{color:#aab9c9;font-size:13px;line-height:1.45}
+.gate-card input{width:100%;box-sizing:border-box;text-align:center;font-size:22px;letter-spacing:5px;margin:10px 0}
+.gate-card button{width:100%;font-weight:800}.gate-error{min-height:20px;color:#ff8b83;font-size:12px;margin-top:8px}
+#editorApp[hidden]{display:none!important}
+@media(max-width:700px){form{grid-template-columns:1fr 1fr}table{font-size:11px}}</style></head><body>
+<div id="editorGate">
+  <div class="gate-card">
+    <div class="lock">🔒</div>
+    <small>CRAFTERRA · ÁREA PRIVADA</small>
+    <h1>Editor de recetas</h1>
+    <p>Esta herramienta está reservada al equipo de desarrollo.</p>
+    <form id="gateForm">
+      <input id="gatePassword" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" placeholder="••••••" aria-label="Contraseña">
+      <button type="submit">Entrar</button>
+    </form>
+    <div id="gateError" class="gate-error"></div>
+    <p><a href="../index.html">← Volver al juego</a></p>
+  </div>
+</div>
+<div id="editorApp" hidden><header><div><small>HERRAMIENTA OFFLINE</small><h1>Editor de recetas</h1></div><a href="../index.html">← Volver al juego</a></header><section><form id="form"><label>Ingrediente A<select id="a"></select></label><label>Ingrediente B<select id="b"></select></label><label>Resultado<select id="result"></select></label><label>Estación<select id="station"></select></label><label>XP<input id="xp" type="number" min="0" value="20"></label><label>Monedas<input id="reward" type="number" min="0" value="25"></label><label>Rareza<select id="rarity"><option>COMÚN</option><option>INUSUAL</option><option>RARO</option><option>ÉPICO</option><option>LEGENDARIO</option><option>SECRETO</option></select></label><label>Era<input id="era" type="number" min="1" max="7" value="1"></label><button type="submit">Añadir receta local</button><button type="button" id="validate">Validar y balancear</button><button type="button" id="export">Exportar JSON</button><button type="button" id="clear">Descartar cambios</button></form></section><section><h2>Informe</h2><div id="report"></div></section><section><h2>Recetas <span id="count"></span></h2><table><thead><tr><th>ID</th><th>Ingredientes</th><th>Resultado</th><th>Era</th><th>Economía</th></tr></thead><tbody id="rows"></tbody></table></section></div>
+<script type="module">
+const EXPECTED='d261aa3454b76eb8e8b2fd179bd1239532c00c1478983ac51dd351696e42e14a';
+const gate=document.getElementById('editorGate');
+const app=document.getElementById('editorApp');
+const form=document.getElementById('gateForm');
+const input=document.getElementById('gatePassword');
+const error=document.getElementById('gateError');
+
+async function digest(value){
+  const data=new TextEncoder().encode(value);
+  const hash=await crypto.subtle.digest('SHA-256',data);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function unlock(){
+  gate.hidden=true;
+  app.hidden=false;
+  sessionStorage.setItem('crafterra-editor-unlocked','1');
+  await import('./editor.js?v=0.2.13');
+}
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  error.textContent='';
+  const entered=await digest(input.value);
+  if(entered===EXPECTED){
+    await unlock();
+  }else{
+    input.value='';
+    input.focus();
+    error.textContent='Contraseña incorrecta.';
+  }
+});
+if(sessionStorage.getItem('crafterra-editor-unlocked')==='1')unlock();
+else setTimeout(()=>input.focus(),50);
+</script>
+</body></html>
