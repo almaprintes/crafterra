@@ -1,5 +1,5 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js';import{CONFIG}from'./config.js';import{initDB,save,reset,exportSave}from'./db.js';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js';import{RewardedAdsProvider,StoreProvider}from'./providers.js';
-let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
+let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 const EXPEDITIONS=[
 {id:'quarry',name:'Cantera cercana',icon:'🪨',desc:'Roca expuesta y vetas superficiales. Ideal para empezar.',requires:[],durations:[5,15,30],loot:[['stone',65],['flint',16],['coal',14],['clay',5]]},
@@ -162,8 +162,8 @@ async function runRewardQueue(){
    for(const award of batch.awards){
      const pop=document.createElement('div');
      pop.className=`reward-pop ${award.kind}`;
-     const symbol=award.kind==='collection'?'🏆':award.kind==='mission'?'◇':'★';
-     const title=award.kind==='collection'?'COLECCIÓN COMPLETADA':award.kind==='mission'?'MISIÓN COMPLETADA':'LOGRO CONSEGUIDO';
+     const symbol=award.kind==='collection'?'🏆':award.kind==='mission'?'◇':award.kind==='daily'?'☀️':'★';
+     const title=award.kind==='collection'?'COLECCIÓN COMPLETADA':award.kind==='mission'?'MISIÓN COMPLETADA':award.kind==='daily'?'DESAFÍO DIARIO SUPERADO':'LOGRO CONSEGUIDO';
      pop.innerHTML=`<div class="reward-symbol">${symbol}</div><div class="reward-copy"><small>${title}</small><b>${award.name}</b><span>+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}</span></div>`;
      layer.append(pop);
      requestAnimationFrame(()=>pop.classList.add('show'));
@@ -200,7 +200,7 @@ function renderWorld(){const tiles=$('#worldTiles');tiles.innerHTML=Array.from({
 function stockOf(id){return Math.max(0,Number(S.stock?.[id]||0))}
 function boardQty(id){return board.reduce((n,x)=>n+(x===id?1:0),0)}
 function canPlaceFromInventory(id){return stockOf(id)>boardQty(id)}
-function renderCraft(){const known=ITEMS.filter(i=>S.discovered[i.id]);$('#inventoryGrid').innerHTML=known.map(i=>`<button class="item" data-add="${i.id}">${icon(i)}<small>${i.name}</small>${S.stock[i.id]?`<em class="qty">×${S.stock[i.id]}</em>`:''}</button>`).join('');$('#stationBar').innerHTML=['none',...STATIONS.filter(x=>S.discovered[x])].map((id,i)=>`<button>${i?'⚙ '+item(id).name:'Mesa libre'}</button>`).join('');renderBoard()}
+function renderCraft(){const known=ITEMS.filter(i=>S.discovered[i.id]);$('#inventoryGrid').innerHTML=known.map(i=>`<button class="item" data-add="${i.id}">${icon(i)}<small>${i.name}</small>${S.stock[i.id]?`<em class="qty">×${S.stock[i.id]}</em>`:''}</button>`).join('');$('#stationBar').innerHTML=['none',...STATIONS.filter(x=>S.discovered[x])].map((id,i)=>`<button>${i?'⚙ '+item(id).name:'Mesa libre'}</button>`).join('');renderBoard();renderDailyRun()}
 function renderBoard(){const b=$('#craftBoard');b.querySelectorAll('.piece').forEach(x=>x.remove());board.forEach((id,i)=>{const it=item(id),el=document.createElement('button');el.className='piece';el.dataset.index=i;el.style.cssText=`--x:${18+(i%4)*22}%;--y:${25+Math.floor(i/4)*28}%;`;el.innerHTML=icon(it)+`<small>${it.name}</small>`;el.draggable=true;el.addEventListener('pointerdown',dragStart);b.append(el)})}
 function dragStart(ev){const el=ev.currentTarget,idx=+el.dataset.index;el.setPointerCapture(ev.pointerId);el.classList.add('held');const move=e=>{const r=$('#craftBoard').getBoundingClientRect();el.style.left=`${e.clientX-r.left}px`;el.style.top=`${e.clientY-r.top}px`;el.style.transform='translate(-50%,-50%) scale(1.12)'};const up=async e=>{el.removeEventListener('pointermove',move);el.classList.remove('held');el.style.pointerEvents='none';const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.piece');el.style.pointerEvents='';if(target&&+target.dataset.index!==idx){await doMerge(idx,+target.dataset.index)}else renderBoard()};el.addEventListener('pointermove',move);el.addEventListener('pointerup',up,{once:true})}
 async function doMerge(i,j){
@@ -218,6 +218,8 @@ async function doMerge(i,j){
  S.stock[out.result.id]=stockOf(out.result.id)+1;
  board=board.filter((_,k)=>k!==i&&k!==j);
  board.push(out.result.id);
+
+ if(dailyRun)trackDailyMerge(out.result.id);
 
  // Refresh the whole crafting view immediately:
  // consumed materials disappear/decrease and the new item appears at once.
@@ -431,6 +433,83 @@ async function buy(t){
  }
  toast('Esta compra todavía no está disponible.')
 }
+
+function todayKey(){return new Date().toLocaleDateString('sv-SE')}
+function dailyPuzzle(){
+ const key=todayKey();
+ let hash=0;for(const ch of key)hash=(hash*31+ch.charCodeAt(0))>>>0;
+ const candidates=PUZZLES.filter(p=>S.discovered[p.target]||RECIPES.some(r=>r.result===p.target));
+ return (candidates.length?candidates:PUZZLES)[hash%(candidates.length?candidates.length:PUZZLES.length)]
+}
+function dailyDoneToday(){return S.daily?.date===todayKey()}
+function renderDailyRun(){
+ let box=$('#dailyRunBar');
+ if(!box){
+   box=document.createElement('div');
+   box.id='dailyRunBar';
+   box.className='daily-run';
+   const craft=$('#view-craft .panel-title');
+   craft?.insertAdjacentElement('afterend',box)
+ }
+ if(!dailyRun){box.hidden=true;return}
+ box.hidden=false;
+ const p=PUZZLES.find(x=>x.id===dailyRun.puzzleId);
+ const left=Math.max(0,dailyRun.limit-dailyRun.merges);
+ box.innerHTML=`<div><small>DESAFÍO DIARIO ACTIVO</small><b>Fabrica ${item(p.target).name}</b><span>${dailyRun.merges}/${dailyRun.limit} fusiones · ${left} restantes</span></div><strong>+${CONFIG.dailyReward} ◆</strong><button id="cancelDailyRun" aria-label="Cancelar desafío">×</button>`;
+ $('#cancelDailyRun').onclick=()=>{dailyRun=null;renderDailyRun();toast('Desafío diario cancelado')}
+}
+function openDailyChallenge(){
+ const p=dailyPuzzle();
+ if(dailyDoneToday()){
+   modal(`<div class="daily-result success"><small>DESAFÍO DIARIO</small><h2>✓ Completado hoy</h2><p>Ya has cobrado la recompensa de hoy.</p><strong>Vuelve mañana para un nuevo desafío.</strong><button class="primary" data-shop-close>Aceptar</button></div>`);
+   return
+ }
+ modal(`<div class="daily-result"><small>DESAFÍO DIARIO</small><h2>${item(p.target).name}</h2><p>Fabrica <b>${item(p.target).name}</b> usando tu propio inventario en un máximo de <b>${p.limit} fusiones</b>.</p><div class="daily-rules"><span>✓ La mesa comienza vacía</span><span>✓ Tú eliges los materiales</span><span>✓ Los materiales consumidos son reales</span></div><div class="shop-balance"><span>Recompensa</span><b>${CONFIG.dailyReward.toLocaleString('es')} ◆</b></div><button class="primary" id="dailyPlay">Comenzar desafío</button></div>`);
+ setTimeout(()=>{const b=$('#dailyPlay');if(b)b.onclick=()=>startDailyChallenge(p.id)},0)
+}
+function startDailyChallenge(id){
+ const p=PUZZLES.find(x=>x.id===id);if(!p)return;
+ close();
+ board=[];
+ dailyRun={puzzleId:p.id,target:p.target,limit:p.limit,merges:0,startedAt:Date.now()};
+ showView('craft');
+ renderCraft();
+ renderDailyRun();
+ toast(`Desafío diario: fabrica ${item(p.target).name}`)
+}
+function failDailyChallenge(){
+ const p=PUZZLES.find(x=>x.id===dailyRun?.puzzleId);
+ dailyRun=null;renderDailyRun();
+ modal(`<div class="daily-result fail"><small>DESAFÍO DIARIO</small><h2>Límite alcanzado</h2><p>No has conseguido ${p?item(p.target).name:'el objetivo'} dentro del límite de fusiones.</p><strong>No has perdido monedas. Puedes intentarlo de nuevo.</strong><button class="primary" data-daily-retry>Reintentar</button></div>`);
+ setTimeout(()=>{const b=$('[data-daily-retry]');if(b)b.onclick=()=>{close();openDailyChallenge()}},0)
+}
+async function completeDailyChallenge(){
+ if(!dailyRun||dailyDoneToday())return false;
+ const p=PUZZLES.find(x=>x.id===dailyRun.puzzleId);
+ const before=S.coins;
+ S.coins+=CONFIG.dailyReward;
+ S.daily.date=todayKey();
+ S.daily.completed=(S.daily.completed||0)+1;
+ S.daily.best=S.daily.best==null?dailyRun.merges:Math.min(S.daily.best,dailyRun.merges);
+ S.daily.streak=(S.daily.streak||0)+1;
+ const used=dailyRun.merges;
+ dailyRun=null;
+ renderDailyRun();
+ await save(S);
+ renderHeader(before);
+ queueRewards([{kind:'daily',name:`Desafío: ${item(p.target).name}`,coins:CONFIG.dailyReward,xp:0}],S.coins);
+ modal(`<div class="daily-result success"><small>DESAFÍO SUPERADO</small><h2>✓ ${item(p.target).name}</h2><p>Lo has conseguido en <b>${used} fusiones</b>.</p><div class="shop-balance"><span>Recompensa</span><b>+${CONFIG.dailyReward.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Recoger</button></div>`);
+ return true
+}
+function trackDailyMerge(resultId){
+ if(!dailyRun)return;
+ dailyRun.merges++;
+ const won=resultId===dailyRun.target;
+ renderDailyRun();
+ if(won){completeDailyChallenge();return}
+ if(dailyRun.merges>=dailyRun.limit)failDailyChallenge()
+}
+
 function playPuzzle(id){const p=PUZZLES.find(x=>x.id===id);board=[...p.resources];showView('craft');renderBoard();toast(`Puzle: fabrica ${item(p.target).name} en ${p.limit} fusiones`)}
 function settings(){modal(`<h2>Ajustes</h2><div class="settings"><button id="exportBtn">Exportar partida</button><button id="resetBtn">Reiniciar progreso</button><a href="tools/recipe-editor.html">Editor de recetas</a><p>Sonido y vibración respetan las preferencias del dispositivo. Todo el progreso se guarda localmente.</p><small>CRAFTERRA v${CONFIG.version} · DEVELOPMENT</small></div>`);setTimeout(()=>{$('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(exportSave(S));a.download='crafterra-save.json';a.click()};$('#resetBtn').onclick=async()=>{if(confirm('¿Reiniciar todo el progreso?')){await reset();location.reload()}}})}
 function bind(){document.addEventListener('click',e=>{
@@ -442,5 +521,5 @@ const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add
 }const bm=e.target.closest('[data-book-mode]')?.dataset.bookMode;if(bm){bookMode=bm;renderBook();return}
 const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm);return}
 const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o);return}
-if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=()=>{const p=PUZZLES[new Date().getDate()%PUZZLES.length];modal(`<h2>Desafío diario</h2><p>Consigue <b>${item(p.target).name}</b> en un máximo de ${p.limit} fusiones.</p><strong>Recompensa: ${CONFIG.dailyReward} monedas</strong><button class="primary" id="dailyPlay">Comenzar</button>`);setTimeout(()=>$('#dailyPlay').onclick=()=>{close();playPuzzle(p.id)})};$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
+if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
