@@ -8,3 +8,21 @@
 .splash-brand{display:grid;justify-items:center;gap:8px}.splash-brand img{width:min(46vw,220px)!important;border-radius:34px;box-shadow:0 24px 70px #0009,0 0 55px #18d9ff35}.splash-brand strong{font-size:clamp(28px,8vw,52px);letter-spacing:5px}.splash-brand small{color:#8feeff;letter-spacing:2px;font-weight:800;font-size:10px}.brand img{width:46px;height:46px;object-fit:cover;border-radius:12px;box-shadow:0 5px 14px #0007,0 0 12px #14d9ff33}.brand span{line-height:1.05}
 
 .offer.disabled{opacity:.52}.offer.disabled button{cursor:not-allowed}.shop-confirm>small,.shop-receipt>small{color:var(--green);font-weight:900;letter-spacing:1.2px}.shop-confirm h2,.shop-receipt h2{margin:6px 0 8px}.shop-confirm>p,.shop-receipt>p{color:var(--muted);font-size:13px}.shop-contents{display:grid;gap:7px;margin:14px 0}.shop-line{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:8px;background:#10283b;border:1px solid #ffffff10;border-radius:13px;padding:7px 10px}.shop-line .item-art,.shop-line .item-glyph{width:42px;height:42px}.shop-line small{display:block;color:var(--muted);margin-top:2px}.shop-line strong{font-size:17px;color:var(--gold)}.shop-balance{display:flex;justify-content:space-between;align-items:center;background:#0b1c2b;border-radius:12px;padding:10px 12px;margin:8px 0}.shop-balance.after{border:1px solid #ffffff12}.shop-balance span{color:var(--muted);font-size:12px}.shop-balance b{color:#fff}.shop-confirm .primary,.shop-receipt .primary{width:100%;margin-top:12px}.shop-cancel{width:100%;margin-top:7px;background:transparent;border:1px solid #ffffff18;color:var(--muted);border-radius:12px;padding:11px;font-weight:800}
+
+.beta-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-left:8px;
+  padding:3px 7px;
+  border:1px solid rgba(255,255,255,.78);
+  border-radius:7px;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:1.35px;
+  line-height:1;
+  text-transform:uppercase;
+  flex:0 0 auto;
+}
