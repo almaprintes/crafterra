@@ -346,3 +346,5 @@
   from{transform:translateX(-45%)}
   to{transform:translateX(45%)}
 }
+
+.shop-batch{margin:13px 0;padding:12px;border-radius:15px;background:#0d2234;border:1px solid #ffffff14}.shop-batch>small{display:block;margin-bottom:8px;color:#8ea7ba;font-size:8px;font-weight:950;letter-spacing:1.1px}.shop-stepper{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}.shop-stepper button{height:42px;border:1px solid #ffffff18;border-radius:12px;background:#17344a;color:#fff;font-size:22px;font-weight:900}.shop-stepper button:disabled{opacity:.3}.shop-stepper strong{text-align:center;font-size:24px;color:#fff}.shop-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.shop-quick button{padding:7px 4px;border-radius:9px;border:1px solid #ffffff16;background:#10283b;color:#afc2d1;font-size:10px;font-weight:900}.shop-quick button.selected{background:#245c51;border-color:#78dfaf70;color:#fff}.shop-balance.insufficient b{color:#ff8d8d}.offer button{white-space:nowrap}
