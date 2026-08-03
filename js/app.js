@@ -1,4 +1,5 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.2.26-almaprintad';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.2.26-almaprintad';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.2.26-almaprintad';
+import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 const EXPEDITIONS=[
@@ -712,20 +713,26 @@ function confirmShopOffer(id,qty=1){
  </div>`)
 }
 
+let almaPrintPromoURL=null;
+function almaPrintPromoBlobURL(){
+ if(almaPrintPromoURL)return almaPrintPromoURL;
+ const raw=atob(ALMAPRINT_PROMO_BASE64);
+ const bytes=new Uint8Array(raw.length);
+ for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+ almaPrintPromoURL=URL.createObjectURL(new Blob([bytes],{type:'video/mp4'}));
+ return almaPrintPromoURL
+}
 function playAlmaPrintRewarded(){
  return new Promise(resolve=>{
   const overlay=document.createElement('div');
   overlay.className='rewarded-video-overlay';
   overlay.innerHTML=`<div class="rewarded-video-shell">
-   <div class="rewarded-video-top"><div><small>CONTENIDO PATROCINADO</small><b>AlmaPrint</b></div><span class="rewarded-video-status">Cargando…</span></div>
-   <div class="rewarded-video-stage">
-    <video class="rewarded-video" playsinline webkit-playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture src="./assets/video/promo-almaprint.mp4?v=029"></video>
-   </div>
+   <div class="rewarded-video-top"><div><small>CONTENIDO PATROCINADO</small><b>AlmaPrint</b></div><span class="rewarded-video-status">Iniciando…</span></div>
+   <div class="rewarded-video-stage"><video class="rewarded-video" playsinline webkit-playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture></video></div>
    <div class="rewarded-video-progress"><i></i></div>
    <button class="rewarded-video-close" type="button">Cancelar</button>
   </div>`;
   document.body.append(overlay);
-
   const video=overlay.querySelector('.rewarded-video');
   const bar=overlay.querySelector('.rewarded-video-progress i');
   const status=overlay.querySelector('.rewarded-video-status');
@@ -733,46 +740,47 @@ function playAlmaPrintRewarded(){
   let done=false;
 
   const finish=ok=>{
-   if(done)return;
-   done=true;
+   if(done)return;done=true;
    try{video.pause()}catch(_){}
    overlay.classList.add('closing');
    setTimeout(()=>{overlay.remove();resolve(ok)},220)
   };
 
   closeBtn.addEventListener('click',()=>finish(false));
+  video.addEventListener('loadedmetadata',()=>{status.textContent='Reproduciendo…'});
+  video.addEventListener('playing',()=>{status.textContent='Reproduciendo…'});
+  video.addEventListener('waiting',()=>{status.textContent='Cargando…'});
   video.addEventListener('timeupdate',()=>{
    if(video.duration&&isFinite(video.duration)){
     bar.style.width=Math.min(100,video.currentTime/video.duration*100)+'%';
     const left=Math.max(0,Math.ceil(video.duration-video.currentTime));
-    status.textContent=left?`Recompensa en ${left} s`:'Completado';
+    status.textContent=left?`Recompensa en ${left} s`:'Completado'
    }
   });
-  video.addEventListener('playing',()=>{status.textContent='Reproduciendo…'});
-  video.addEventListener('waiting',()=>{status.textContent='Cargando…'});
   video.addEventListener('ended',()=>{
-   bar.style.width='100%';
-   status.textContent='✓ Vídeo completado';
+   bar.style.width='100%';status.textContent='✓ Vídeo completado';
    setTimeout(()=>finish(true),300)
   });
   video.addEventListener('error',()=>{
-   status.textContent='No se pudo cargar el vídeo';
-   setTimeout(()=>finish(false),1000)
+   const code=video.error?.code||'?';
+   console.error('[CRAFTERRA] Video error',code,video.error);
+   status.textContent=`Error de reproducción (${code})`;
+   setTimeout(()=>finish(false),1400)
   });
 
   requestAnimationFrame(()=>overlay.classList.add('show'));
 
-  // IMPORTANT FOR iOS:
-  // Invoke play immediately, without an intervening await/setTimeout.
+  // No network request at all: the MP4 is a local Blob made from embedded bytes.
+  video.src=almaPrintPromoBlobURL();
+  video.load();
   video.muted=false;
   const p=video.play();
   if(p&&typeof p.catch==='function'){
-   p.catch(()=>{
-    // Rare iOS/WebKit fallback: don't leave a black frozen screen.
-    // Expose native controls so the user can recover, but normal flow is one tap.
+   p.catch(err=>{
+    console.error('[CRAFTERRA] play() rejected',err);
     video.controls=true;
-    status.textContent='Toca el vídeo para continuar';
-   });
+    status.textContent='Toca el vídeo para continuar'
+   })
   }
  })
 }
