@@ -1,4 +1,4 @@
-import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.24-compactrewards';import{CONFIG}from'./config.js?v=0.2.24-compactrewards';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.24-compactrewards';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.2.24-compactrewards';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.2.24-compactrewards';
+import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.25-shopbatch';import{CONFIG}from'./config.js?v=0.2.25-shopbatch';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.25-shopbatch';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.2.25-shopbatch';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.2.25-shopbatch';
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 const EXPEDITIONS=[
@@ -637,17 +637,19 @@ const SHOP_OFFERS={
    desc:'Personalización futura. Todavía no disponible.'
  }
 };
-function shopContentsHTML(contents,showTotals=false){
+function shopContentsHTML(contents,showTotals=false,mult=1){
+ mult=Math.max(1,Math.min(99,Number(mult)||1));
  return Object.entries(contents).map(([id,q])=>{
-   const it=item(id),total=stockOf(id)+(showTotals?q:0);
-   return `<div class="shop-line">${icon(it)}<div><b>${it.name}</b>${showTotals?`<small>Ahora tienes ${total}</small>`:''}</div><strong>×${q}</strong></div>`
+   const amount=q*mult;
+   const it=item(id),total=stockOf(id)+(showTotals?amount:0);
+   return `<div class="shop-line">${icon(it)}<div><b>${it.name}</b>${showTotals?`<small>Ahora tienes ${total}</small>`:''}</div><strong>×${amount}</strong></div>`
  }).join('')
 }
 function renderShop(){
  const offers=Object.values(SHOP_OFFERS);
  $('#shopList').innerHTML=offers.map(o=>{
    const disabled=o.currency==='store';
-   const action=o.currency==='coins'?`${o.price} ◆`:o.currency==='rewarded'?'VER ANUNCIO':'PRÓXIMAMENTE';
+   const action=o.currency==='coins'?`${o.price} ◆${o.contents?' / lote':''}`:o.currency==='rewarded'?'VER ANUNCIO':'PRÓXIMAMENTE';
    const detail=o.contents?Object.entries(o.contents).map(([id,q])=>`${item(id).name} ×${q}`).join(' · '):o.desc;
    return `<article class="offer ${disabled?'disabled':''}">
      <span class="shopicon">${o.icon}</span>
@@ -656,10 +658,12 @@ function renderShop(){
    </article>`
  }).join('')
 }
-function confirmShopOffer(id){
+function confirmShopOffer(id,qty=1){
  const o=SHOP_OFFERS[id];if(!o)return;
+ qty=Math.max(1,Math.min(99,Number(qty)||1));
  if(o.currency==='store'){toast('Esta compra todavía no está disponible.');return}
  if(id==='hint'){
+   qty=1;
    try{
      pendingHint=pickHintRecipe();
      if(!pendingHint){
@@ -677,13 +681,42 @@ function confirmShopOffer(id){
    modal(`<div class="shop-confirm"><small>RECOMPENSA OPCIONAL</small><h2>${o.icon} ${o.name}</h2><p>${o.desc}</p><div class="shop-balance"><span>Coste</span><b>1 anuncio</b></div><button class="primary" data-shop-confirm="${o.id}">Ver anuncio y recibir monedas</button></div>`);
    return
  }
- const after=S.coins-o.price;
- modal(`<div class="shop-confirm"><small>CONFIRMAR COMPRA</small><h2>${o.icon} ${o.name}</h2><p>${o.desc}</p>${o.contents?`<div class="shop-contents">${shopContentsHTML(o.contents)}</div>`:''}<div class="shop-balance"><span>Tu saldo</span><b>${S.coins.toLocaleString('es')} ◆</b></div><div class="shop-balance after"><span>Después de comprar</span><b>${Math.max(0,after).toLocaleString('es')} ◆</b></div><button class="primary" data-shop-confirm="${o.id}">Comprar por ${o.price} ◆</button><button class="shop-cancel" data-shop-cancel>Cancelar</button></div>`)
+
+ const canBatch=!!o.contents;
+ const totalPrice=o.price*qty;
+ const after=S.coins-totalPrice;
+ const affordable=S.coins>=totalPrice;
+
+ const batchPicker=canBatch?`
+   <div class="shop-batch">
+     <small>CUÁNTOS LOTES QUIERES</small>
+     <div class="shop-stepper">
+       <button data-shop-qty="${o.id}" data-shop-qty-value="${qty-1}" ${qty<=1?'disabled':''}>−</button>
+       <strong>×${qty}</strong>
+       <button data-shop-qty="${o.id}" data-shop-qty-value="${qty+1}" ${qty>=99?'disabled':''}>+</button>
+     </div>
+     <div class="shop-quick">${[1,2,5,10].map(n=>`<button class="${n===qty?'selected':''}" data-shop-qty="${o.id}" data-shop-qty-value="${n}">×${n}</button>`).join('')}</div>
+   </div>`:'';
+
+ modal(`<div class="shop-confirm">
+   <small>CONFIRMAR COMPRA</small>
+   <h2>${o.icon} ${o.name}${canBatch&&qty>1?` ×${qty}`:''}</h2>
+   <p>${o.desc}</p>
+   ${batchPicker}
+   ${o.contents?`<div class="shop-contents">${shopContentsHTML(o.contents,false,qty)}</div>`:''}
+   <div class="shop-balance"><span>Coste total</span><b>${totalPrice.toLocaleString('es')} ◆</b></div>
+   <div class="shop-balance"><span>Tu saldo</span><b>${S.coins.toLocaleString('es')} ◆</b></div>
+   <div class="shop-balance after ${affordable?'':'insufficient'}"><span>Después de comprar</span><b>${Math.max(0,after).toLocaleString('es')} ◆</b></div>
+   <button class="primary" data-shop-confirm="${o.id}" data-shop-buy-qty="${qty}" ${affordable?'':'disabled'}>${affordable?`Comprar ${qty>1?`${qty} lotes`:'1 lote'} por ${totalPrice.toLocaleString('es')} ◆`:'Saldo insuficiente'}</button>
+   <button class="shop-cancel" data-shop-cancel>Cancelar</button>
+ </div>`)
 }
-async function buy(t){
+async function buy(t,qty=1){
  const o=SHOP_OFFERS[t];if(!o)return;
+ qty=o.contents?Math.max(1,Math.min(99,Number(qty)||1)):1;
  if(o.currency==='coins'){
-   if(S.coins<o.price){close();toast('No tienes monedas suficientes.');return}
+   const totalPrice=o.price*qty;
+   if(S.coins<totalPrice){close();toast('No tienes monedas suficientes.');return}
    let hintRecipe=null;
    if(t==='hint'){
      try{
@@ -706,10 +739,10 @@ async function buy(t){
        return
      }
    }
-   S.coins-=o.price;
+   S.coins-=totalPrice;
    if(o.contents){
      for(const [id,q] of Object.entries(o.contents)){
-       S.stock[id]=stockOf(id)+q;
+       S.stock[id]=stockOf(id)+(q*qty);
        if(!S.discovered[id])S.discovered[id]=Date.now()
      }
    }else if(t==='hint'){
@@ -728,7 +761,7 @@ async function buy(t){
    await persist();
    renderShop();
    if(o.contents){
-     modal(`<div class="shop-receipt"><small>COMPRA REALIZADA</small><h2>✓ ${o.name}</h2><p>Los materiales ya están en tu inventario.</p><div class="shop-contents">${shopContentsHTML(o.contents,true)}</div><div class="shop-balance"><span>Saldo restante</span><b>${S.coins.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Aceptar</button></div>`)
+     modal(`<div class="shop-receipt"><small>COMPRA REALIZADA</small><h2>✓ ${o.name}${qty>1?` ×${qty}`:''}</h2><p>${qty>1?`Has comprado ${qty} lotes de una vez.`:'Los materiales ya están en tu inventario.'}</p><div class="shop-contents">${shopContentsHTML(o.contents,true,qty)}</div><div class="shop-balance"><span>Gastado</span><b>${totalPrice.toLocaleString('es')} ◆</b></div><div class="shop-balance"><span>Saldo restante</span><b>${S.coins.toLocaleString('es')} ◆</b></div><button class="primary" data-shop-close>Aceptar</button></div>`)
    }else{
      close();
      const r=hintRecipe;
@@ -834,8 +867,8 @@ const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add
  if(!canPlaceFromInventory(add)){toast(`No tienes más ${item(add)?.name||'unidades'} disponibles.`);return}
  board.push(add);renderBoard()
 }const bm=e.target.closest('[data-book-mode]')?.dataset.bookMode;if(bm){bookMode=bm;renderBook();return}
-const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm);return}
-const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o);return}
+const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopQty=e.target.closest('[data-shop-qty]');if(shopQty){e.preventDefault();e.stopPropagation();confirmShopOffer(shopQty.dataset.shopQty,+shopQty.dataset.shopQtyValue);return}const shopBtn=e.target.closest('[data-shop-confirm]');const shopConfirm=shopBtn?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm,+shopBtn.dataset.shopBuyQty||1);return}
+const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o,1);return}
 if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const dc=e.target.closest('[data-direct-craft]')?.dataset.directCraft;if(dc){showDirectCraft(dc);return}
 const dq=e.target.closest('[data-direct-qty]');if(dq){showDirectCraft(dq.dataset.directQty,+dq.dataset.directQtyValue);return}
 const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.dataset.directRoute,+dr.dataset.directRouteIndex,+dr.dataset.directRouteQty);return}
