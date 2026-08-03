@@ -1,4 +1,4 @@
-import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.21-fire';import{CONFIG}from'./config.js?v=0.2.21-fire';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.21-fire';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.2.21-fire';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.2.21-fire';
+import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.22-mastery';import{CONFIG}from'./config.js?v=0.2.22-mastery';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.22-mastery';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.2.22-mastery';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.2.22-mastery';
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 const EXPEDITIONS=[
@@ -162,9 +162,10 @@ async function runRewardQueue(){
    for(const award of batch.awards){
      const pop=document.createElement('div');
      pop.className=`reward-pop ${award.kind}`;
-     const symbol=award.kind==='collection'?'🏆':award.kind==='mission'?'◇':award.kind==='daily'?'☀️':'★';
-     const title=award.kind==='collection'?'COLECCIÓN COMPLETADA':award.kind==='mission'?'MISIÓN COMPLETADA':award.kind==='daily'?'DESAFÍO DIARIO SUPERADO':'LOGRO CONSEGUIDO';
-     pop.innerHTML=`<div class="reward-symbol">${symbol}</div><div class="reward-copy"><small>${title}</small><b>${award.name}</b><span>+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}</span></div>`;
+     const symbol=award.kind==='collection'?'🏆':award.kind==='mission'?'◇':award.kind==='daily'?'☀️':award.kind==='mastery'?'⭐':'★';
+     const title=award.kind==='collection'?'COLECCIÓN COMPLETADA':award.kind==='mission'?'MISIÓN COMPLETADA':award.kind==='daily'?'DESAFÍO DIARIO SUPERADO':award.kind==='mastery'?'MAESTRÍA ALCANZADA':'LOGRO CONSEGUIDO';
+     const detail=award.kind==='mastery'?`${award.unlock}`:`+${award.coins.toLocaleString('es')} ◆${award.xp?` · +${award.xp} XP`:''}`;
+     pop.innerHTML=`<div class="reward-symbol">${symbol}</div><div class="reward-copy"><small>${title}</small><b>${award.name}${award.kind==='mastery'?` · Nivel ${award.level===4?'MÁX':award.level}`:''}</b><span>${detail}</span></div>`;
      layer.append(pop);
      requestAnimationFrame(()=>pop.classList.add('show'));
      await new Promise(r=>setTimeout(r,1800));
@@ -210,6 +211,7 @@ async function doMerge(i,j){
    if(stockOf(id)<q){toast(`No tienes suficiente ${item(id)?.name||'material'}.`);renderCraft();return}
  }
  const out=merge(S,a,b);
+ const masteryAwards=out.ok?recordMastery(out.recipe?.id,1,'manual'):[];
  if(!out.ok){
    toast(['Eso no parece funcionar.','Interesante… pero no.','Quizá necesites otra herramienta.'][S.stats.failed%3]);
    renderBoard();persist();return
@@ -229,7 +231,8 @@ async function doMerge(i,j){
    modal(`<div class="discovery">${icon(out.result)}<small>NUEVO DESCUBRIMIENTO</small><h2>${out.result.name}</h2><b>${out.result.rarity} · ERA ${out.result.era}</b><p>${out.result.description}</p><strong>+${CONFIG.rewards[out.result.rarity]} monedas</strong></div>`);
    renderWorld()
  }
- await persist()
+ await persist();
+ if(masteryAwards.length)queueRewards(masteryAwards,S.coins)
 }
 function renderBook(){
  const hintEntries=Object.values(S.hintLibrary||{}).sort((x,y)=>(y.purchasedAt||0)-(x.purchasedAt||0));
@@ -266,6 +269,78 @@ function renderBook(){
  grid.innerHTML=list.map(i=>`<button class="card ${S.discovered[i.id]?'':'locked'}" data-detail="${i.id}">${S.discovered[i.id]?icon(i):'<span class="unknown">?</span>'}<b>${S.discovered[i.id]?i.name:'Desconocido'}</b><small>${S.discovered[i.id]?i.rarity:'???'}</small></button>`).join('')
 }
 
+
+
+const MASTERY_LEVELS=[
+ {level:0,min:0,next:5,batch:1,label:'Aprendida'},
+ {level:1,min:5,next:15,batch:2,label:'Maestría I'},
+ {level:2,min:15,next:40,batch:5,label:'Maestría II'},
+ {level:3,min:40,next:100,batch:10,label:'Maestría III'},
+ {level:4,min:100,next:null,batch:10,label:'Maestría Máxima'}
+];
+function masteryState(rid){
+ const v=S.mastery?.[rid]||{};
+ return{uses:Math.max(0,Number(v.uses)||0),manual:Math.max(0,Number(v.manual)||0),auto:Math.max(0,Number(v.auto)||0)}
+}
+function masteryInfo(rid){
+ const m=masteryState(rid),uses=m.uses;
+ let tier=MASTERY_LEVELS[0];
+ for(const x of MASTERY_LEVELS)if(uses>=x.min)tier=x;
+ return{...m,...tier}
+}
+function masteryRecipeForResult(id){
+ const rs=learnedRecipesFor(id);
+ if(!rs.length)return null;
+ return [...rs].sort((x,y)=>masteryState(y.id).uses-masteryState(x.id).uses)[0]
+}
+function masteryUnlock(level){
+ return level===1?'Fabricar ×2':level===2?'Fabricar ×5':level===3?'Fabricar ×10':level===4?'Insignia de Maestría Máxima':''
+}
+function recordMastery(recipeId,count=1,mode='auto'){
+ if(!recipeId||count<=0)return[];
+ S.mastery=S.mastery||{};
+ const before=masteryInfo(recipeId);
+ const v=S.mastery[recipeId]||{uses:0,manual:0,auto:0};
+ v.uses=(Number(v.uses)||0)+count;
+ if(mode==='manual')v.manual=(Number(v.manual)||0)+count;
+ else v.auto=(Number(v.auto)||0)+count;
+ S.mastery[recipeId]=v;
+ const after=masteryInfo(recipeId),awards=[];
+ if(after.level>before.level){
+   const r=RECIPES.find(x=>x.id===recipeId);
+   for(let lvl=before.level+1;lvl<=after.level;lvl++){
+     awards.push({kind:'mastery',name:item(r?.result)?.name||'Receta',coins:0,xp:0,level:lvl,unlock:masteryUnlock(lvl)})
+   }
+ }
+ return awards
+}
+function recordPlanMastery(plan,qty=1){
+ const counts={};
+ for(const rid of plan.steps||[])counts[rid]=(counts[rid]||0)+qty;
+ let awards=[];
+ for(const [rid,n] of Object.entries(counts))awards.push(...recordMastery(rid,n,'auto'));
+ return awards
+}
+function masteryCardHTML(id){
+ const r=masteryRecipeForResult(id);if(!r)return'';
+ const m=masteryInfo(r.id);
+ const max=m.level===4;
+ const start=m.min,end=m.next;
+ const pct=max?100:Math.max(0,Math.min(100,((m.uses-start)/(end-start))*100));
+ const progress=max?'Maestría completada':`${m.uses} / ${end} fabricaciones`;
+ const next=max?'Todas las ventajas desbloqueadas':`Siguiente: ${masteryUnlock(m.level+1)}`;
+ return `<section class="mastery-card ${max?'max':''}">
+   <div class="mastery-head"><div><small>⭐ MAESTRÍA DE RECETA</small><b>${m.label}</b></div><strong>${max?'✦':m.level}</strong></div>
+   <div class="mastery-bar"><i style="width:${pct}%"></i></div>
+   <div class="mastery-meta"><span>${progress}</span><b>${next}</b></div>
+   <div class="mastery-stats"><span>Manual ${m.manual}</span><span>Automática ${m.auto}</span></div>
+ </section>`
+}
+function masteryBatchChoices(id){
+ const r=masteryRecipeForResult(id);if(!r)return[1];
+ const level=masteryInfo(r.id).level;
+ return [1,...(level>=1?[2]:[]),...(level>=2?[5]:[]),...(level>=3?[10]:[])]
+}
 
 function learnedRecipesFor(result){
  return RECIPES.filter(r=>r.result===result&&S.knownRecipes?.[r.id])
@@ -354,6 +429,17 @@ function directPlans(target){
    })
    .slice(0,10)
 }
+
+function scaledPlan(plan,qty=1){
+ const scale=obj=>Object.fromEntries(Object.entries(obj||{}).map(([id,q])=>[id,q*qty]));
+ const cost=scale(plan.cost),make=scale(plan.make),missing={};
+ for(const [id,q] of Object.entries(cost)){
+   const lack=Math.max(0,q-stockOf(id));
+   if(lack)missing[id]=lack
+ }
+ return{...plan,cost,make,missing,ok:Object.keys(missing).length===0,qty}
+}
+
 function routeName(plan){
  const made=Object.values(plan.make||{}).reduce((n,q)=>n+q,0);
  if(!made)return'Usar componentes preparados';
@@ -386,49 +472,61 @@ function recipeChainHTML(id,depth=0,seen=new Set()){
  const line=`<div class="chain-line" style="--depth:${depth}"><span>${item(r.a).name} + ${item(r.b).name}</span><b>→ ${item(id).name}</b></div>`;
  return recipeChainHTML(r.a,depth+1,new Set(seen))+recipeChainHTML(r.b,depth+1,new Set(seen))+line
 }
-function showDirectCraft(id){
- const it=item(id),plans=directPlans(id);
+function showDirectCraft(id,qty=1){
+ const it=item(id),basePlans=directPlans(id);
  if(!learnedRecipesFor(id).length){toast('Todavía no has aprendido cómo fabricar este objeto.');return}
+ const choices=masteryBatchChoices(id);
+ if(!choices.includes(qty))qty=1;
+ const plans=basePlans.map(p=>scaledPlan(p,qty));
+ const r=masteryRecipeForResult(id),mi=r?masteryInfo(r.id):null;
 
  const cards=plans.map((p,i)=>`<article class="direct-route ${p.ok?'available':'blocked'}">
    <div class="route-head"><div><small>OPCIÓN ${i+1}</small><b>${routeName(p)}</b></div><strong>${p.ok?'✓':'!'}</strong></div>
    ${routeMaterialsHTML(p)}
    ${autoStepsHTML(p)}
    ${missingRowsHTML(p,id)}
-   <button class="primary" data-direct-route="${id}" data-direct-route-index="${i}" ${p.ok?'':'disabled'}>${p.ok?'FABRICAR CON ESTA OPCIÓN':'NO DISPONIBLE'}</button>
+   <button class="primary" data-direct-route="${id}" data-direct-route-index="${i}" data-direct-route-qty="${qty}" ${p.ok?'':'disabled'}>${p.ok?`FABRICAR ×${qty} CON ESTA OPCIÓN`:'NO DISPONIBLE'}</button>
  </article>`).join('');
 
- modal(`<div class="direct-modal"><small>FABRICACIÓN DIRECTA</small><div class="direct-title">${icon(it)}<div><h2>${it.name}</h2><span>Posees ×${stockOf(id)}</span></div></div><p>Elige la ruta que prefieras. CRAFTERRA puede utilizar componentes ya fabricados o construir automáticamente los intermedios cuyas recetas ya conoces.</p><div class="direct-routes">${cards||'<p>No hay rutas aprendidas.</p>'}</div><button class="direct-chain-btn" data-direct-chain="${id}">Ver cadena aprendida</button></div>`)
+ modal(`<div class="direct-modal"><small>FABRICACIÓN DIRECTA</small><div class="direct-title">${icon(it)}<div><h2>${it.name}</h2><span>Posees ×${stockOf(id)}</span></div></div>
+ ${mi?`<div class="mastery-mini"><span>⭐ ${mi.label}</span><b>${mi.uses} usos</b></div>`:''}
+ <div class="batch-picker"><small>CANTIDAD</small><div>${choices.map(n=>`<button class="${n===qty?'selected':''}" data-direct-qty="${id}" data-direct-qty-value="${n}">×${n}</button>`).join('')}</div></div>
+ <p>Elige la ruta que prefieras. Los lotes se desbloquean dominando la receta.</p><div class="direct-routes">${cards||'<p>No hay rutas aprendidas.</p>'}</div><button class="direct-chain-btn" data-direct-chain="${id}">Ver cadena aprendida</button></div>`)
 }
 function showDirectChain(id){
  const html=recipeChainHTML(id);
  modal(`<div class="direct-modal"><small>CADENA APRENDIDA</small><h2>${item(id).name}</h2><p>Estos pasos pueden ejecutarse automáticamente durante la Fabricación directa.</p><div class="recipe-chain">${html||'<p>No hay pasos intermedios.</p>'}</div><button class="primary" data-direct-back="${id}">Volver</button></div>`)
 }
-function applyDirectPlan(id,plan){
- for(const [mat,q] of Object.entries(plan.cost||{}))S.stock[mat]=Math.max(0,stockOf(mat)-q);
- for(const [mid,q] of Object.entries(plan.make||{}))S.crafted[mid]=(S.crafted[mid]||0)+q;
- S.stock[id]=stockOf(id)+1;
- S.crafted[id]=(S.crafted[id]||0)+1
+function applyDirectPlan(id,plan,qty=1){
+ for(const [mat,q] of Object.entries(plan.cost||{}))S.stock[mat]=Math.max(0,stockOf(mat)-q*qty);
+ for(const [mid,q] of Object.entries(plan.make||{}))S.crafted[mid]=(S.crafted[mid]||0)+q*qty;
+ S.stock[id]=stockOf(id)+qty;
+ S.crafted[id]=(S.crafted[id]||0)+qty;
+ return recordPlanMastery(plan,qty)
 }
-async function executeDirectCraft(id,routeIndex=0,returnTo=null){
- const plans=directPlans(id),plan=plans[routeIndex];
- if(!plan||!plan.ok){showDirectCraft(id);return}
- applyDirectPlan(id,plan);
+async function executeDirectCraft(id,routeIndex=0,qty=1,returnTo=null){
+ const basePlans=directPlans(id),base=basePlans[routeIndex];
+ if(!base){showDirectCraft(id,qty);return}
+ const plan=scaledPlan(base,qty);
+ if(!plan.ok){showDirectCraft(id,qty);return}
+ const masteryAwards=applyDirectPlan(id,base,qty);
  await persist();
+ if(masteryAwards.length)queueRewards(masteryAwards,S.coins);
  renderCraft();renderBook();
- if(returnTo){showDirectCraft(returnTo);toast(`${item(id).name} fabricado · +1`)}
- else{close();toast(`${item(id).name} fabricado · +1`)}
+ if(returnTo){showDirectCraft(returnTo);toast(`${item(id).name} fabricado ×${qty}`)}
+ else{close();toast(`${item(id).name} fabricado ×${qty}`)}
 }
 async function craftMissingHere(id,qty,parent){
- let made=0;
+ let made=0,allAwards=[];
  for(let n=0;n<qty;n++){
    const plans=directPlans(id),idx=plans.findIndex(p=>p.ok);
    if(idx<0)break;
-   applyDirectPlan(id,plans[idx]);
+   allAwards.push(...applyDirectPlan(id,plans[idx],1));
    made++
  }
  if(made){
    await persist();
+   if(allAwards.length)queueRewards(allAwards,S.coins);
    renderCraft();renderBook();
    showDirectCraft(parent);
    toast(`${item(id).name} fabricado${made>1?` ×${made}`:' · +1'}`)
@@ -441,7 +539,7 @@ function detail(id){
  const rs=RECIPES.filter(r=>r.result===id);
  const learned=rs.filter(r=>S.knownRecipes?.[r.id]);
  const plans=learned.length?directPlans(id):[];const plan=plans.find(p=>p.ok)||plans[0]||null;
- modal(`<div class="detail">${icon(i)}<h2>${i.name}</h2><b>${i.rarity} · ${i.category} · ERA ${i.era}</b><p>${i.description}</p><div class="detail-stock">En inventario <strong>×${stockOf(id)}</strong></div><h3>Recetas</h3>${rs.map(r=>S.knownRecipes?.[r.id]?`<p class="known-recipe">✓ ${item(r.a).name} + ${item(r.b).name} → ${i.name}</p>`:'<p>??? + ??? → '+i.name+'</p>').join('')||'<p>Elemento primario.</p>'}${learned.length?`<div class="direct-card"><small>RECETA APRENDIDA</small><b>⚡ Fabricación directa</b><p>${plan?.ok?'Puedes fabricarlo sin construir manualmente los componentes intermedios.':'Conoces la receta, pero ahora mismo te faltan materiales para completar toda la cadena.'}</p><button class="primary" data-direct-craft="${id}">${plan?.ok?'FABRICAR':'VER MATERIALES'}</button></div>`:''}</div>`)
+ modal(`<div class="detail">${icon(i)}<h2>${i.name}</h2><b>${i.rarity} · ${i.category} · ERA ${i.era}</b><p>${i.description}</p><div class="detail-stock">En inventario <strong>×${stockOf(id)}</strong></div><h3>Recetas</h3>${rs.map(r=>S.knownRecipes?.[r.id]?`<p class="known-recipe">✓ ${item(r.a).name} + ${item(r.b).name} → ${i.name}</p>`:'<p>??? + ??? → '+i.name+'</p>').join('')||'<p>Elemento primario.</p>'}${masteryCardHTML(id)}${learned.length?`<div class="direct-card"><small>RECETA APRENDIDA</small><b>⚡ Fabricación directa</b><p>${plan?.ok?'Puedes fabricarlo sin construir manualmente los componentes intermedios.':'Conoces la receta, pero ahora mismo te faltan materiales para completar toda la cadena.'}</p><button class="primary" data-direct-craft="${id}">${plan?.ok?'FABRICAR':'VER MATERIALES'}</button></div>`:''}</div>`)
 }
 function renderGoals(){const list=goal==='missions'?MISSIONS:goal==='puzzles'?PUZZLES:goal==='collections'?COLLECTIONS:ACHIEVEMENTS;$('#goalsList').innerHTML=list.map(x=>{let done=goal==='collections'?x.items.every(i=>S.discovered[i]):goal==='achievements'?!!S.achievements[x.id]:!!S.discovered[x.target];let sub=goal==='collections'?`${x.items.filter(i=>S.discovered[i]).length}/${x.items.length}`:goal==='puzzles'?`Objetivo: ${item(x.target).name} · ${x.limit} fusiones`:goal==='missions'?`Descubre ${item(x.target).name}`:`Meta ${x.value}`;return`<article class="goal ${done?'done':''}"><span>${done?'✓':'◇'}</span><div><b>${x.name}</b><small>${sub}</small></div><strong>+${x.reward||x.coins} ◆</strong>${goal==='puzzles'?`<button data-puzzle="${x.id}">Jugar</button>`:''}</article>`}).join('')}
 
@@ -699,7 +797,8 @@ const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add
 const f=e.target.closest('[data-filter]')?.dataset.filter;if(f){filter=f;renderBook()}const d=e.target.closest('[data-detail]')?.dataset.detail;if(d)detail(d);const g=e.target.closest('[data-goal]')?.dataset.goal;if(g){goal=g;$$('[data-goal]').forEach(x=>x.classList.toggle('selected',x.dataset.goal===g));renderGoals()}const shopConfirm=e.target.closest('[data-shop-confirm]')?.dataset.shopConfirm;if(shopConfirm){e.preventDefault();e.stopPropagation();buy(shopConfirm);return}
 const o=e.target.closest('[data-offer]')?.dataset.offer;if(o){e.preventDefault();e.stopPropagation();confirmShopOffer(o);return}
 if(e.target.closest('[data-shop-cancel]')||e.target.closest('[data-shop-close]')){close();return}const dc=e.target.closest('[data-direct-craft]')?.dataset.directCraft;if(dc){showDirectCraft(dc);return}
-const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.dataset.directRoute,+dr.dataset.directRouteIndex);return}
+const dq=e.target.closest('[data-direct-qty]');if(dq){showDirectCraft(dq.dataset.directQty,+dq.dataset.directQtyValue);return}
+const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.dataset.directRoute,+dr.dataset.directRouteIndex,+dr.dataset.directRouteQty);return}
 const dm=e.target.closest('[data-direct-make-missing]');if(dm){craftMissingHere(dm.dataset.directMakeMissing,+dm.dataset.directMissingQty,dm.dataset.directReturn);return}
 const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
 const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
