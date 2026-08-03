@@ -1,0 +1,40 @@
+/* CRAFTERRA · Visual B Premium 0.3.1 · CREATE LOCK */
+#view-craft{padding:12px 18px 18px;background:radial-gradient(circle at 50% 18%,#153f62 0,#0a2340 40%,#071729 100%)}
+#view-craft:before{top:150px;height:104px;background:radial-gradient(circle at 86% 18%,#5b31ad45 0 24px,transparent 25px),linear-gradient(180deg,#0b2744,#0a1c34);border-bottom:3px solid #263a65;box-shadow:inset 0 -10px 25px #0007,0 9px 20px #0008}
+#view-craft:after{content:"✦   ◇   ✦";top:176px;right:26px;color:#a65fff55;font-size:21px;letter-spacing:9px}
+#view-craft .panel-title{min-height:92px;padding:0 8px 10px;align-items:center}
+#view-craft .panel-title>div small{font-size:12px;color:#89ef86;letter-spacing:2.5px;text-shadow:0 2px #0009}
+#view-craft .panel-title h2{font-size:30px;max-width:330px;margin:2px 0;line-height:.98;color:#fff9e8;text-shadow:0 3px 0 #08152c,0 6px 13px #0009}
+#clearBoard{min-width:116px;background:linear-gradient(180deg,#1688f2,#0755be)!important;border:2px solid #5ec5ff!important;border-bottom:5px solid #043477!important;border-radius:16px!important;color:white!important;box-shadow:inset 0 2px #ffffff70,0 7px 12px #0008!important;font-size:17px!important;text-shadow:0 2px #00397a;padding:10px 15px!important}
+#clearBoard:before{content:"🧹 ";font-size:18px}
+#stationBar{height:52px;min-height:52px;margin:0 0 10px;overflow:visible;gap:8px;align-items:flex-start}
+#stationBar button{height:44px;padding:8px 15px;border-radius:13px;background:linear-gradient(#263e68,#111f40);border:2px solid #405f91;border-bottom:4px solid #08162f;box-shadow:inset 0 1px #fff2,0 5px 9px #0008;color:#eaf3ff;font-weight:900}
+#stationBar button:first-child{background:linear-gradient(#2d8df0,#1160c9);border-color:#65c6ff;color:white;text-shadow:0 2px #00366f}
+#stationBar button:first-child:before{content:"🪵 ";filter:drop-shadow(0 2px #0006)}
+#craftBoard{height:315px;min-height:315px;margin:2px 0 12px;border-radius:26px;border:7px solid #34406e;background:
+radial-gradient(circle at 98% 10%,#d452ff 0 10px,#8d28dd 11px 19px,transparent 20px),
+radial-gradient(circle at 2% 90%,#d452ff 0 8px,#7624bd 9px 17px,transparent 18px),
+linear-gradient(180deg,#0a3568 0,#072c5b 43%,#062548 100%);
+box-shadow:inset 0 0 0 3px #151d3e,inset 0 0 0 5px #52608e,inset 0 16px 28px #26a5ff16,inset 0 -18px 35px #0007,0 9px 20px #0009;overflow:hidden}
+#craftBoard:before{content:"";position:absolute;inset:49px 28px 27px;height:auto;background:
+linear-gradient(90deg,transparent 0 2%,#0a2246 2% 30%,transparent 30% 35%,#0a2246 35% 63%,transparent 63% 68%,#0a2246 68% 96%,transparent 96%),
+linear-gradient(180deg,#103e75,#0a2b59);
+border:2px solid #23588e;border-radius:18px;box-shadow:inset 0 0 0 2px #071d42,inset 0 8px 14px #ffffff08,0 5px 12px #0006;clip-path:none}
+#craftBoard:after{content:"✦";left:auto;right:9px;bottom:9px;transform:none;background:none;border:0;color:#3f9cff77;font-size:28px;box-shadow:none;padding:0;letter-spacing:0}
+.board-help{margin:13px auto 0;width:min(82%,480px);padding:9px 13px;background:#071a35cc;border:1px solid #3373ad;border-radius:12px;color:#aebfd6;font-size:12px;line-height:1.35;position:relative;z-index:5;box-shadow:0 4px 9px #0005}.board-help::first-line{color:#d9e7f8}
+#craftBoard .piece{min-width:108px;max-width:122px;padding:7px 5px 8px;background:linear-gradient(#103c72,#092a57);border:2px solid #1f65a5;border-bottom:5px solid #041936;border-radius:16px;box-shadow:inset 0 1px #ffffff20,0 7px 11px #0008;text-align:center;z-index:7}
+#craftBoard .piece .item-art,#craftBoard .piece .item-glyph{width:78px;height:78px;margin:auto}
+#craftBoard .piece .item-art img{filter:drop-shadow(0 9px 6px #000a) saturate(1.1)}
+#craftBoard .piece small{font-size:12px;line-height:1.1;color:white;text-shadow:0 2px #000b;font-weight:950}
+#craftBoard .piece.held{filter:drop-shadow(0 24px 13px #000d) drop-shadow(0 0 9px #3fa9ff88);z-index:20}
+.inventory{margin:0 0 6px;padding:12px 11px 13px;border-radius:23px;background:linear-gradient(180deg,#142c58,#0b2045);border:4px solid #283661;box-shadow:inset 0 0 0 2px #4d5c8c,inset 0 1px #fff2,0 10px 18px #0008;position:relative}
+.inventory:before{content:"🎒";position:absolute;left:15px;top:10px;width:34px;height:34px;display:grid;place-items:center;background:linear-gradient(#a76227,#623016);border:2px solid #d88a3a;border-radius:11px;font-size:22px;box-shadow:0 4px 7px #0008}
+.inventory-head{height:42px;padding-left:44px;gap:10px}.inventory-head b{font-size:18px;color:#fff;text-shadow:0 3px #000b;letter-spacing:.5px}.inventory-head input{width:43%;height:36px;padding:7px 10px;border-radius:11px;background:#081936;border:2px solid #293f75;color:#dbe8ff;box-shadow:inset 0 3px 8px #0009;font-size:12px}
+#inventoryGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;max-height:246px;padding:5px 1px 9px;margin-top:4px;overflow:auto}
+#inventoryGrid .item{min-height:103px;height:103px;padding:6px 2px 5px;border-radius:13px;background:linear-gradient(#12386b,#0a2854);border:2px solid #274f86;border-bottom:4px solid #061b3b;box-shadow:inset 0 1px #fff2,0 4px 7px #0007}
+#inventoryGrid .item .item-art,#inventoryGrid .item .item-glyph{width:59px;height:59px;margin:auto}
+#inventoryGrid .item .item-art img{filter:drop-shadow(0 7px 5px #000b) saturate(1.12)}
+#inventoryGrid .item small{font-size:9.5px;line-height:1.05;font-weight:950;color:#fff;text-shadow:0 2px #000b}
+#inventoryGrid .item .qty{top:4px;right:4px;background:#07162d;border:1px solid #34527e;border-radius:999px;padding:2px 5px;font-size:9px}
+#view-craft{padding-bottom:24px}
+@media(max-width:430px){#view-craft{padding-left:14px;padding-right:14px}.panel-title h2{font-size:28px!important}#clearBoard{min-width:106px;font-size:15px!important}#craftBoard{height:292px;min-height:292px;border-width:6px}#craftBoard:before{inset:47px 20px 24px}.board-help{font-size:11px;width:86%}.inventory{padding-left:8px;padding-right:8px}.inventory-head b{font-size:16px}#inventoryGrid{gap:5px}.inventory-head input{width:46%}#inventoryGrid .item{height:96px;min-height:96px}#inventoryGrid .item .item-art,#inventoryGrid .item .item-glyph{width:54px;height:54px}}
