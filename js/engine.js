@@ -1,4 +1,4 @@
-import{ITEMS,RECIPES}from'./data.js?v=0.2.22-mastery';import{CONFIG}from'./config.js?v=0.2.22-mastery';
+import{ITEMS,RECIPES}from'./data.js?v=0.2.24-compactrewards';import{CONFIG}from'./config.js?v=0.2.24-compactrewards';
 export const item=id=>ITEMS.find(x=>x.id===id);export const recipe=(a,b)=>RECIPES.find(r=>(r.a===a&&r.b===b)||(r.a===b&&r.b===a));
 const VALID=new Set(ITEMS.map(x=>x.id));
 export function initialState(){const now=Date.now();return{schema:7,coins:CONFIG.startCoins,xp:0,level:1,discovered:{stone:now,wood:now,water:now,earth:now,sand:now},crafted:{},knownRecipes:{},mastery:{},stock:{stone:3,wood:3,water:2,earth:2,sand:2},collections:{},missions:{},puzzles:{},achievements:{},hintLibrary:{},stations:[],world:[],expeditions:{active:null,history:[]},stats:{merges:0,failed:0,hints:0,expeditions:0},ads:{date:'',count:0},daily:{date:'',best:null,streak:0,completed:0},bonus:{last:'',day:0},settings:{sound:true,motion:true}}}
