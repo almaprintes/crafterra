@@ -934,7 +934,94 @@ function trackDailyMerge(resultId){
 }
 
 function playPuzzle(id){const p=PUZZLES.find(x=>x.id===id);board=[...p.resources];showView('craft');renderBoard();toast(`Puzle: fabrica ${item(p.target).name} en ${p.limit} fusiones`)}
-function settings(){modal(`<h2>Ajustes</h2><div class="settings"><button id="exportBtn">Exportar partida</button><button id="resetBtn">Reiniciar progreso</button><a href="tools/recipe-editor.html">Editor de recetas</a><p>Sonido y vibración respetan las preferencias del dispositivo. Todo el progreso se guarda localmente.</p><small>CRAFTERRA v${CONFIG.version} · DEVELOPMENT</small></div>`);setTimeout(()=>{$('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(exportSave(S));a.download='crafterra-save.json';a.click()};$('#resetBtn').onclick=async()=>{if(confirm('¿Reiniciar todo el progreso?')){await reset();location.reload()}}})}
+
+async function importSaveFile(file){
+ if(!file)return;
+ try{
+  const text=await file.text();
+  const raw=JSON.parse(text);
+  const candidate=raw?.state&&typeof raw.state==='object'?raw.state:raw;
+  if(!candidate||typeof candidate!=='object'||Array.isArray(candidate))throw new Error('Formato no válido');
+  if(!('discovered' in candidate)||!('stock' in candidate))throw new Error('No parece una partida de CRAF TERRA');
+
+  const restored=normalizeState(candidate);
+  const discovered=Object.keys(restored.discovered||{}).length;
+  const crafted=Object.values(restored.crafted||{}).reduce((n,q)=>n+(Number(q)||0),0);
+  const learned=Object.keys(restored.knownRecipes||{}).length;
+  const mastery=Object.values(restored.mastery||{}).reduce((n,v)=>n+(Number(v?.uses)||0),0);
+
+  modal(`<div class="shop-confirm save-import-confirm">
+    <small>RESTAURAR PARTIDA</small>
+    <h2>📥 Copia de seguridad válida</h2>
+    <p>Se sustituirá la partida guardada actualmente en este dispositivo.</p>
+    <div class="save-summary">
+      <span><b>${restored.level||1}</b><small>Nivel</small></span>
+      <span><b>${(restored.coins||0).toLocaleString('es')}</b><small>Monedas</small></span>
+      <span><b>${discovered}</b><small>Descubrimientos</small></span>
+      <span><b>${learned}</b><small>Recetas</small></span>
+    </div>
+    <p class="save-summary-note">Fabricaciones registradas: ${crafted}${mastery?` · Usos de maestría: ${mastery}`:''}</p>
+    <button class="primary" id="confirmImportSave">RESTAURAR ESTA PARTIDA</button>
+    <button class="shop-cancel" data-shop-close>Cancelar</button>
+  </div>`);
+
+  setTimeout(()=>{
+   const btn=$('#confirmImportSave');
+   if(btn)btn.onclick=async()=>{
+    btn.disabled=true;btn.textContent='Restaurando…';
+    S=restored;
+    await save(S);
+    localStorage.setItem('crafterra_import_success','1');
+    location.reload()
+   }
+  },0)
+ }catch(err){
+  console.error('[CRAFTERRA] Error importando partida',err);
+  modal(`<div class="shop-confirm">
+    <small>IMPORTAR PARTIDA</small>
+    <h2>⚠️ No puedo usar este archivo</h2>
+    <p>${err?.message||'El archivo seleccionado no contiene una copia de seguridad válida.'}</p>
+    <button class="primary" data-shop-close>Aceptar</button>
+  </div>`)
+ }
+}
+
+function settings(){
+ modal(`<div class="settings-save-panel">
+   <h2>Ajustes</h2>
+   <section class="settings-save-card">
+     <small>COPIA DE SEGURIDAD</small>
+     <h3>Tu progreso es tuyo</h3>
+     <p>Guarda una copia antes de reinstalar CRAF TERRA o limpiar los datos del navegador.</p>
+     <button class="primary" id="exportBtn">⬇️ Exportar partida</button>
+     <button id="importBtn">⬆️ Importar partida</button>
+     <input id="importSaveInput" type="file" accept=".json,application/json" hidden>
+   </section>
+   <button id="resetBtn">Reiniciar progreso</button>
+   <a href="tools/recipe-editor.html">Editor de recetas</a>
+   <p>Sonido y vibración respetan las preferencias del dispositivo. Todo el progreso se guarda localmente.</p>
+   <small>CRAFTERRA v${CONFIG.version} · DEVELOPMENT</small>
+ </div>`);
+ setTimeout(()=>{
+  $('#exportBtn').onclick=()=>{
+   const url=URL.createObjectURL(exportSave(S));
+   const link=document.createElement('a');
+   link.href=url;
+   link.download=`crafterra-save-${new Date().toISOString().slice(0,10)}.json`;
+   document.body.append(link);
+   link.click();
+   link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),1500);
+   toast('Copia de seguridad exportada')
+  };
+  const input=$('#importSaveInput');
+  $('#importBtn').onclick=()=>input.click();
+  input.onchange=e=>{const file=e.target.files?.[0];if(file)importSaveFile(file)};
+  $('#resetBtn').onclick=async()=>{
+   if(confirm('¿Reiniciar todo el progreso?')){await reset();location.reload()}
+  }
+ },0)
+}
 function bind(){document.addEventListener('click',e=>{
 const expStart=e.target.closest('[data-exp-start]');
 if(expStart){e.preventDefault();e.stopPropagation();startExpedition(expStart.dataset.expStart,+expStart.dataset.expMin);return}
@@ -951,4 +1038,6 @@ const dm=e.target.closest('[data-direct-make-missing]');if(dm){craftMissingHere(
 const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
 const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
 const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
-function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
+function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){
+ const importedOK=localStorage.getItem('crafterra_import_success')==='1';
+ if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
