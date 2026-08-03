@@ -719,7 +719,7 @@ function playAlmaPrintRewarded(){
   overlay.innerHTML=`<div class="rewarded-video-shell">
    <div class="rewarded-video-top"><div><small>CONTENIDO PATROCINADO</small><b>AlmaPrint</b></div><span class="rewarded-video-status">Cargando…</span></div>
    <div class="rewarded-video-stage">
-    <video class="rewarded-video" playsinline webkit-playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture src="./assets/video/promo-almaprint.mp4"></video>
+    <video class="rewarded-video" playsinline webkit-playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture src="./assets/video/promo-almaprint.mp4?v=029"></video>
    </div>
    <div class="rewarded-video-progress"><i></i></div>
    <button class="rewarded-video-close" type="button">Cancelar</button>
