@@ -717,20 +717,63 @@ function playAlmaPrintRewarded(){
   const overlay=document.createElement('div');
   overlay.className='rewarded-video-overlay';
   overlay.innerHTML=`<div class="rewarded-video-shell">
-   <div class="rewarded-video-top"><div><small>CONTENIDO PATROCINADO</small><b>AlmaPrint</b></div><span class="rewarded-video-status">Mira el vídeo completo para obtener la recompensa</span></div>
-   <video class="rewarded-video" playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture><source src="./assets/video/promo-almaprint.mp4" type="video/mp4"></video>
-   <div class="rewarded-video-progress"><i></i></div><button class="rewarded-video-close" type="button">Cancelar</button>
+   <div class="rewarded-video-top"><div><small>CONTENIDO PATROCINADO</small><b>AlmaPrint</b></div><span class="rewarded-video-status">Cargando…</span></div>
+   <div class="rewarded-video-stage">
+    <video class="rewarded-video" playsinline webkit-playsinline preload="auto" controlslist="nodownload noplaybackrate" disablepictureinpicture src="./assets/video/promo-almaprint.mp4"></video>
+   </div>
+   <div class="rewarded-video-progress"><i></i></div>
+   <button class="rewarded-video-close" type="button">Cancelar</button>
   </div>`;
   document.body.append(overlay);
-  const video=overlay.querySelector('video'),bar=overlay.querySelector('.rewarded-video-progress i'),status=overlay.querySelector('.rewarded-video-status'),closeBtn=overlay.querySelector('.rewarded-video-close');
+
+  const video=overlay.querySelector('.rewarded-video');
+  const bar=overlay.querySelector('.rewarded-video-progress i');
+  const status=overlay.querySelector('.rewarded-video-status');
+  const closeBtn=overlay.querySelector('.rewarded-video-close');
   let done=false;
-  const finish=ok=>{if(done)return;done=true;video.pause();overlay.classList.add('closing');setTimeout(()=>{overlay.remove();resolve(ok)},260)};
+
+  const finish=ok=>{
+   if(done)return;
+   done=true;
+   try{video.pause()}catch(_){}
+   overlay.classList.add('closing');
+   setTimeout(()=>{overlay.remove();resolve(ok)},220)
+  };
+
   closeBtn.addEventListener('click',()=>finish(false));
-  video.addEventListener('timeupdate',()=>{if(video.duration&&isFinite(video.duration)){bar.style.width=Math.min(100,video.currentTime/video.duration*100)+'%';const left=Math.max(0,Math.ceil(video.duration-video.currentTime));status.textContent=left?`Recompensa en ${left} s`:'Completado'}});
-  video.addEventListener('ended',()=>{bar.style.width='100%';status.textContent='✓ Vídeo completado';setTimeout(()=>finish(true),400)});
-  video.addEventListener('error',()=>{status.textContent='No se pudo reproducir el vídeo';setTimeout(()=>finish(false),900)});
+  video.addEventListener('timeupdate',()=>{
+   if(video.duration&&isFinite(video.duration)){
+    bar.style.width=Math.min(100,video.currentTime/video.duration*100)+'%';
+    const left=Math.max(0,Math.ceil(video.duration-video.currentTime));
+    status.textContent=left?`Recompensa en ${left} s`:'Completado';
+   }
+  });
+  video.addEventListener('playing',()=>{status.textContent='Reproduciendo…'});
+  video.addEventListener('waiting',()=>{status.textContent='Cargando…'});
+  video.addEventListener('ended',()=>{
+   bar.style.width='100%';
+   status.textContent='✓ Vídeo completado';
+   setTimeout(()=>finish(true),300)
+  });
+  video.addEventListener('error',()=>{
+   status.textContent='No se pudo cargar el vídeo';
+   setTimeout(()=>finish(false),1000)
+  });
+
   requestAnimationFrame(()=>overlay.classList.add('show'));
-  const p=video.play();if(p?.catch)p.catch(()=>{status.textContent='Toca el vídeo para comenzar';video.controls=true})
+
+  // IMPORTANT FOR iOS:
+  // Invoke play immediately, without an intervening await/setTimeout.
+  video.muted=false;
+  const p=video.play();
+  if(p&&typeof p.catch==='function'){
+   p.catch(()=>{
+    // Rare iOS/WebKit fallback: don't leave a black frozen screen.
+    // Expose native controls so the user can recover, but normal flow is one tap.
+    video.controls=true;
+    status.textContent='Toca el vídeo para continuar';
+   });
+  }
  })
 }
 
