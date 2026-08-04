@@ -1,0 +1,28 @@
+/* CRAFTERRA · Visual B Premium 0.3.2b · iPhone proportion lock */
+:root{--nav:92px}
+main{height:calc(100% - 88px - var(--nav))}
+#view-craft{padding-top:11px;padding-bottom:14px}
+#view-craft .panel-title{min-height:92px;margin-bottom:6px;padding:13px 15px}
+#view-craft .panel-title h2{font-size:26px;line-height:.96}
+#clearBoard{flex-basis:116px!important;min-width:116px!important;width:116px!important;height:48px!important;font-size:15px!important}
+#stationBar{height:44px;min-height:44px;margin-bottom:6px}
+#stationBar button{height:39px;font-size:13px;padding-left:14px;padding-right:14px}
+#craftBoard{height:248px!important;min-height:248px!important;margin:0 0 9px!important;padding:62px 20px 16px!important;border-radius:24px!important}
+#craftBoard:after{left:24px!important;right:24px!important;top:66px!important;bottom:18px!important}
+.board-help{top:11px!important;width:72%!important;min-height:47px!important;padding:5px 11px 7px!important;font-size:9.8px!important;line-height:1.08!important}
+.board-help::before{font-size:11px!important;letter-spacing:1.8px!important;margin-bottom:2px!important}
+#craftBoard .piece{position:absolute!important;left:clamp(48px,var(--x),calc(100% - 48px))!important;top:clamp(104px,var(--y),calc(100% - 45px))!important;transform:translate(-50%,-50%)!important;min-width:72px!important;max-width:78px!important;width:76px!important;padding:3px 2px 5px!important;z-index:6!important}
+#craftBoard .piece .item-art,#craftBoard .piece .item-glyph{width:46px!important;height:46px!important;margin:2px auto!important}
+#craftBoard .piece small{font-size:9px!important;line-height:.95!important;max-width:70px!important;margin:auto!important}
+.inventory{margin-top:0!important;padding-bottom:11px!important}
+.inventory-head{height:56px!important;padding-top:8px!important;padding-bottom:4px!important}
+.inventory-head b{font-size:17px!important}
+.inventory-head input{height:35px!important;font-size:11px!important}
+#inventoryGrid{gap:5px!important;max-height:205px!important;padding-top:2px!important}
+#inventoryGrid .item{height:99px!important;min-height:99px!important}
+#inventoryGrid .item .item-art,#inventoryGrid .item .item-glyph{width:47px!important;height:47px!important;margin-top:5px!important}
+#inventoryGrid .item small{font-size:9.6px!important;padding-bottom:4px!important}
+nav{height:var(--nav)!important;padding-top:4px!important;padding-bottom:calc(6px + env(safe-area-inset-bottom))!important}
+nav button{background-size:100% 67px!important;font-size:9.5px!important}
+nav button i{width:38px!important;height:38px!important;margin-top:7px!important;margin-bottom:2px!important}
+@media(max-width:430px){#view-craft{padding-left:11px!important;padding-right:11px!important}#view-craft .panel-title{min-height:88px!important;padding:12px 13px!important}#view-craft .panel-title h2{font-size:24px!important}#clearBoard{flex-basis:106px!important;min-width:106px!important;width:106px!important;height:45px!important;font-size:14px!important}#craftBoard{height:236px!important;min-height:236px!important;padding-top:58px!important}#craftBoard:after{left:21px!important;right:21px!important;top:62px!important;bottom:16px!important}.board-help{top:9px!important;width:76%!important;font-size:9.3px!important}#craftBoard .piece{left:clamp(44px,var(--x),calc(100% - 44px))!important;top:clamp(98px,var(--y),calc(100% - 42px))!important;width:70px!important;min-width:68px!important;max-width:72px!important}#craftBoard .piece .item-art,#craftBoard .piece .item-glyph{width:42px!important;height:42px!important}#craftBoard .piece small{font-size:8.5px!important}.inventory-head{height:53px!important}.inventory-head b{font-size:16px!important}#inventoryGrid{max-height:198px!important}#inventoryGrid .item{height:95px!important;min-height:95px!important}#inventoryGrid .item .item-art,#inventoryGrid .item .item-glyph{width:44px!important;height:44px!important}#inventoryGrid .item small{font-size:9.2px!important}}
