@@ -1,0 +1,36 @@
+/* CRAFTERRA RPG · prototipo isométrico mobile-first */
+#world.adventure-world{height:clamp(300px,58vh,550px);min-height:300px;background:#5797a4;isolation:isolate;touch-action:manipulation;}
+#world.adventure-world:before{display:none}
+.adventure-canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair;touch-action:manipulation}
+.adventure-hud{position:absolute;left:10px;top:10px;right:10px;display:grid;gap:4px;pointer-events:none;z-index:2;max-width:77%}
+.adventure-hud b{width:max-content;max-width:100%;background:#123b48da;color:#fff4d8;border:1px solid #89b69a;padding:5px 10px;font-size:11px;letter-spacing:1.3px;border-radius:8px;text-shadow:0 1px #10252c}
+.adventure-hud small{background:#123b48de;color:#e6f7d9;display:block;width:max-content;max-width:100%;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:800;line-height:1.35}
+.adventure-inventory{position:absolute;right:9px;top:10px;z-index:2;background:#153b4bdd;border:1px solid #8cb4ab;border-radius:9px;padding:7px;color:#fff7d9;font-size:10px;font-weight:800;max-width:25%;line-height:1.5;text-align:right;pointer-events:none}
+.adventure-bottom{position:absolute;bottom:28px;left:9px;right:9px;display:flex;align-items:flex-end;justify-content:space-between;gap:5px;z-index:3}
+.adventure-dpad{display:grid;justify-items:center;flex:0 0 auto;gap:2px}
+.adventure-dpad>div{display:flex;gap:2px}
+.adventure-bottom button{border:2px solid #a8cbad;color:#fff;background:#254b59db;box-shadow:0 3px 0 #0b2f3b9e,0 3px 10px #14292d99;font-weight:900;text-shadow:0 1px #12323b;touch-action:manipulation}
+.adventure-dpad button{width:39px;height:34px;border-radius:8px;font-size:15px;display:grid;place-items:center;padding:0}
+.adventure-bottom .adventure-action{flex:1;min-height:47px;border-radius:11px;background:#3e8067e8;min-width:92px;font-size:12px;padding:5px}
+.adventure-bottom .adventure-craft{border-radius:11px;min-height:47px;background:#bf7e43ef;min-width:68px;padding:5px;font-size:12px}
+.adventure-hint{position:absolute;left:7px;right:7px;bottom:5px;text-align:center;background:#112d34bb;color:#eaf5de;padding:3px;border-radius:7px;font-size:9px;pointer-events:none;z-index:2}
+.adventure-dialog{position:absolute;z-index:8;left:8%;right:8%;top:50%;transform:translateY(-50%);max-height:92%;overflow:auto;padding:17px 16px;background:linear-gradient(145deg,#194058,#112f43);border:3px solid #f6d59d;border-radius:17px;color:#fff4dc;box-shadow:0 14px 40px #0009;text-align:left}
+.adventure-dialog[hidden]{display:none}
+.adventure-dialog h3{margin:0 0 9px;color:#ffe4a4;font-size:17px}
+.adventure-dialog p{font-size:13px;line-height:1.5;margin:0 0 14px;white-space:pre-wrap}
+.adventure-dialog #adv-dialog-actions{display:flex;gap:8px;flex-wrap:wrap}
+.adventure-dialog button{border:2px solid #8ad39c;background:#286851;color:white;border-radius:10px;padding:9px 11px;font-weight:850;font-size:12px;flex:1}
+#questStrip.adventure-quest{grid-template-columns:1fr auto}
+#questStrip.adventure-quest span{grid-column:1;display:block}
+#questStrip.adventure-quest strong{font-size:12px}
+@media(max-height:520px) and (orientation:landscape){
+ #world.adventure-world{height:clamp(220px,58vh,330px);min-height:220px}
+ .adventure-hint{display:none}
+ .adventure-bottom{bottom:7px}
+ .adventure-dpad button{height:29px;width:33px}
+ .adventure-bottom .adventure-action,.adventure-bottom .adventure-craft{min-height:37px}
+ .adventure-hud b{font-size:9px}
+ .adventure-hud small{font-size:10px}
+ .adventure-inventory{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.adventure-canvas{scroll-behavior:auto}}
