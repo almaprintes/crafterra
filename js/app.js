@@ -4,7 +4,7 @@ import{mountIsometricWorld}from'./adventure-world.js?v=0.10.0';
 import{actionArt}from'./adventure-art.js?v=0.9.0';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.9.0';
 // La navegación principal también usa ilustraciones, no glifos de una fuente.
-const NAV_ART=Object.freeze({world:'door',craft:'hammer',book:'gem',goals:'shield',shop:'ingot'});
+const NAV_ART=Object.freeze({world:'island',craft:'hammer',book:'gem',goals:'shield',shop:'ingot'});
 for(const button of document.querySelectorAll('nav button[data-view]')){
  const icon=button.querySelector('i');
  if(icon)icon.innerHTML=actionArt(NAV_ART[button.dataset.view]||'gem','xs');
@@ -12,84 +12,194 @@ for(const button of document.querySelectorAll('nav button[data-view]')){
 let isoWorld=null;
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={rough_wood:'🪵',water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
+// Expedition categories are gameplay systems, not passive blocks below the map.
+// Keep original destination IDs because saved expeditions can still be in progress.
 const EXPEDITIONS=[
-{id:'quarry',name:'Cantera cercana',icon:'🪨',desc:'Roca expuesta y vetas superficiales. Ideal para empezar.',requires:[],durations:[5,15,30],loot:[['stone',65],['flint',16],['coal',14],['clay',5]]},
-{id:'shallow',name:'Mina superficial',icon:'⛏️',desc:'Galerías poco profundas con los primeros metales.',requires:['stone_pickaxe'],durations:[15,30,120],loot:[['stone',34],['coal',22],['copper',18],['iron',14],['tin',9],['sulfur',3]]},
-{id:'deep',name:'Mina profunda',icon:'🕳️',desc:'Más tiempo bajo tierra, mejores vetas y más riesgo.',requires:['iron_pickaxe'],durations:[30,120,480],loot:[['iron',28],['copper',22],['tin',15],['coal',12],['silver',9],['gold',5],['sulfur',7],['obsidian',2]]},
-{id:'crystal',name:'Caverna cristalina',icon:'💎',desc:'Una expedición larga a cámaras con minerales raros.',requires:['iron_pickaxe','explorer_lantern'],durations:[120,480],loot:[['quartz',35],['lapis',22],['amethyst',18],['silver',10],['emerald',8],['gold',5],['diamond',2]]}
+ {id:'quarry',group:'mining',name:'Cantera cercana',icon:'🪨',desc:'Roca y pedernal en superficie.',requires:[],durations:[5,15,30],loot:[['stone',65],['flint',16],['coal',14],['clay',5]]},
+ {id:'shallow',group:'mining',name:'Mina superficial',icon:'⛏️',desc:'Las primeras vetas de metal.',requires:['stone_pickaxe'],durations:[15,30,120],loot:[['stone',34],['coal',22],['copper',18],['iron',14],['tin',9],['sulfur',3]]},
+ {id:'deep',group:'mining',name:'Mina profunda',icon:'🕳️',desc:'Vetas de metales valiosos.',requires:['iron_pickaxe'],durations:[30,120,480],loot:[['iron',28],['copper',22],['tin',15],['coal',12],['silver',9],['gold',5],['sulfur',7],['obsidian',2]]},
+ {id:'crystal',group:'mining',name:'Caverna cristalina',icon:'💎',desc:'Cristales y gemas poco comunes.',requires:['iron_pickaxe','explorer_lantern'],durations:[120,480],loot:[['quartz',35],['lapis',22],['amethyst',18],['silver',10],['emerald',8],['gold',5],['diamond',2]]},
+ {id:'forest',group:'forest',name:'Bosque y madera',icon:'🌲',desc:'Tala y recolección forestal.',requires:[],any:['stone_axe','iron_axe'],durations:[5,15,30],loot:[['wood',38],['rough_wood',27],['plant_fiber',18],['resin',8],['berries',9]]},
+ {id:'hunt',group:'hunt',name:'Caza y lana',icon:'🐑',desc:'Caza y esquila sin dañar ovejas.',requires:[],any:['stone_spear','iron_spear','bow'],durations:[5,15,30],loot:[['raw_meat',39],['animal_hide',25],['wool',27],['bone',9]]},
+ {id:'river',group:'river',name:'Río y agua',icon:'💧',desc:'Recoger agua, pescado y arcilla.',requires:[],any:['wood_bowl','clay_bowl'],durations:[5,15,30],loot:[['water',54],['fish',28],['clay',18]]}
 ];
+const EXP_GROUPS=[
+ {id:'mining',label:'Exploración minera',art:'pick'},
+ {id:'forest',label:'Bosque y madera',art:'log'},
+ {id:'hunt',label:'Caza y lana',art:'sheep'},
+ {id:'river',label:'Río y agua',art:'bowl'}
+];
+let expSheetOpen=false,expGroup='mining',expMineTier='quarry',expMinutes=15;
 const expById=id=>EXPEDITIONS.find(x=>x.id===id);
-const hasReq=id=>!!S.discovered[id];
+const hasReq=id=>!!S.discovered?.[id];
 function toolTier(){if(S.discovered.iron_pickaxe)return 3;if(S.discovered.stone_pickaxe)return 2;return 1}
-function durationLabel(m){return m<60?`${m} min`:`${m/60} h`}
-function expeditionUnlocked(e){return e.requires.every(hasReq)}
-function fmtCountdown(ms){if(ms<=0)return'Lista para recoger';const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return h?`${h}h ${String(m).padStart(2,'0')}m`:`${m}m ${String(ss).padStart(2,'0')}s`}
+function durationLabel(m){return m<60?m+' min':m/60+' h'}
+function expeditionUnlocked(e){
+ return !!e&&e.requires.every(hasReq)&&(!e.any||e.any.some(id=>(S.stock?.[id]||0)>0));
+}
+function expGroupReady(group){
+ return EXPEDITIONS.filter(e=>e.group===group&&expeditionUnlocked(e));
+}
+function expEquip(e){
+ if(!e)return 'Herramientas básicas';
+ const labels={
+  quarry:'Equipo de exploración',shallow:'Pico de piedra',deep:'Pico de hierro',
+  crystal:'Pico de hierro y farol',
+  forest:(S.stock?.iron_axe||0)>0?'Hacha de hierro':'Hacha de piedra',
+  hunt:(S.stock?.iron_spear||0)>0?'Lanza de hierro':(S.stock?.stone_spear||0)>0?'Lanza de piedra':'Arco',
+  river:(S.stock?.clay_bowl||0)>0?'Cuenco de arcilla':'Cuenco de madera'
+ };
+ return labels[e.id]||'Equipo básico';
+}
+function selectedExpedition(){
+ return expById(expGroup==='mining'?expMineTier:expGroup);
+}
+function fmtCountdown(ms){
+ if(ms<=0)return'Lista para recoger';
+ const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
+ return h?h+'h '+String(m).padStart(2,'0')+'m':m+'m '+String(ss).padStart(2,'0')+'s';
+}
 function makeLoot(exp,mins){
  const tier=toolTier(),depth=Math.max(1,Math.log2(Math.max(5,mins)/5)+1),rolls=Math.max(2,Math.round(depth*2+tier));
- const pool=exp.loot,got={};
+ const got={},pool=exp.loot,total=pool.reduce((n,x)=>n+x[1],0);
  for(let r=0;r<rolls;r++){
-   const total=pool.reduce((n,x)=>n+x[1],0);let x=Math.random()*total,pick=pool[0][0];
-   for(const [id,w] of pool){x-=w;if(x<=0){pick=id;break}}
-   got[pick]=(got[pick]||0)+Math.max(1,Math.round((.75+Math.random()*.8)*depth*(1+(tier-1)*.22)));
+  let x=Math.random()*total,pick=pool[0][0];
+  for(const [id,w]of pool){x-=w;if(x<=0){pick=id;break}}
+  got[pick]=(got[pick]||0)+Math.max(1,Math.round((.75+Math.random()*.8)*depth*(1+(tier-1)*.22)));
  }
- return got
+ return got;
 }
-function equipmentLabel(){return S.discovered.iron_pickaxe?'Pico de hierro':S.discovered.stone_pickaxe?'Pico de piedra':'Herramientas manuales'}
+function equipmentLabel(){return expEquip(selectedExpedition())}
+function toggleExpeditions(open=!expSheetOpen){
+ expSheetOpen=!!open;
+ renderExpeditionPanel();
+}
+function showExpeditions(){toggleExpeditions(true)}
+function selectExpGroup(group){
+ if(!EXP_GROUPS.some(x=>x.id===group))return;
+ expGroup=group;
+ if(group==='mining'&&!expeditionUnlocked(expById(expMineTier))){
+  expMineTier=expGroupReady('mining').at(-1)?.id||'quarry';
+ }
+ const e=selectedExpedition();
+ if(e&&!e.durations.includes(expMinutes))expMinutes=e.durations[0];
+ renderExpeditionPanel();
+}
+function selectExpTier(id){
+ if(!expById(id)||expById(id).group!=='mining'||!expeditionUnlocked(expById(id)))return;
+ expMineTier=id;
+ if(!expById(id).durations.includes(expMinutes))expMinutes=expById(id).durations[0];
+ renderExpeditionPanel();
+}
+function selectExpDuration(mins){
+ const e=selectedExpedition();
+ if(e?.durations.includes(mins))expMinutes=mins;
+ renderExpeditionPanel();
+}
 function renderExpeditionPanel(){
- const box=$('#expeditionPanel');if(!box)return;
- const ex=S.expeditions?.active;
- if(!ex){
-   const unlocked=EXPEDITIONS.filter(expeditionUnlocked);
-   box.innerHTML=`<div class="exp-head"><div><small>EXPEDICIONES</small><h3>Exploración minera</h3></div><span>⛏️</span></div><p>Envía al explorador y recoge minerales incluso mientras no estás jugando.</p><div class="exp-meta"><b>${unlocked.length}/${EXPEDITIONS.length} destinos</b><span>Equipo: ${equipmentLabel()}</span></div><button class="primary exp-open" id="openExpeditions">Preparar expedición</button>`;
-   $('#openExpeditions').onclick=showExpeditions;
-   return
+ const box=$('#expeditionPanel');
+ if(!box||!S)return;
+ box.hidden=!expSheetOpen;
+ const trigger=$('#adv-expeditions');
+ if(trigger)trigger.setAttribute('aria-expanded',String(expSheetOpen));
+ if(!expSheetOpen)return;
+ const active=S.expeditions?.active;
+ const selected=selectedExpedition();
+ const ready=expeditionUnlocked(selected);
+ const activeDone=active&&Date.now()>=active.endsAt;
+ const statusText=active?(activeDone?'Expedición completada · botín listo':expById(active.destination)?.name+' · en ruta'):
+  ready?selected.desc+' · '+expEquip(selected):
+  'Necesitas: '+(selected.any?selected.any.map(id=>item(id)?.name||id).join(' o '):selected.requires.filter(id=>!hasReq(id)).map(id=>item(id)?.name||id).join(' + '));
+ const cardMarkup=EXP_GROUPS.map(g=>{
+  const choices=expGroupReady(g.id),chosen=expGroup===g.id;
+  const eq=g.id==='mining'?'Pico o explorador':g.id==='forest'?'Hacha':g.id==='hunt'?'Lanza / arco':'Cuenco';
+  const unlock=choices.length>0;
+  return '<button type="button" data-exp-select="'+g.id+'" class="exp-tile'+(chosen?' selected':'')+'" aria-pressed="'+chosen+'">'+
+   '<span class="exp-tile-icon">'+actionArt(g.art,'sm')+'</span>'+
+   '<span class="exp-tile-label"><strong>'+g.label+'</strong><small>'+(unlock?'Listo · '+eq:'🔒 '+eq)+'</small></span>'+
+   (!unlock?'<span class="exp-locked">🔒</span>':'')+'</button>';
+ }).join('');
+ const miningOptions=EXPEDITIONS.filter(e=>e.group==='mining').map(e=>
+  '<option value="'+e.id+'" '+(selected?.id===e.id?'selected':'')+' '+(!expeditionUnlocked(e)?'disabled':'')+'>'+
+  e.name+(expeditionUnlocked(e)?'':' · 🔒')+'</option>').join('');
+ const tierControl=expGroup==='mining'?
+  '<label for="expTierSelect">YACIMIENTO</label><select id="expTierSelect" aria-label="Elegir mina">'+miningOptions+'</select>':
+  '<label>DESTINO</label><span class="exp-route-label">'+selected.name+'</span>';
+ const durations=selected.durations.map(mins=>
+  '<button type="button" data-exp-duration="'+mins+'" class="'+(expMinutes===mins?'selected':'')+'" aria-pressed="'+(expMinutes===mins)+'">'+durationLabel(mins)+'</button>').join('');
+ let footer;
+ if(active){
+  const e=expById(active.destination);
+  const label=e?.name||'Expedición anterior';
+  const remaining=active.endsAt-Date.now();
+  const output=activeDone?'<div class="exp-result">'+Object.entries(active.loot).slice(0,6).map(([id,qty])=>
+    '<span>'+((item(id)?.name)||id)+' ×'+qty+'</span>').join('')+'</div>':'';
+  footer='<div class="exp-sheet-status" data-exp-countdown>'+label+' · '+fmtCountdown(remaining)+'</div>'+output+
+   (activeDone?
+     '<button type="button" class="exp-primary" data-exp-collect="1">✓ Recoger botín</button>'+
+     '<button type="button" class="exp-secondary" data-exp-double="1">▶ Duplicar botín (anuncio opcional)</button>':
+     '<button type="button" class="exp-primary" disabled>⏳ Expedición en marcha</button>');
+ }else{
+  footer='<div class="exp-sheet-status">'+statusText+'</div>'+
+   '<button type="button" class="exp-primary" data-exp-start="'+selected.id+'" data-exp-min="'+expMinutes+'" '+(!ready?'disabled':'')+'>'+
+   '▶ Preparar expedición · '+durationLabel(expMinutes)+'</button>';
  }
- const e=expById(ex.destination),left=ex.endsAt-Date.now(),done=left<=0;
- box.innerHTML=`<div class="exp-head"><div><small>EXPLORADOR EN RUTA</small><h3>${e.icon} ${e.name}</h3></div><span class="exp-status ${done?'ready':''}">${done?'✓':'…'}</span></div><p>${done?'La expedición ha regresado. El botín está esperando.':`Equipo: ${ex.equipment}`}</p><div class="exp-timer" data-exp-countdown>${fmtCountdown(left)}</div><button class="primary" id="expAction">${done?'Recoger botín':'Ver expedición'}</button>`;
- $('#expAction').onclick=done?showExpeditionResult:()=>showActiveExpedition()
-}
-function showExpeditions(){
- modal(`<div class="exp-modal"><small>EXPEDICIONES</small><h2>¿A dónde enviamos al explorador?</h2><p class="muted">El equipo se selecciona automáticamente. Las expediciones continúan con el juego cerrado.</p><div class="exp-destinations">${EXPEDITIONS.map(e=>{const ok=expeditionUnlocked(e),missing=e.requires.filter(x=>!hasReq(x));return `<button class="exp-destination ${ok?'':'locked'}" ${ok?`data-exp-dest="${e.id}"`:''}><span>${e.icon}</span><div><b>${e.name}</b><small>${ok?e.desc:`Requiere ${missing.map(x=>item(x)?.name||x).join(' + ')}`}</small></div><strong>${ok?'›':'🔒'}</strong></button>`}).join('')}</div></div>`);
- setTimeout(()=>$$('[data-exp-dest]').forEach(b=>b.onclick=()=>chooseExpedition(b.dataset.expDest)),0)
+ box.innerHTML='<div class="exp-sheet-head">'+
+  '<span class="exp-sheet-icon">'+actionArt('tent','sm')+'</span>'+
+  '<span class="exp-sheet-title"><b>EXPEDICIONES</b><small>Elige un destino. La misión continúa sin jugar.</small></span>'+
+  '<button type="button" class="exp-close" data-exp-close="1" aria-label="Cerrar expediciones">×</button></div>'+
+  '<div class="exp-sheet-grid">'+cardMarkup+'</div>'+
+  '<div class="exp-config">'+tierControl+
+  (active?'':'<div class="exp-duration" aria-label="Duración de la expedición">'+durations+'</div>')+'</div>'+
+  '<div class="exp-sheet-footer">'+footer+'</div>';
 }
 function chooseExpedition(id){
  const e=expById(id);
- modal(`<div class="exp-modal"><small>${e.icon} ${e.name.toUpperCase()}</small><h2>Duración</h2><p>${e.desc}</p><div class="equipment-card"><span>🎒</span><div><small>EQUIPO AUTOMÁTICO</small><b>${equipmentLabel()}</b></div></div><div class="duration-grid">${e.durations.map(m=>`<button type="button" data-exp-start="${id}" data-exp-min="${m}"><b>${durationLabel(m)}</b><small>${m<=15?'Superficie':m<=30?'Vetas cercanas':m<=120?'Profundidad media':'Expedición profunda'}</small></button>`).join('')}</div></div>`);
+ if(!e)return;
+ selectExpGroup(e.group);
+ if(e.group==='mining')selectExpTier(id);
 }
 async function startExpedition(id,mins){
- const e=expById(id);if(!e||!expeditionUnlocked(e)||S.expeditions.active)return;
+ const e=expById(id);
+ if(!e||!expeditionUnlocked(e)||S.expeditions.active||!e.durations.includes(mins))return;
  const now=Date.now(),loot=makeLoot(e,mins);
- S.expeditions.active={destination:id,minutes:mins,startedAt:now,endsAt:now+mins*60000,equipment:equipmentLabel(),loot,doubled:false};
+ S.expeditions.active={destination:id,minutes:mins,startedAt:now,endsAt:now+mins*60000,
+  equipment:expEquip(e),loot,doubled:false};
  S.stats.expeditions=(S.stats.expeditions||0)+1;
- close();renderWorld();toast(`${e.name}: expedición iniciada`);
- await persist()
+ renderWorld();toast(e.name+': expedición iniciada');
+ await persist();
 }
-function showActiveExpedition(){
- const ex=S.expeditions.active,e=expById(ex.destination),left=ex.endsAt-Date.now();
- modal(`<div class="exp-modal"><span class="exp-big">${e.icon}</span><small>EXPEDICIÓN EN CURSO</small><h2>${e.name}</h2><div class="exp-timer big" id="modalExpTimer">${fmtCountdown(left)}</div><p>${ex.equipment} · ${durationLabel(ex.minutes)}</p><p class="muted">Puedes cerrar CRAFTERRA. El reloj continúa igualmente.</p></div>`)
+function showActiveExpedition(){showExpeditions()}
+function lootHTML(loot,mult=1){
+ return Object.entries(loot).map(([id,q])=>'<div class="loot-row">'+icon(item(id))+
+ '<b>'+item(id).name+'</b><strong>×'+q*mult+'</strong></div>').join('');
 }
-function lootHTML(loot,mult=1){return Object.entries(loot).map(([id,q])=>`<div class="loot-row">${icon(item(id))}<b>${item(id).name}</b><strong>×${q*mult}</strong></div>`).join('')}
-function showExpeditionResult(){
- const ex=S.expeditions.active;if(!ex||Date.now()<ex.endsAt)return showActiveExpedition();
- const e=expById(ex.destination);
- modal(`<div class="exp-modal"><small>EXPEDICIÓN COMPLETADA</small><h2>${e.icon} ${e.name}</h2><div class="loot-list">${lootHTML(ex.loot)}</div><button class="primary" id="collectLoot">Recoger</button><button class="reward-ad" id="doubleLoot">▶ DUPLICAR BOTÍN</button><small class="ad-note">Anuncio recompensado · opcional</small></div>`);
- setTimeout(()=>{$('#collectLoot').onclick=()=>collectExpedition(false);$('#doubleLoot').onclick=()=>collectExpedition(true)},0)
-}
+function showExpeditionResult(){showExpeditions()}
 async function collectExpedition(double){
  const ex=S.expeditions.active;if(!ex||Date.now()<ex.endsAt)return;
  let mult=1;
- if(double){const watched=await playAlmaPrintRewarded();if(!watched){toast('Vídeo cancelado · no se duplica la recompensa.');return}mult=2}
+ if(double){
+  const watched=await playAlmaPrintRewarded();
+  if(!watched){toast('Vídeo cancelado · la recompensa permanece.');return}
+  mult=2;
+ }
  const fresh=[];
- for(const [id,q] of Object.entries(ex.loot)){S.stock[id]=(S.stock[id]||0)+q*mult;if(!S.discovered[id]){S.discovered[id]=Date.now();fresh.push(id)}}
- S.expeditions.history.unshift({...ex,collectedAt:Date.now(),multiplier:mult});S.expeditions.history=S.expeditions.history.slice(0,20);S.expeditions.active=null;S.xp+=25*mult;
- await persist();close();renderWorld();renderCraft();
- if(fresh.length)modal(`<div class="discovery"><small>LA EXPEDICIÓN HA DESCUBIERTO</small><h2>${fresh.map(id=>item(id).name).join(' · ')}</h2><p>Nuevos recursos añadidos al Archivo.</p></div>`);
- else toast(mult===2?'Botín duplicado y recogido':'Botín recogido')
+ for(const [id,q]of Object.entries(ex.loot)){
+  S.stock[id]=(S.stock[id]||0)+q*mult;
+  if(!S.discovered[id]){S.discovered[id]=Date.now();fresh.push(id)}
+ }
+ S.expeditions.history.unshift({...ex,collectedAt:Date.now(),multiplier:mult});
+ S.expeditions.history=S.expeditions.history.slice(0,20);
+ S.expeditions.active=null;S.xp+=25*mult;
+ await persist();renderWorld();renderCraft();
+ const added=fresh.length?'. Nuevos: '+fresh.map(id=>item(id)?.name||id).join(', '):'';
+ toast((mult===2?'Botín duplicado':'Botín recogido')+added);
 }
 function tickExpeditions(){
- const ex=S?.expeditions?.active;if(!ex)return;
- const el=$('[data-exp-countdown]');if(el)el.textContent=fmtCountdown(ex.endsAt-Date.now());
- const mel=$('#modalExpTimer');if(mel)mel.textContent=fmtCountdown(ex.endsAt-Date.now());
+ const ex=S?.expeditions?.active;
+ if(!ex||!expSheetOpen)return;
+ const el=$('[data-exp-countdown]');
+ if(el)el.textContent=(expById(ex.destination)?.name||'Expedición')+' · '+fmtCountdown(ex.endsAt-Date.now());
  if(ex.endsAt<=Date.now()&&el&&!el.dataset.ready){el.dataset.ready='1';renderExpeditionPanel()}
 }
 
@@ -247,7 +357,7 @@ function renderHeader(coinOverride=null){
  $('#eraLabel').textContent=`ERA ${['I','II','III','IV','V','VI','VII'][e]}`;
  $('#eraName').textContent=CONFIG.eras[e][0]
 }
-function showView(v){$$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
+function showView(v){if(v!=='world'&&expSheetOpen)toggleExpeditions(false);$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
 function renderWorld(){
  if(!S)return;
  if(!isoWorld){
@@ -255,6 +365,7 @@ function renderWorld(){
      getState:()=>S,
      persist:()=>persist(),
      onCraft:()=>showView('craft'),
+     onExpeditions:()=>toggleExpeditions(),
      notify:toast,
      onProgress:()=>renderWorld()
    });
@@ -1198,6 +1309,16 @@ function settings(){
  },0)
 }
 function bind(){document.addEventListener('click',e=>{
+const expClose=e.target.closest('[data-exp-close]');
+if(expClose){e.preventDefault();toggleExpeditions(false);return}
+const expSelect=e.target.closest('[data-exp-select]');
+if(expSelect){e.preventDefault();selectExpGroup(expSelect.dataset.expSelect);return}
+const expDuration=e.target.closest('[data-exp-duration]');
+if(expDuration){e.preventDefault();selectExpDuration(+expDuration.dataset.expDuration);return}
+const expCollect=e.target.closest('[data-exp-collect]');
+if(expCollect){e.preventDefault();collectExpedition(false);return}
+const expDouble=e.target.closest('[data-exp-double]');
+if(expDouble){e.preventDefault();collectExpedition(true);return}
 const expStart=e.target.closest('[data-exp-start]');
 if(expStart){e.preventDefault();e.stopPropagation();startExpedition(expStart.dataset.expStart,+expStart.dataset.expMin);return}
 const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add=e.target.closest('[data-add]')?.dataset.add;if(add){
@@ -1213,7 +1334,7 @@ const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.da
 const dm=e.target.closest('[data-direct-make-missing]');if(dm){craftMissingHere(dm.dataset.directMakeMissing,+dm.dataset.directMissingQty,dm.dataset.directReturn);return}
 const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
 const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
-const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems}
+const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems;$('#expeditionPanel').addEventListener('change',e=>{if(e.target.id==='expTierSelect')selectExpTier(e.target.value);});}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){
  const importedOK=localStorage.getItem('crafterra_import_success')==='1';
  if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
