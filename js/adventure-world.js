@@ -1,8 +1,8 @@
-import{gatheringPlan}from './adventure-rules.js?v=0.7.0';
-import{actionArt,actionKind}from './adventure-art.js?v=0.8.0';
+import{gatheringPlan}from './adventure-rules.js?v=0.9.0';
+import{actionArt,actionKind}from './adventure-art.js?v=0.9.0';
 import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
-import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.7.0';
-import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.7.0';
+import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.9.0';
+import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.9.0';
 // CRAFTERRA · Primer mundo isométrico (sin dependencias externas)
 // La aventura comparte inventario y guardado con el juego original.
 export const WORLD_SIZE = Object.freeze({width:30,height:22});
