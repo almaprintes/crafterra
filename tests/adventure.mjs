@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {WORLD_SIZE,WORLD_NODES,WORLD_NPCS,isWalkable,findPath} from '../js/adventure-world.js';
+assert.equal(WORLD_SIZE.width,30);
+assert.equal(WORLD_SIZE.height,22);
+assert.equal(isWalkable(9,10),true,'spawn');
+assert.equal(isWalkable(15,10,false),false,'river closed');
+assert.equal(isWalkable(15,10,true),true,'bridge open');
+assert.equal(isWalkable(15,9,true),false,'other river remains blocked');
+assert.equal(isWalkable(0,0),false,'border');
+assert.equal(findPath({x:9,y:10},{x:22,y:10},false).length,0,'cannot cross river before bridge');
+assert.ok(findPath({x:9,y:10},{x:22,y:10},true).length>0,'can cross bridge after repair');
+assert.equal(findPath({x:9,y:10},{x:15,y:12},true).length,0,'river is blocked except on bridge');
+const ids=new Set([...WORLD_NODES,...WORLD_NPCS].map(e=>e.id));
+assert.equal(ids.size,WORLD_NODES.length+WORLD_NPCS.length,'unique IDs');
+for(const entity of [...WORLD_NODES,...WORLD_NPCS])assert.ok(isWalkable(entity.x,entity.y,true),entity.id+' must be reachable terrain');
+for(const type of ['wood','stone','plant_fiber'])assert.ok(WORLD_NODES.filter(x=>x.type===type).length>=3,'resource '+type);
+console.log('Aventura isométrica: mapa, recursos, personajes y rutas OK');
