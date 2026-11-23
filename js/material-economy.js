@@ -2,7 +2,7 @@
 // Aquí no se inventan recetas duplicadas del laboratorio.
 import {syncTools,wearTool,toolCharge} from './adventure-rules.js?v=0.6.0';
 
-export const FUEL_HEAT=Object.freeze({rough_wood:3,wood:5,charcoal:9,coal:12});
+export const FUEL_HEAT=Object.freeze({rough_wood:3,wood:5,charcoal:7,coal:12});
 export const MAX_FIRE_HEAT=24;
 
 // Categorías de uso, desacopladas de cómo se obtiene cada recurso.
