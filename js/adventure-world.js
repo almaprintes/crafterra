@@ -1,26 +1,33 @@
 import{gatheringPlan}from './adventure-rules.js?v=0.7.0';
 import{actionArt,actionKind}from './adventure-art.js?v=0.8.0';
+import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.7.0';
 import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.7.0';
 // CRAFTERRA · Primer mundo isométrico (sin dependencias externas)
 // La aventura comparte inventario y guardado con el juego original.
 export const WORLD_SIZE = Object.freeze({width:30,height:22});
 export const WORLD_NODES = Object.freeze([
+ // Praderas y bosques: recolección orgánica
  {id:'arbol1',x:5,y:7,type:'wood',species:'pine',qty:2},
  {id:'arbol2',x:4,y:14,type:'wood',species:'oak',qty:3},
  {id:'arbol3',x:10,y:16,type:'wood',species:'pine',qty:2},
- {id:'arbol4',x:8,y:3,type:'wood',species:'oak',qty:3},
+ {id:'arbol4',x:8,y:6,type:'wood',species:'oak',qty:3},
  {id:'arbol5',x:20,y:13,type:'wood',species:'oak',qty:3},
- {id:'roca1',x:6,y:14,type:'stone',qty:3},
- {id:'roca2',x:11,y:5,type:'stone',qty:3},
- {id:'roca3',x:3,y:10,type:'stone',qty:3},
- {id:'roca4',x:24,y:6,type:'stone',qty:3},
  {id:'fibra1',x:9,y:13,type:'plant_fiber',qty:2},
  {id:'fibra2',x:5,y:17,type:'plant_fiber',qty:2},
  {id:'fibra3',x:11,y:8,type:'plant_fiber',qty:2},
- {id:'fibra4',x:25,y:16,type:'plant_fiber',qty:2},
+ {id:'fibra4',x:22,y:16,type:'plant_fiber',qty:2},
+ {id:'bayas_pradera',x:7,y:12,type:'berries',qty:2},
+ {id:'bayas_ribera',x:21,y:11,type:'berries',qty:2},
+ {id:'hierbas_pradera',x:11,y:13,type:'herbs',qty:2},
+ {id:'setas_bosque',x:6,y:16,type:'mushroom',qty:2},
+ // Sierras y afloramientos: ninguna veta en prados
+ {id:'roca1',x:5,y:19,type:'stone',qty:3},
+ {id:'roca2',x:11,y:5,type:'stone',qty:3},
+ {id:'roca3',x:8,y:19,type:'stone',qty:3},
+ {id:'roca4',x:24,y:6,type:'stone',qty:3},
  {id:'mena_hierro',x:10,y:4,type:'iron',qty:2},
- {id:'mena_cobre',x:9,y:17,type:'copper',qty:2},
+ {id:'mena_cobre',x:9,y:18,type:'copper',qty:2},
  {id:'mena_estano',x:25,y:12,type:'tin',qty:2},
  {id:'carbon',x:6,y:19,type:'coal',qty:2},
  {id:'cuarzo',x:24,y:17,type:'quartz',qty:1},
@@ -36,6 +43,8 @@ export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(!Number.isInteger(x)||!Number.isInteger(y)||x<1||x>=WORLD_SIZE.width-1||y<1||y>=WORLD_SIZE.height-1)return false;
   if(x===15&&(!bridge||y!==10))return false;
   if(WORLD_HOUSES.some(t=>t.x===x&&t.y===y))return false;
+  if(CAVE_ENTRANCES.some(t=>t.x===x&&t.y===y))return false;
+  if(WORLD_ANIMALS.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
   if(WORLD_CAMPFIRE.x===x&&WORLD_CAMPFIRE.y===y)return false;
   if(WORLD_WORKSTATIONS.some(o=>o.x===x&&o.y===y))return false;
   if(WORLD_TREES.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
@@ -75,8 +84,12 @@ const hash=(x,y)=>((x*1789+y*3247+x*y*1297)>>>0)%19;
 export const WORLD_TREES=Object.freeze((()=>{
  const out=[];
  for(let y=2;y<WORLD_SIZE.height-2;y++)for(let x=2;x<WORLD_SIZE.width-2;x++){
-   if(Math.abs(x-15)<3||y>=9&&y<=11||hash(x,y)!==0)continue;
+   const area=biomeAt(x,y);
+   if(area!=='meadow'&&area!=='forest')continue;
+   if(Math.abs(x-15)<3||y>=9&&y<=11||hash(x,y)>(area==='forest'?2:0))continue;
    if(WORLD_HOUSES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<3))continue;
+   if(CAVE_ENTRANCES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<3))continue;
+   if(WORLD_ANIMALS.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
    if(WORLD_NPCS.some(n=>Math.abs(n.x-x)<3&&Math.abs(n.y-y)<3))continue;
    if(WORLD_NODES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
    if(WORLD_WORKSTATIONS.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
