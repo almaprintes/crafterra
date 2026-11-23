@@ -199,7 +199,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Árboles: cortar o golpear · Río: cuenco · Vetas: pico · Casas: entrar';
   }
   function showDialog(name,message,buttons=[{label:'Continuar',action:'close'}]){
-    dialogOpen=true;path=[];pending=null;harvest=null;
+    dialogOpen=true;path=[];pending=null;harvest=null;el('#adv-work').hidden=true;
     el('#adv-speaker').textContent=name;el('#adv-dialog-text').textContent=message;
     const actions=el('#adv-dialog-actions');actions.replaceChildren();
     buttons.forEach(b=>{const btn=document.createElement('button');btn.textContent=b.label;btn.disabled=b.enabled===false;if(b.need)btn.title=b.need;btn.addEventListener('click',()=>{
@@ -290,7 +290,7 @@ function enterRoom(id){
       if(!a.metMara){a.metMara=true;persist();onProgress();}
       showDialog('Mara · Habitante de la aldea',a.bridge?'¡Qué maravilla! Gracias a ti hemos recuperado el camino. Busca a Lía al otro lado del río.':'Nuestro puente cayó durante la última tormenta. Necesitamos a alguien que sepa fabricar. Consigue 2 tablones y 1 cuerda para repararlo. ¡El Taller sigue abierto!', [{label:'Ir al taller',action:'craft'},{label:'Voy a explorar',action:'close'}]);return;
     }
-    if(e.id==='taro'){showDialog('Taro · Guardabosques',a.bridge?'¡Buen trabajo! El bosque oriental vuelve a estar conectado con la aldea.':'El río no se puede cruzar por aquí. Si te falta material para el puente, corta árboles con marca dorada y pica rocas. Las hachas y picos de piedra duran 10 usos; los de hierro, 100.');return;}
+    if(e.id==='taro'){showDialog('Taro · Guardabosques',a.bridge?'¡Buen trabajo! El bosque oriental vuelve a estar conectado con la aldea.':'Aquí todo tiene un uso. Puedes cortar pinos y robles con hacha, o golpearlos para conseguir madera tosca. Para recoger agua fabrica un cuenco y acércate al río. Los minerales necesitan un pico.');return;}
     if(e.id==='lia'){
       if(!a.bridge){showDialog('Lía · Inventora','¿Cómo has llegado hasta aquí? El puente del valle sigue sin reparar.');return;}
       if(!a.completed){a.completed=true;s.coins=(Number(s.coins)||0)+250;persist();onProgress();notify('Capítulo 1 completado · +250 monedas');}
@@ -494,11 +494,22 @@ function worldObjects(){
   canvas.addEventListener('click',ev=>{
     const r=canvas.getBoundingClientRect(),x=(ev.clientX-r.left)*w/r.width,y=(ev.clientY-r.top)*h/r.height;
     let hit=null,min=29;
-    for(const e of entities()){const p=project(e.x,e.y);const shift=e.type==='wood'||e.kind==='scenery'?32:e.kind==='npc'?30:12;
-      const radius=e.type==='wood'||e.kind==='scenery'?35:28;
-      const d=Math.hypot(x-p.x,y-(p.y-shift));if(d<radius&&d<min+12){hit=e;min=d;}}
+    for(const e of entities()){
+      const p=project(e.x,e.y);
+      const tall=e.type==='wood'||e.kind==='npc'||e.kind==='house'||e.kind==='station';
+      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:30):12;
+      const radius=tall?43:27;
+      const d=Math.hypot(x-p.x,y-(p.y-shift));
+      if(d<radius&&d<min+15){hit=e;min=d;}
+    }
     if(hit){moveTo(hit.x,hit.y,hit);return;}
-    const tile=screenToTile(x,y);moveTo(tile.x,tile.y);
+    const tile=screenToTile(x,y);
+    if(!adventure().scene&&tile.x===15&&tile.y>0&&tile.y<WORLD_SIZE.height-1){
+      const side=player.x<15?14:16;
+      const water=riverNode(tile.y,side);
+      moveTo(water.x,water.y,water);return;
+    }
+    moveTo(tile.x,tile.y);
   });
   el('#adv-interact').addEventListener('click',()=>{const n=nearby();if(n&&n.d<2.2)interact(n);else notify('Acércate a una persona, recurso o al puente.');});
   el('#adv-workshop').addEventListener('click',()=>{savePosition();onCraft();});
