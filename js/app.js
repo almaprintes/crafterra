@@ -1,6 +1,6 @@
-import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.9.0';import{CONFIG}from'./config.js?v=0.10.0';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.10.0';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.10.0';
+import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.9.0';import{CONFIG}from'./config.js?v=0.11.0';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.11.0';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.11.0';
 import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
-import{mountIsometricWorld}from'./adventure-world.js?v=0.10.0';
+import{mountIsometricWorld}from'./adventure-world.js?v=0.11.0';
 import{actionArt}from'./adventure-art.js?v=0.9.0';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.9.0';
 // La navegación principal también usa ilustraciones, no glifos de una fuente.
