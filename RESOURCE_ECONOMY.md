@@ -1,6 +1,16 @@
 # CRAFTERRA · Reglas de recursos, combustible y transformación
 
-**Versión de reglas 0.7 · 23 noviembre 2026.** Este documento es la referencia para añadir recursos y recetas al RPG. Se distingue entre lo **implementado** y lo **pendiente de diseño**.
+**Versión de reglas 0.9 · 23 noviembre 2026.** Este documento es la referencia para añadir recursos y recetas al RPG. Se distingue entre lo **implementado** y lo **pendiente de diseño**.
+
+## Regiones de recolección (v0.9)
+
+Las praderas y bosques ofrecen recursos orgánicos; las sierras rocosas y cuevas, minerales. **No se debe minar una pradera.** Consulta [BIOMES.md](BIOMES.md) para ver distribuciones, animales y dos cuevas navegables.
+
+- Ovejas: lana renovable al esquilar o recogerla suelta; no desaparecen del mapa.
+- Conejos y ciervos: carne y piel cruda mediante captura o caza; lanzas y arcos requieren usos y, cuando corresponda, flechas.
+- Piel cruda → cuero en la curtiduría del taller de Lía: 1 piel + 1 agua + 1 madera tosca, 3,5 segundos.
+- Tijeras de esquilar de hierro: 100 usos. Se forjan con calor, lingote de hierro y martillo.
+- Los depósitos de piedra y menas de ambas cuevas comparten los tiempos, herramientas y regeneración de los yacimientos de superficie.
 
 ## Regla principal
 
