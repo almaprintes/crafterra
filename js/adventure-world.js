@@ -211,7 +211,7 @@ const drawBridge=(ctx,x,y,built)=>{
   else{ctx.fillStyle='#385d6a';ctx.fillRect(x-6,y-8,14,17);ctx.fillStyle='#cd9879';ctx.fillRect(x-25,y-13,3,10);ctx.fillRect(x+23,y-13,3,10);}
 };
 
-export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProgress=()=>{}}){
+export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions=()=>{},notify,onProgress=()=>{}}){
   root.innerHTML='<canvas class="adventure-canvas" aria-label="Mapa isométrico interactivo de Crafterra"></canvas>'+
     '<div class="adv-atmosphere" aria-hidden="true"></div>'+
     '<div class="adventure-hud"><b id="adv-region">VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
@@ -224,7 +224,8 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
     '<button class="adv-up" type="button" aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
     '<button class="adv-left" type="button" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" type="button" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" type="button" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
     '</div><button id="adv-interact" type="button" class="adventure-action">'+actionArt('shield','sm')+'<span>ACCIÓN</span></button>'+
-    '<button id="adv-workshop" type="button" class="adventure-craft">'+actionArt('hammer','sm')+'<span>CREAR</span></button></div>'+
+    '<button id="adv-workshop" type="button" class="adventure-craft">'+actionArt('hammer','sm')+'<span>CREAR</span></button>'+
+    '<button id="adv-expeditions" type="button" class="adventure-expeditions" aria-expanded="false" aria-controls="expeditionPanel">'+actionArt('tent','sm')+'<span>EXPEDICIONES</span><i class="exp-notice" aria-hidden="true">!</i></button></div>'+
     '<div class="adventure-dialog" role="dialog" aria-label="Acciones del mundo" hidden>'+
       '<div class="adv-dialog-top"><span>CRAFTERRA · ACCIONES</span><button id="adv-dismiss" type="button" aria-label="Cerrar menú">×</button></div>'+
       '<div class="adv-dialog-heading"><span id="adv-dialog-emblem">'+actionArt('gem','lg')+'</span><div><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p></div></div>'+
@@ -878,6 +879,7 @@ function worldObjects(){
   });
     el('#adv-interact').addEventListener('click',()=>{const n=nearby();if(n&&n.d<2.2)interact(n);else notify('Acércate a una persona, recurso o al puente.');});
   el('#adv-workshop').addEventListener('click',()=>{savePosition();onCraft();});
+  el('#adv-expeditions').addEventListener('click',()=>onExpeditions());
 
   for(const btn of root.querySelectorAll('[data-dir]')){
     const direction=btn.dataset.dir.split(',').map(Number);
