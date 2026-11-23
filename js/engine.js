@@ -1,11 +1,12 @@
 import{ITEMS,RECIPES}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.3.1';
 export const item=id=>ITEMS.find(x=>x.id===id);export const recipe=(a,b)=>RECIPES.find(r=>(r.a===a&&r.b===b)||(r.a===b&&r.b===a));
 const VALID=new Set(ITEMS.map(x=>x.id));
-export function initialState(){const now=Date.now();return{schema:7,coins:CONFIG.startCoins,xp:0,level:1,discovered:{stone:now,wood:now,water:now,earth:now,sand:now},crafted:{},knownRecipes:{},mastery:{},stock:{stone:3,wood:3,water:2,earth:2,sand:2},collections:{},missions:{},puzzles:{},achievements:{},hintLibrary:{},stations:[],world:[],expeditions:{active:null,history:[]},stats:{merges:0,failed:0,hints:0,expeditions:0},ads:{date:'',count:0},daily:{date:'',best:null,streak:0,completed:0},bonus:{last:'',day:0},settings:{sound:true,motion:true}}}
+export function initialState(){const now=Date.now();return{schema:7,coins:CONFIG.startCoins,xp:0,level:1,discovered:{stone:now,wood:now,water:now,earth:now,sand:now},crafted:{},knownRecipes:{},mastery:{},toolDurability:{},stock:{stone:3,wood:3,water:2,earth:2,sand:2},collections:{},missions:{},puzzles:{},achievements:{},hintLibrary:{},stations:[],world:[],expeditions:{active:null,history:[]},stats:{merges:0,failed:0,hints:0,expeditions:0},ads:{date:'',count:0},daily:{date:'',best:null,streak:0,completed:0},bonus:{last:'',day:0},settings:{sound:true,motion:true}}}
 export function normalizeState(raw){const base=initialState();if(!raw||typeof raw!=='object')return base;const s={...base,...raw};for(const k of ['discovered','crafted','stock']){const src=raw[k]&&typeof raw[k]==='object'?raw[k]:{};s[k]=Object.fromEntries(Object.entries(src).filter(([id])=>VALID.has(id)));}for(const k of ['collections','missions','puzzles','achievements','hintLibrary'])s[k]={...base[k],...(raw[k]&&typeof raw[k]==='object'?raw[k]:{})};
 const validRecipes=new Set(RECIPES.map(r=>r.id));
 s.knownRecipes=Object.fromEntries(Object.entries(raw.knownRecipes&&typeof raw.knownRecipes==='object'?raw.knownRecipes:{}).filter(([id])=>validRecipes.has(id)));
 RECIPES.forEach(r=>{if((s.crafted[r.result]||0)>0&&!s.knownRecipes[r.id])s.knownRecipes[r.id]=true});
+s.toolDurability=raw.toolDurability&&typeof raw.toolDurability==='object'?{...raw.toolDurability}:{};
 s.mastery={};
 for(const [rid,val] of Object.entries(raw.mastery&&typeof raw.mastery==='object'?raw.mastery:{})){
  if(!validRecipes.has(rid))continue;
