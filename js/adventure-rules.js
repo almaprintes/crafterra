@@ -8,7 +8,11 @@ export const TOOL_RULES=Object.freeze({
  shovel:{kind:'plant_fiber',uses:100,ms:450,label:'Pala',tier:2},
  stone_hammer:{kind:'craft',uses:10,ms:900,label:'Martillo de piedra',tier:1},
  iron_hammer:{kind:'craft',uses:100,ms:450,label:'Martillo de hierro',tier:2},
- saw:{kind:'craft',uses:100,ms:500,label:'Sierra',tier:2}
+ saw:{kind:'craft',uses:100,ms:500,label:'Sierra',tier:2},
+ shears:{kind:'shear',uses:100,ms:1250,label:'Tijeras de esquilar',tier:2},
+ stone_spear:{kind:'hunt',uses:10,ms:3000,label:'Lanza de piedra',tier:1},
+ iron_spear:{kind:'hunt',uses:100,ms:1450,label:'Lanza de hierro',tier:3},
+ bow:{kind:'hunt',uses:100,ms:2000,label:'Arco',tier:2}
 });
 export const HAND_MS=Object.freeze({wood:6000,stone:7500,plant_fiber:2100});
 export function toolUses(id){return TOOL_RULES[id]?.uses||0;}
