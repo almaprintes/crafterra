@@ -287,18 +287,52 @@ function toolCapacity(id){
 function sufficientMaterial(id,qty){
  return STATIONS.includes(id)?stockOf(id)>0:isReusableTool(id)?stockOf(id)>0&&toolCapacity(id)>=qty:stockOf(id)>=qty;
 }
+function renderInventoryItems(){
+ if(!S)return;
+ const filter=$('#inventoryFilter')?.value||'owned';
+ const query=($('#itemSearch')?.value||'').trim().toLocaleLowerCase('es');
+ const known=ITEMS.filter(i=>S.discovered[i.id]);
+ const visible=known.filter(i=>(filter==='all'||stockOf(i.id)>0)&&(!query||i.name.toLocaleLowerCase('es').includes(query)));
+ visible.sort((a,b)=>{
+   const qa=stockOf(a.id),qb=stockOf(b.id);
+   return Number(qb>0)-Number(qa>0)||a.name.localeCompare(b.name,'es');
+ });
+ const grid=$('#inventoryGrid');
+ grid.innerHTML=visible.map(i=>{
+   const qty=stockOf(i.id),dur=isReusableTool(i.id)&&qty?
+     ' <span class="tool-remaining">⚒ '+toolCharge(S,i.id)+'/'+toolUses(i.id)+'</span>':'';
+   return '<button class="item" type="button" data-add="'+i.id+'"'+(qty?'':' disabled aria-disabled="true"')+' aria-label="'+i.name+', '+qty+' disponibles">'+
+      icon(i)+'<small>'+i.name+'</small>'+(qty?'<em class="qty">×'+qty+'</em>':'')+dur+'</button>';
+ }).join('');
+ $('#inventoryCount').textContent=visible.length+' materiales';
+ $('#inventoryEmpty').hidden=visible.length!==0;
+}
 function renderCraft(){
  syncTools(S);
- const known=ITEMS.filter(i=>S.discovered[i.id]);
- $('#inventoryGrid').innerHTML=known.map(i=>{
-   const qty=stockOf(i.id),dur=isReusableTool(i.id)&&qty?' <span class="tool-remaining">🛠 '+toolCharge(S,i.id)+'/'+toolUses(i.id)+'</span>':'';
-   return '<button class="item" data-add="'+i.id+'">'+icon(i)+'<small>'+i.name+'</small>'+
-       (qty?'<em class="qty">×'+qty+'</em>':'')+dur+'</button>';
- }).join('');
- $('#stationBar').innerHTML=['none',...STATIONS.filter(x=>S.discovered[x])].map((id,i)=>'<button>'+ (i?'⚙ '+item(id).name:'Mesa libre')+'</button>').join('');
+ renderInventoryItems();
+ const stationCount=STATIONS.filter(x=>S.discovered[x]).length;
+ $('#stationBar').innerHTML='<span class="craft-station-chip">⚒ MESA LIBRE</span>'+
+   '<span class="craft-station-count">'+stationCount+' estaciones descubiertas</span>';
  renderBoard();renderDailyRun();
 }
-function renderBoard(){const b=$('#craftBoard');b.querySelectorAll('.piece').forEach(x=>x.remove());board.forEach((id,i)=>{const it=item(id),el=document.createElement('button');el.className='piece';el.dataset.index=i;el.style.cssText=`--x:${18+(i%4)*22}%;--y:${25+Math.floor(i/4)*28}%;`;el.innerHTML=icon(it)+`<small>${it.name}</small>`;el.draggable=true;el.addEventListener('pointerdown',dragStart);b.append(el)})}
+function renderBoard(){
+ const b=$('#craftBoard');
+ b.querySelectorAll('.piece').forEach(x=>x.remove());
+ // Las recetas combinan exactamente dos ingredientes. Sin fichas fuera del tablero.
+ b.dataset.pieces=String(Math.min(board.length,2));
+ for(const [i,id] of board.entries()){
+   if(i>1)break;
+   const it=item(id),el=document.createElement('button');
+   el.className='piece';el.type='button';el.dataset.index=i;
+   el.setAttribute('aria-label','Ingrediente '+(i+1)+': '+it.name+'. Arrastra sobre el otro ingrediente para combinar.');
+   el.style.cssText='--x:'+(i===0?26:74)+'%;--y:43%;';
+   el.innerHTML=icon(it)+'<small>'+it.name+'</small>';
+   el.draggable=true;el.addEventListener('pointerdown',dragStart);b.append(el);
+ }
+ const combine=$('#combineBoard');
+ combine.disabled=board.length!==2;
+ combine.textContent=board.length===2?'⚒ FUSIONAR':'ELIGE DOS MATERIALES';
+}
 function dragStart(ev){const el=ev.currentTarget,idx=+el.dataset.index;el.setPointerCapture(ev.pointerId);el.classList.add('held');const move=e=>{const r=$('#craftBoard').getBoundingClientRect();el.style.left=`${e.clientX-r.left}px`;el.style.top=`${e.clientY-r.top}px`;el.style.transform='translate(-50%,-50%) scale(1.12)'};const up=async e=>{el.removeEventListener('pointermove',move);el.classList.remove('held');el.style.pointerEvents='none';const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.piece');el.style.pointerEvents='';if(target&&+target.dataset.index!==idx){await doMerge(idx,+target.dataset.index)}else renderBoard()};el.addEventListener('pointermove',move);el.addEventListener('pointerup',up,{once:true})}
 async function doMerge(i,j){
  const a=board[i],b=board[j];
@@ -1092,6 +1126,7 @@ function bind(){document.addEventListener('click',e=>{
 const expStart=e.target.closest('[data-exp-start]');
 if(expStart){e.preventDefault();e.stopPropagation();startExpedition(expStart.dataset.expStart,+expStart.dataset.expMin);return}
 const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v);const add=e.target.closest('[data-add]')?.dataset.add;if(add){
+ if(board.length>=2){toast('Mesa llena: pulsa FUSIONAR o LIMPIAR.');return}
  if(!canPlaceFromInventory(add)){toast(`No tienes más ${item(add)?.name||'unidades'} disponibles.`);return}
  board.push(add);renderBoard()
 }const bm=e.target.closest('[data-book-mode]')?.dataset.bookMode;if(bm){bookMode=bm;renderBook();return}
@@ -1103,7 +1138,7 @@ const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.da
 const dm=e.target.closest('[data-direct-make-missing]');if(dm){craftMissingHere(dm.dataset.directMakeMissing,+dm.dataset.directMissingQty,dm.dataset.directReturn);return}
 const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
 const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
-const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=e=>$$('#inventoryGrid .item').forEach(x=>x.hidden=!x.textContent.toLowerCase().includes(e.target.value.toLowerCase()))}
+const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){
  const importedOK=localStorage.getItem('crafterra_import_success')==='1';
  if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
