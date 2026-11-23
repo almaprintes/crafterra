@@ -1,8 +1,8 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'../js/data.js';
 import{readFile}from'node:fs/promises';
 const ok=(v,m)=>{if(!v)throw Error(m)};
-ok(ITEMS.length===243,`Objetos: ${ITEMS.length}`);
-ok(RECIPES.length===240,`Recetas explícitas: ${RECIPES.length}`);
+ok(ITEMS.length===245,`Objetos: ${ITEMS.length}`);
+ok(RECIPES.length===242,`Recetas explícitas: ${RECIPES.length}`);
 ok(COLLECTIONS.length>=20,`Colecciones: ${COLLECTIONS.length}`);
 ok(PUZZLES.length===15,`Puzles: ${PUZZLES.length}`);
 ok(MISSIONS.length>=28,`Misiones: ${MISSIONS.length}`);
@@ -16,8 +16,10 @@ for(const id of ['iron','copper','tin','silver','gold']){
  ok(ITEMS.some(i=>i.id===id+'_concentrate'),'Falta mena preparada de '+id);
  ok(RECIPES.some(r=>r.a===id&&r.b===id&&r.result===id+'_concentrate'),'Falta receta de triturado de '+id);
 }
+ok(RECIPES.some(r=>r.id==='r241'&&r.result==='shears'),'Falta receta de tijeras');
+ok(RECIPES.some(r=>r.id==='r242'&&r.a==='animal_hide'&&r.result==='leather'),'Falta receta de curtido');
 const pairs=new Set;for(const r of RECIPES){ok(ids.has(r.a)&&ids.has(r.b)&&ids.has(r.result),`Referencia rota ${r.id}`);const p=[r.a,r.b].sort().join('|');ok(!pairs.has(p),`Par duplicado ${p}`);pairs.add(p)}
-const reachable=new Set(['stone','wood','rough_wood','water','fire','earth']);let change=true;while(change){change=false;for(const r of RECIPES)if(reachable.has(r.a)&&reachable.has(r.b)&&!reachable.has(r.result)){reachable.add(r.result);change=true}}
+const reachable=new Set(['stone','wood','rough_wood','animal_hide','water','fire','earth']);let change=true;while(change){change=false;for(const r of RECIPES)if(reachable.has(r.a)&&reachable.has(r.b)&&!reachable.has(r.result)){reachable.add(r.result);change=true}}
 ok(reachable.size===ITEMS.length,`${ITEMS.length-reachable.size} objetos no alcanzables`);
 for(const c of COLLECTIONS)for(const id of c.items)ok(ids.has(id),`Colección ${c.name}: ${id} inexistente`);
 for(const m of MISSIONS)ok(ids.has(m.target),`Misión ${m.name}: objetivo inexistente`);
