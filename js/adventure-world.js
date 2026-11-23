@@ -1,4 +1,5 @@
 import{gatheringPlan}from './adventure-rules.js?v=0.7.0';
+import{actionArt,actionKind}from './adventure-art.js?v=0.8.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.7.0';
 import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.7.0';
 // CRAFTERRA · Primer mundo isométrico (sin dependencias externas)
@@ -147,20 +148,27 @@ const drawBridge=(ctx,x,y,built)=>{
 
 export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProgress=()=>{}}){
   root.innerHTML='<canvas class="adventure-canvas" aria-label="Mapa isométrico interactivo de Crafterra"></canvas>'+
-    '<div class="adventure-hud"><b id="adv-region">🌿 VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
-    '<div class="adventure-inventory" id="adv-inventory"></div>'+
-    '<div class="adventure-tool" id="adv-tool">🪓 Manos · ⛏ Manos</div>'+
-    '<div class="adventure-work" id="adv-work" hidden><b id="adv-work-label">Trabajando…</b><div class="adventure-work-track"><span id="adv-work-bar"></span></div></div>'+
+    '<div class="adv-atmosphere" aria-hidden="true"></div>'+
+    '<div class="adventure-hud"><b id="adv-region">VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
+    '<div class="adventure-inventory" id="adv-inventory" aria-label="Recursos actuales"></div>'+
+    '<div class="adventure-tool" id="adv-tool"></div>'+
+    '<div class="adventure-work" id="adv-work" hidden><div class="adv-work-row"><span id="adv-work-art">'+actionArt('pick','sm')+'</span><div class="adv-work-copy"><b id="adv-work-label">Trabajando...</b><small>TOCA EL GOLPE PARA ACELERAR</small></div></div>'+
+      '<div class="adventure-work-track"><span id="adv-work-bar"></span></div>'+
+      '<button type="button" id="adv-strike" class="adv-strike" aria-label="Dar un golpe de trabajo">'+actionArt('hammer','sm')+'<span>¡GOLPEA!</span></button></div>'+
     '<div class="adventure-bottom"><div class="adventure-dpad" aria-label="Controles de movimiento">'+
-    '<button class="adv-up" aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
-    '<button class="adv-left" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
-    '</div><button id="adv-interact" class="adventure-action">✦ Interactuar</button><button id="adv-workshop" class="adventure-craft">⚒ Taller</button></div>'+
-    '<div class="adventure-dialog" hidden><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p><div id="adv-dialog-actions"></div></div>'+
-    '<div class="adventure-hint" id="adv-tip">Toca un recurso para decidir qué hacer · Las casas tienen interior</div>';
+    '<button class="adv-up" type="button" aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
+    '<button class="adv-left" type="button" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" type="button" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" type="button" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
+    '</div><button id="adv-interact" type="button" class="adventure-action">'+actionArt('shield','sm')+'<span>ACCIÓN</span></button>'+
+    '<button id="adv-workshop" type="button" class="adventure-craft">'+actionArt('hammer','sm')+'<span>CREAR</span></button></div>'+
+    '<div class="adventure-dialog" role="dialog" aria-label="Acciones del mundo" hidden>'+
+      '<div class="adv-dialog-top"><span>CRAFTERRA · ACCIONES</span><button id="adv-dismiss" type="button" aria-label="Cerrar menú">×</button></div>'+
+      '<div class="adv-dialog-heading"><span id="adv-dialog-emblem">'+actionArt('gem','lg')+'</span><div><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p></div></div>'+
+      '<div id="adv-dialog-actions" class="adv-dialog-grid"></div></div>'+
+    '<div class="adventure-hint" id="adv-tip">TOCA LOS OBJETOS DEL MUNDO PARA INTERACTUAR</div>';
   const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d',{alpha:false});
   if(!ctx){notify('No se pudo iniciar la vista gráfica.');return{refresh(){}};}
   const el=q=>root.querySelector(q);
-  let player={x:9,y:10},path=[],pending=null,cam={x:0,y:0},last=0,step=0,frameCount=0,dialogOpen=false,loaded=false,w=480,h=300,harvest=null,walkPhase=0,facing=1,held=null;
+  let player={x:9,y:10},path=[],pending=null,cam={x:0,y:0},last=0,step=0,frameCount=0,dialogOpen=false,loaded=false,w=480,h=300,harvest=null,walkPhase=0,facing=1,held=null,workPhase=0,lastStrike=0,fx=[];
   const actors=WORLD_NPCS.map(n=>({...n,homeX:n.x,homeY:n.y,phase:0,facing:1,idle:0,steps:[]}));
   const state=()=>getState();
   function adventure(){
