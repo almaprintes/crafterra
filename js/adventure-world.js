@@ -330,14 +330,24 @@ function enterRoom(id){
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
     savePosition();updateHud();notify('Has salido al Valle del Origen');
   }
+  function activateWork(label,ms,kind){
+    const work=el('#adv-work');
+    work.hidden=false;
+    work.dataset.kind=kind;
+    el('#adv-work-label').textContent=label;
+    el('#adv-work-art').innerHTML=actionArt(kind,'sm');
+    el('#adv-strike').innerHTML=actionArt(kind,'sm')+'<span>¡GOLPEA!</span>';
+    el('#adv-work-bar').style.width='0%';
+    lastStrike=0;
+    workPhase=0;
+  }
   function beginWork(e,option){
     if(!option?.enabled){notify(option?.need||'No puedes hacerlo todavía');return;}
     if(!available(e))return;
     harvest={node:e,actionId:option.id,elapsed:0,ms:option.ms,plan:option};
     path=[];pending=null;
-    el('#adv-work').hidden=false;
-    el('#adv-work-label').textContent=option.label+' · '+(option.ms/1000).toFixed(1)+' s';
-    el('#adv-work-bar').style.width='0%';
+    const kind=option.id==='mine'?'pick':option.id==='hit'?'log':actionKind(option.id,option.label);
+    activateWork(option.label,option.ms,kind);
     updateHud();
   }
   // Menús en dos niveles: evita enormes listas de procesos en una pantalla móvil.
@@ -345,8 +355,8 @@ function enterRoom(id){
     const s=state(),opts=stationOptions(s,kind,fireId);
     const heat=kind==='fire'||kind==='foundry'?heatOf(s,fireId):null;
     const sections={
-      foundry:[['fuel','🔥 Añadir combustible'],['smelt','⚗️ Fundir metales y aleaciones'],['forge','⚒️ Forjar herramientas']],
-      stonework:[['stone','🪨 Tallar piedra y herramientas'],['ore','⛏️ Preparar minerales']]
+      foundry:[['fuel','Combustible','fire'],['smelt','Fundir metales','ingot'],['forge','Forjar herramientas','hammer']],
+      stonework:[['stone','Tallar y montar','stone'],['ore','Preparar minerales','pick']]
     };
     const describe=kind==='fire'?'La hoguera almacena calor sin consumirse. Alimenta el fuego antes de cocinar.':
       kind==='sawmill'?'Madera tosca: trabaja 2 piezas a mano o una con sierra reutilizable.':
@@ -354,17 +364,20 @@ function enterRoom(id){
       'Horno comunitario: el combustible aporta calor, los minerales preparados se funden en lingotes y después pueden forjarse herramientas.';
     if(!group&&sections[kind]){
       showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
-        ...sections[kind].map(([k,label])=>({
-          label,run:()=>showStationMenu(kind,fireId,title,k,node)
+        ...sections[kind].map(([k,label,art])=>({
+          label,title:label,art,detail:k==='fuel'?'ALIMENTAR':k==='smelt'?'LINGOTES Y ALEACIONES':k==='forge'?'HERRAMIENTAS DE HIERRO':k==='stone'?'PIEDRA Y PICOS':'VETAS Y CONCENTRADOS',
+          run:()=>showStationMenu(kind,fireId,title,k,node)
         })),
-        {label:'Salir',action:'close'}
+        {label:'Salir',action:'close',art:'door',secondary:true}
       ]);
       return;
     }
     const displayed=group?opts.filter(o=>group==='fuel'?o.kind==='fuel':o.group===group):opts;
     showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
       ...displayed.map(o=>({
-        label:o.enabled?o.label+(o.kind==='fuel'?'':' · '+((o.ms||1200)/1000).toFixed(1)+' s'):'🔒 '+o.label+' — '+o.reason,
+        id:o.id,title:o.label,art:o.kind==='fuel'?actionKind(o.fuel,o.label):actionKind(o.id,o.label),
+        label:o.label,
+        detail:o.enabled?(o.kind==='fuel'?'+'+o.gain+' CALOR':(o.ms/1000).toFixed(1)+' S · ELABORAR'):o.reason,
         enabled:o.enabled,
         need:o.reason,
         run:()=>{
@@ -379,12 +392,10 @@ function enterRoom(id){
           harvest={kind:'station',node:node||{x:player.x,y:player.y},station:kind,actionId:o.id,
                    fireId,elapsed:0,ms:o.ms||1200,group,title};
           path=[];pending=null;
-          el('#adv-work').hidden=false;
-          el('#adv-work-label').textContent=o.label+' · '+((o.ms||1200)/1000).toFixed(1)+' s';
-          el('#adv-work-bar').style.width='0%';
+          activateWork(o.label,o.ms||1200,actionKind(o.id,o.label));
         }
       })),
-      {label:sections[kind]?'Volver':'Cerrar',run:sections[kind]?()=>showStationMenu(kind,fireId,title,null,node):null}
+      {label:sections[kind]?'Volver':'Cerrar',art:'door',secondary:true,run:sections[kind]?()=>showStationMenu(kind,fireId,title,null,node):null}
     ]);
   }
   function roomStation(e){
@@ -423,8 +434,11 @@ function enterRoom(id){
       showDialog(name,e.type==='water'?'Necesitas un cuenco de madera o arcilla. El recipiente se conserva después de llenarlo.':
         e.type==='wood'?'Elige entre cortar madera útil con un hacha o golpear el tronco para conseguir madera tosca.':
         'Selecciona cómo quieres obtener el recurso.',[
-        ...options.map(o=>({label:o.enabled?(o.label+' · '+(o.ms/1000).toFixed(1)+' s'+(o.tool?' ('+o.tool.replaceAll('_',' ')+')':'')):('🔒 '+(o.need||o.label)),
-          enabled:o.enabled,need:o.need,run:()=>beginWork(e,o)})),
+        ...options.map(o=>({
+          id:o.id,title:o.label,label:o.label,art:o.id==='mine'?'pick':o.id==='hit'?'log':actionKind(o.id,o.label),
+          detail:o.enabled?(o.ms/1000).toFixed(1)+' S'+(o.tool?' · CON HERRAMIENTA':' · A MANO'):o.need,
+          enabled:o.enabled,need:o.need,run:()=>beginWork(e,o)
+        })),
         {label:'Cancelar',action:'close'}]);
       return;
     }
