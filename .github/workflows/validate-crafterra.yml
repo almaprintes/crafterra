@@ -31,6 +31,8 @@ jobs:
         run: node tests/terrain-textures.mjs
       - name: Validar estilo premium y expediciones en pantalla única
         run: node tests/world-premium.mjs
+      - name: Probar recuperación y consumo gráfico en iPhone
+        run: node tests/ios-stability.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
@@ -38,6 +40,7 @@ jobs:
           node --check js/terrain-textures.js
           node --check js/world-art-premium.js
           node --check js/material-art-data.js
+          node --check js/runtime-diagnostics.js
           node --check js/adventure-art.js
           node --check js/world-actions.js
           node --check js/world-biomes.js
