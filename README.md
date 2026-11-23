@@ -1,4 +1,24 @@
-# CRAFTERRA 0.8.0 — Interfaz ilustrada y trabajo activo
+# CRAFTERRA 0.9.0 — Biomas, cuevas y fauna interactiva
+
+**El Valle del Origen ahora tiene cuatro entornos con recursos propios:** praderas, bosques, sierras rocosas y cuevas. Los minerales ya no aparecen sobre el césped; se extraen de vetas situadas en montañas o en dos galerías subterráneas accesibles.
+
+- **Praderas:** madera, fibras, bayas, hierbas, ovejas (lana renovable) y conejos (captura o caza).
+- **Bosques:** pinos, robles, setas, hierbas, fibras y ciervos.
+- **Sierra rocosa:** piedra y menas de hierro, cobre, estaño, carbón, cuarzo, plata y oro.
+- **Cuevas jugables:** galería occidental, accesible antes del puente; gruta oriental tras explorar la otra ribera. Ambas con posición guardada, recursos y salida.
+- **Caza y productos animales:** conejo → carne + piel cruda; ciervo → carne + piel cruda + hueso. Lanzas y arcos se desgastan; el arco gasta flechas.
+- **Lana sin matar ovejas:** recoger a mano, usar cuchillo o tijeras (100 usos). La oveja permanece en el mapa y su lana vuelve a crecer.
+- **Curtiduría en casa de Lía:** piel cruda + agua + madera tosca → cuero. Las tijeras también se forjan con hierro.
+- **Compatibilidad:** mismo guardado, monedas, avances y todas las recetas anteriores. Total: **245 objetos y 242 recetas de descubrimiento**.
+
+**[Consulta las reglas completas de biomas, cuevas, caza y recursos](BIOMES.md)** y las [reglas de economía](RESOURCE_ECONOMY.md).
+
+**Pruebas:** \`node tests/biomes.mjs\`, \`node tests/adventure.mjs\`, \`node tests/metallurgy.mjs\`, \`node tests/validate.mjs\`, \`node tests/adventure-ui.mjs\` y \`node tests/craft-layout.mjs\`.
+
+---
+
+## Historial de sistemas anteriores
+
 
 ## Experiencia móvil más cercana a un juego
 
