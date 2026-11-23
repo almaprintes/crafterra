@@ -1,6 +1,6 @@
 // CRAFTERRA · Interacciones de mundo: reglas puras, sin DOM.
-import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.6.0';
-import {runStationProcess} from './material-economy.js?v=0.6.0';
+import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.7.0';
+import {runStationProcess} from './material-economy.js?v=0.7.0';
 export const RESOURCE_RESPAWN=5*60*1000;
 export const TREE_SPECIES=Object.freeze({
   pine:{label:'Pino',wood:2,rough:2,bonus:null,factor:1},
