@@ -144,13 +144,13 @@ const tree=(ctx,x,y,species='pine')=>{
   ctx.fillStyle='#79bc7c';ctx.fillRect(x-6,y-46,5,9);
 };
 const rock=(ctx,x,y)=>{ctx.fillStyle='#465d63';ctx.fillRect(x-12,y-10,25,12);ctx.fillStyle='#9cb3aa';ctx.fillRect(x-8,y-15,18,8);ctx.fillStyle='#cadaaa';ctx.fillRect(x-6,y-15,6,5);};
-const drawAnimal=(ctx,x,y,species,time=0)=>{
+const drawAnimal=(ctx,x,y,species,time=0,shorn=false)=>{
  const gait=Math.round(Math.sin(time*2.4+x*.14)*2),px=Math.round(x),py=Math.round(y);
  ctx.fillStyle='#09263077';ctx.fillRect(px-14,py-3,30,4);
  if(species==='sheep'){
    ctx.fillStyle='#695f51';for(const dx of [-12,-3,7,13])ctx.fillRect(px+dx,py-8,4,9);
-   ctx.fillStyle='#dce6d7';ctx.fillRect(px-17,py-26+gait,30,20);
-   ctx.fillStyle='#f4f3dc';for(const dx of [-16,-8,0,8])ctx.fillRect(px+dx,py-31+gait,10,10);
+   ctx.fillStyle=shorn?'#a6b0a5':'#dce6d7';ctx.fillRect(px-17,py-26+gait,30,20);
+   if(!shorn){ctx.fillStyle='#f4f3dc';for(const dx of [-16,-8,0,8])ctx.fillRect(px+dx,py-31+gait,10,10);}
    ctx.fillStyle='#7b665c';ctx.fillRect(px+11,py-23+gait,12,12);
    ctx.fillStyle='#e4c5a3';ctx.fillRect(px+17,py-15+gait,7,4);
    ctx.fillStyle='#182938';ctx.fillRect(px+20,py-20+gait,3,3);
@@ -302,7 +302,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       nearbyEntity.kind==='house'||nearbyEntity.kind==='cave'||nearbyEntity.kind==='exit'?'door':
       nearbyEntity.kind==='workshop'?(nearbyEntity.station==='stonework'?'stone':'forge'):
       nearbyEntity.kind==='fire'?'fire':nearbyEntity.kind==='station'?actionKind(nearbyEntity.id):
-      nearbyEntity.kind==='bridge'?'shield':actionKind(nearbyEntity.type,nearbyEntity.label||'')):'gem';
+      nearbyEntity.kind==='bridge'?'shield':nearbyEntity.type==='animal'?nearbyEntity.species:actionKind(nearbyEntity.type,nearbyEntity.label||'')):'gem';
     const label=nearbyEntity&&nearbyEntity.d<2.2?(nearbyEntity.kind==='npc'?'HABLAR':
       nearbyEntity.kind==='house'||nearbyEntity.kind==='cave'?'ENTRAR':nearbyEntity.kind==='exit'?'SALIR':
       nearbyEntity.kind==='workshop'||nearbyEntity.kind==='station'?'USAR':
@@ -783,7 +783,10 @@ function worldObjects(){
       if(o.kind==='resource'){
         if(o.type==='wood')tree(ctx,p.x,p.y,o.species);
         if(o.type==='stone')drawOre(ctx,p.x,p.y,o);
-        if(o.type==='animal')drawAnimal(ctx,p.x,p.y,o.species,performance.now()/1000);
+        if(o.type==='animal'){
+          const last=state().adventure?.gathered?.[o.id],shorn=o.species==='sheep'&&!!last&&Date.now()-last<RESPAWN;
+          drawAnimal(ctx,p.x,p.y,o.species,performance.now()/1000,shorn);
+        }
         if(o.type==='plant_fiber')grass(ctx,p.x,p.y);
         if(o.type==='berries'||o.type==='herbs'||o.type==='mushroom'){
           grass(ctx,p.x,p.y);ctx.fillStyle=o.type==='berries'?'#ec6f83':o.type==='mushroom'?'#d6a486':'#c6dc87';
