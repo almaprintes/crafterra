@@ -260,33 +260,58 @@ function enterRoom(id){
     el('#adv-work-bar').style.width='0%';
     updateHud();
   }
-  function showStationMenu(kind,fireId,title){
-    const s=state(),opts=stationOptions(s,kind,fireId),heat=kind==='fire'?heatOf(s,fireId):null;
-    const description=kind==='fire'?
-      'Calor disponible: '+heat+'/'+MAX_FIRE_HEAT+'. Añade combustible primero y utiliza el calor para cocinar o preparar carbón vegetal. La hoguera no se consume.':
-      'Trabajar a mano cuesta 2 maderas toscas por 1 madera. Con sierra basta una madera tosca y la herramienta pierde un uso.';
-    showDialog(title,description,[
-      ...opts.map(o=>({
-        label:o.enabled?o.label:'🔒 '+o.label,
+  // Menús en dos niveles: evita enormes listas de procesos en una pantalla móvil.
+  function showStationMenu(kind,fireId,title,group=null,node=null){
+    const s=state(),opts=stationOptions(s,kind,fireId);
+    const heat=kind==='fire'||kind==='foundry'?heatOf(s,fireId):null;
+    const sections={
+      foundry:[['fuel','🔥 Añadir combustible'],['smelt','⚗️ Fundir metales y aleaciones'],['forge','⚒️ Forjar herramientas']],
+      stonework:[['stone','🪨 Tallar piedra y herramientas'],['ore','⛏️ Preparar minerales']]
+    };
+    const describe=kind==='fire'?'La hoguera almacena calor sin consumirse. Alimenta el fuego antes de cocinar.':
+      kind==='sawmill'?'Madera tosca: trabaja 2 piezas a mano o una con sierra reutilizable.':
+      kind==='stonework'?'La mesa de cantería transforma piedra bruta y prepara minerales para fundir.':
+      'Horno comunitario: el combustible aporta calor, los minerales preparados se funden en lingotes y después pueden forjarse herramientas.';
+    if(!group&&sections[kind]){
+      showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
+        ...sections[kind].map(([k,label])=>({
+          label,run:()=>showStationMenu(kind,fireId,title,k,node)
+        })),
+        {label:'Salir',action:'close'}
+      ]);
+      return;
+    }
+    const displayed=group?opts.filter(o=>group==='fuel'?o.kind==='fuel':o.group===group):opts;
+    showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
+      ...displayed.map(o=>({
+        label:o.enabled?o.label+' · '+((o.ms||0)/1000).toFixed(1).replace('.0','')+' s':'🔒 '+o.label+' — '+o.reason,
         enabled:o.enabled,
         need:o.reason,
         run:()=>{
-          const result=runStationProcess(state(),kind,o.id,fireId);
-          if(result.ok){persist();onProgress();updateHud();}
-          showDialog(title,result.ok?result.message:(result.reason||'No puedes realizar la acción'),[
-            {label:'Volver a las acciones',run:()=>showStationMenu(kind,fireId,title)},
-            {label:'Cerrar',action:'close'}
-          ]);
+          if(o.kind==='fuel'){
+            const result=runStationProcess(state(),kind,o.id,fireId);
+            if(result.ok){persist();onProgress();updateHud();notify(result.message);}
+            else notify(result.reason||'No se pudo añadir combustible');
+            showStationMenu(kind,fireId,title,group,node);
+            return;
+          }
+          // La transformación consume tiempo: solo se cobra y entrega al completarla.
+          harvest={kind:'station',node:node||{x:player.x,y:player.y},station:kind,actionId:o.id,
+                   fireId,elapsed:0,ms:o.ms||1200,group,title};
+          path=[];pending=null;
+          el('#adv-work').hidden=false;
+          el('#adv-work-label').textContent=o.label+' · '+((o.ms||1200)/1000).toFixed(1)+' s';
+          el('#adv-work-bar').style.width='0%';
         }
       })),
-      {label:'Volver',action:'close'}
+      {label:sections[kind]?'Volver':'Cerrar',run:sections[kind]?()=>showStationMenu(kind,fireId,title,null,node):null}
     ]);
   }
   function roomStation(e){
     const a=adventure(),s=state();
     if(e.id==='workbench'){onCraft();return;}
-    if(e.id==='hearth'){showStationMenu('fire','house_mara','🔥 Hogar de Mara');return;}
-    if(e.id==='sawmill'){showStationMenu('sawmill','house_lia','🪚 Banco de carpintería');return;}
+    if(e.id==='hearth'){showStationMenu('fire','house_mara','🔥 Hogar de Mara',null,e);return;}
+    if(e.id==='sawmill'){showStationMenu('sawmill','house_lia','🪚 Banco de carpintería',null,e);return;}
     const r=performRoomAction(s,a.scene,e.id);
     if(r.ok){persist();onProgress();updateHud();}
     showDialog(e.label,r.ok?r.message:r.reason);
