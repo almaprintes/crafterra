@@ -1,6 +1,6 @@
 // CRAFTERRA: una regla compartida para refinar, alimentar fuego y cocinar.
 // Aquí no se inventan recetas duplicadas del laboratorio.
-import {syncTools,wearTool,toolCharge} from './adventure-rules.js?v=0.7.0';
+import {syncTools,wearTool,toolCharge} from './adventure-rules.js?v=0.9.0';
 
 export const FUEL_HEAT=Object.freeze({rough_wood:3,wood:5,charcoal:7,coal:12});
 export const MAX_FIRE_HEAT=24;
@@ -15,12 +15,18 @@ export const RESOURCE_ROLES=Object.freeze({
  iron:{name:'Mineral de hierro',gather:'Picar veta de hierro',uses:['Lingotes','Herramientas de metal']},
  copper:{name:'Mineral de cobre',gather:'Picar veta de cobre',uses:['Lingotes','Aleaciones']},
  tin:{name:'Mineral de estaño',gather:'Picar veta de estaño',uses:['Bronce']},
- coal:{name:'Carbón mineral',gather:'Picar veta de carbón',uses:['Combustible','Metalurgia']}
+ coal:{name:'Carbón mineral',gather:'Picar veta de carbón',uses:['Combustible','Metalurgia']},
+ animal_hide:{name:'Piel cruda',gather:'Cazar con lanza o arco; atrapar conejos',uses:['Curtido a cuero']},
+ wool:{name:'Lana',gather:'Esquilar ovejas o recoger lana suelta',uses:['Tela','Abrigo']},
+ raw_meat:{name:'Carne cruda',gather:'Cazar animales de praderas y bosques',uses:['Cocina']}
 });
 export const STATION_PROCESSES=Object.freeze({
  // Carpintería
  refine_basic:{station:'sawmill',label:'Preparar madera (a mano)',inputs:{rough_wood:2},outputs:{wood:1},tool:null,heat:0,ms:1800,description:'Dos maderas toscas rinden una madera normal.'},
  refine_saw:{station:'sawmill',label:'Aserrar madera',inputs:{rough_wood:1},outputs:{wood:1},tool:'saw',heat:0,ms:1100,description:'La sierra mejora el aprovechamiento y pierde un uso.'},
+ // Curtiduría: la piel es materia prima, el cuero un material trabajado.
+ tan_hide:{station:'tannery',label:'Curtir piel para cuero',inputs:{animal_hide:1,water:1,rough_wood:1},
+  outputs:{leather:1},tool:null,heat:0,ms:3500,description:'Agua y madera tosca aportan el curtiente; una piel cruda se convierte en cuero.'},
  // Hogueras: estaciones persistentes que consumen calor, no objetos
  cook_meat:{station:'fire',label:'Cocinar carne',inputs:{raw_meat:1},outputs:{cooked_meat:1},tool:null,heat:2,ms:1700},
  cook_fish:{station:'fire',label:'Asar pescado',inputs:{fish:1},outputs:{cooked_fish:1},tool:null,heat:2,ms:1700},
@@ -46,7 +52,8 @@ export const STATION_PROCESSES=Object.freeze({
  // Forja: yunque comunitario integrado, herramienta con desgaste
  forge_iron_hammer:{station:'foundry',group:'forge',label:'Forjar martillo de hierro',inputs:{iron_ingot:1,handle:1},outputs:{iron_hammer:1},tool:'stone_hammer',heat:4,ms:3300},
  forge_iron_axe:{station:'foundry',group:'forge',label:'Forjar hacha de hierro',inputs:{iron_ingot:1,handle:1},outputs:{iron_axe:1},tool:'iron_hammer',heat:4,ms:3300},
- forge_iron_pickaxe:{station:'foundry',group:'forge',label:'Forjar pico de hierro',inputs:{iron_ingot:1,handle:1},outputs:{iron_pickaxe:1},tool:'iron_hammer',heat:4,ms:3300}
+ forge_iron_pickaxe:{station:'foundry',group:'forge',label:'Forjar pico de hierro',inputs:{iron_ingot:1,handle:1},outputs:{iron_pickaxe:1},tool:'iron_hammer',heat:4,ms:3300},
+ forge_shears:{station:'foundry',group:'forge',label:'Forjar tijeras de esquilar',inputs:{iron_ingot:1},outputs:{shears:1},tool:'iron_hammer',heat:4,ms:2900}
 });
 export const MATERIAL_NAMES=Object.freeze({
  rough_wood:'madera tosca',wood:'madera',stone:'piedra',cut_stone:'piedra tallada',rope:'cuerda',handle:'mango',
@@ -56,7 +63,8 @@ export const MATERIAL_NAMES=Object.freeze({
  iron_concentrate:'hierro preparado',copper_concentrate:'cobre preparado',tin_concentrate:'estaño preparado',
  silver_concentrate:'plata preparada',gold_concentrate:'oro preparado',
  iron_ingot:'lingote de hierro',copper_ingot:'lingote de cobre',tin_ingot:'lingote de estaño',
- silver_ingot:'lingote de plata',gold_ingot:'lingote de oro'
+ silver_ingot:'lingote de plata',gold_ingot:'lingote de oro',
+ animal_hide:'piel cruda',wool:'lana',leather:'cuero',shears:'tijeras de esquilar'
 });
 const pretty=MATERIAL_NAMES;
 const amount=(s,id)=>Math.max(0,Math.floor(Number(s.stock?.[id]||0)));
