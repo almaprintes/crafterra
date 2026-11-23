@@ -24,5 +24,6 @@ jobs:
           node --check js/app.js
           node --check js/adventure-world.js
           node --check js/world-actions.js
+          node --check js/material-economy.js
           node --check js/adventure-rules.js
           node --check js/engine.js
