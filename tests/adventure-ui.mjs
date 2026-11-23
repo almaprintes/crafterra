@@ -3,7 +3,7 @@ import {actionArt,actionKind} from '../js/adventure-art.js';
 import {readFile} from 'node:fs/promises';
 const src=await readFile(new URL('../js/adventure-world.js',import.meta.url),'utf8');
 const css=await readFile(new URL('../css/adventure-world.css',import.meta.url),'utf8');
-for(const kind of ['axe','pick','hammer','log','stone','fire','bowl','ingot','gem','saw','door','bed','basket','shield']){
+for(const kind of ['axe','pick','hammer','log','stone','fire','bowl','ingot','gem','saw','door','bed','basket','shield','sheep','rabbit','deer','wool','hide','cave']){
  const art=actionArt(kind,'md');
  assert.ok(art.startsWith('<svg'),'missing illustration '+kind);
  assert.ok(art.includes('<path')||art.includes('<rect'),'empty illustration '+kind);
