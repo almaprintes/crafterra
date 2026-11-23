@@ -1,4 +1,4 @@
-import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.3.1';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.3.1';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.3.1';
+import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.4.0';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.4.0';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.4.0';
 import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
 import{mountIsometricWorld}from'./adventure-world.js?v=0.4.0';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.4.0';
