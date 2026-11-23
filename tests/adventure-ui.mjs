@@ -7,7 +7,7 @@ for(const kind of ['axe','pick','hammer','log','stone','fire','bowl','ingot','ge
  const art=actionArt(kind,'md');
  assert.ok(art.startsWith('<svg'),'missing illustration '+kind);
  assert.ok(art.includes('<path')||art.includes('<rect'),'empty illustration '+kind);
- assert.ok(!/https?:\/\/|<image|<script/.test(art),'visuals must be built-in and offline');
+ assert.ok(!/<image|<script|<foreignObject|(?:xlink:)?href=/.test(art),'visuals must be built-in and offline');
  assert.ok(art.includes('viewBox="0 0 72 72"'),'scalable art');
  assert.ok(/linearGradient/.test(art),'not a flat emoji');
 }
