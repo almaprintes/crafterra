@@ -19,3 +19,10 @@ jobs:
         run: node tests/validate.mjs
       - name: Verificar mundo isométrico
         run: node tests/adventure.mjs
+      - name: Comprobar sintaxis del arranque y motor
+        run: |
+          node --check js/app.js
+          node --check js/adventure-world.js
+          node --check js/world-actions.js
+          node --check js/adventure-rules.js
+          node --check js/engine.js
