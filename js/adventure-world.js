@@ -281,7 +281,7 @@ function enterRoom(id){
       showDialog(name,e.type==='water'?'Necesitas un cuenco de madera o arcilla. El recipiente se conserva después de llenarlo.':
         e.type==='wood'?'Elige entre cortar madera útil con un hacha o golpear el tronco para conseguir madera tosca.':
         'Selecciona cómo quieres obtener el recurso.',[
-        ...options.map(o=>({label:o.enabled?o.label+' · '+(o.ms/1000).toFixed(1)+' s'+(o.tool?' ('+o.tool.replaceAll('_',' ')+'):''):'🔒 '+(o.need||o.label),
+        ...options.map(o=>({label:o.enabled?(o.label+' · '+(o.ms/1000).toFixed(1)+' s'+(o.tool?' ('+o.tool.replaceAll('_',' ')+')':'')):('🔒 '+(o.need||o.label)),
           enabled:o.enabled,need:o.need,run:()=>beginWork(e,o)})),
         {label:'Cancelar',action:'close'}]);
       return;
