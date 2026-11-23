@@ -34,7 +34,7 @@ export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(!Number.isInteger(x)||!Number.isInteger(y)||x<1||x>=WORLD_SIZE.width-1||y<1||y>=WORLD_SIZE.height-1)return false;
   if(x===15&&(!bridge||y!==10))return false;
   if(WORLD_HOUSES.some(t=>t.x===x&&t.y===y))return false;
-  if(WORLD_DECOR.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
+  if(WORLD_TREES.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
   if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&nodeAvailable({adventure:{gathered}},n,now)))return false;
   return true;
 }
@@ -63,7 +63,7 @@ const color={
 };
 const hash=(x,y)=>((x*1789+y*3247+x*y*1297)>>>0)%19;
 // Todo árbol pintado es un árbol del mundo: sin atrezo que no responda.
-export const WORLD_DECOR=Object.freeze((()=>{
+export const WORLD_TREES=Object.freeze((()=>{
  const out=[];
  for(let y=2;y<WORLD_SIZE.height-2;y++)for(let x=2;x<WORLD_SIZE.width-2;x++){
    if(Math.abs(x-15)<3||y>=9&&y<=11||hash(x,y)!==0)continue;
@@ -178,7 +178,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     return [
       ...actors.map(n=>({...n,kind:'npc'})),
       ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
-      ...WORLD_DECOR.filter(available).map(n=>({...n,kind:'node'})),
+      ...WORLD_TREES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_HOUSES,
       {id:'puente',x:14,y:10,kind:'bridge'},
       ...(Math.abs(player.x-15)<3?[riverNode(Math.min(20,Math.max(1,Math.round(player.y))))]:[])
@@ -395,7 +395,7 @@ function worldObjects(){
       {kind:'player',x:player.x,y:player.y}
     ].sort((a,b)=>(a.x+a.y)-(b.x+b.y));
     const objects=[];
-    for(const n of [...WORLD_DECOR,...WORLD_NODES])if(available(n))objects.push({...n,kind:'resource'});
+    for(const n of [...WORLD_TREES,...WORLD_NODES])if(available(n))objects.push({...n,kind:'resource'});
     objects.push(...WORLD_HOUSES);
     for(const n of actors)objects.push({...n,kind:'npc'});
     objects.push({kind:'bridgeart',x:15,y:10},{kind:'player',x:player.x,y:player.y});
