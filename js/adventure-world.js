@@ -1,6 +1,7 @@
 import{gatheringPlan}from './adventure-rules.js?v=0.9.0';
 import{actionArt,actionKind}from './adventure-art.js?v=0.9.0';
-import{drawTerrainTile,drawContactShadow}from './terrain-textures.js?v=0.10.0';
+import{drawTerrainTile,drawContactShadow}from './terrain-textures.js?v=0.11.0';
+import{drawPremiumTree,drawPremiumRock,drawPremiumHouse,drawPremiumCave,drawPremiumForge,drawPremiumBridge}from './world-art-premium.js?v=0.11.0';
 import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.9.0';
 import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.9.0';
@@ -131,20 +132,8 @@ const diamond=(ctx,x,y,c,edge)=>{
   ctx.beginPath();ctx.moveTo(x,y-TH/2);ctx.lineTo(x+TW/2,y);ctx.lineTo(x,y+TH/2);ctx.lineTo(x-TW/2,y);ctx.closePath();
   ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=.7;ctx.stroke();
 };
-const tree=(ctx,x,y,species='pine')=>{
-  ctx.fillStyle='#553e2a';ctx.fillRect(x-4,y-18,8,20);
-  if(species==='oak'){
-    ctx.fillStyle='#456c37';ctx.fillRect(x-20,y-36,40,22);
-    ctx.fillStyle='#66934f';ctx.fillRect(x-16,y-48,32,24);
-    ctx.fillStyle='#87b75e';ctx.fillRect(x-10,y-54,20,21);
-    return;
-  }
-  ctx.fillStyle='#1c624d';ctx.fillRect(x-14,y-37,28,23);
-  ctx.fillStyle='#298360';ctx.fillRect(x-10,y-48,20,26);
-  ctx.fillStyle='#45a777';ctx.fillRect(x-6,y-52,12,22);
-  ctx.fillStyle='#79bc7c';ctx.fillRect(x-6,y-46,5,9);
-};
-const rock=(ctx,x,y)=>{ctx.fillStyle='#465d63';ctx.fillRect(x-12,y-10,25,12);ctx.fillStyle='#9cb3aa';ctx.fillRect(x-8,y-15,18,8);ctx.fillStyle='#cadaaa';ctx.fillRect(x-6,y-15,6,5);};
+const tree=(ctx,x,y,species='pine',seed=0)=>drawPremiumTree(ctx,x,y,species,seed);
+const rock=(ctx,x,y)=>drawPremiumRock(ctx,x,y,'stone');
 const drawAnimal=(ctx,x,y,species,time=0,shorn=false)=>{
  const gait=Math.round(Math.sin(time*2.4+x*.14)*2),px=Math.round(x),py=Math.round(y);
  ctx.fillStyle='#09263077';ctx.fillRect(px-14,py-3,30,4);
@@ -177,39 +166,11 @@ const drawAnimal=(ctx,x,y,species,time=0,shorn=false)=>{
    ctx.fillStyle='#1c2933';ctx.fillRect(px+22,py-32+gait,3,3);
  }
 };
-const drawCaveEntrance=(ctx,x,y,name)=>{
- ctx.fillStyle='#35414a';ctx.fillRect(x-25,y-19,50,24);
- ctx.fillStyle='#a9b4a4';ctx.fillRect(x-24,y-26,48,9);
- ctx.fillStyle='#85938f';ctx.fillRect(x-20,y-34,40,9);
- ctx.fillStyle='#5d6c73';ctx.fillRect(x-16,y-41,33,11);
- ctx.fillStyle='#10212b';ctx.fillRect(x-14,y-25,28,26);
- ctx.fillStyle='#263a45';ctx.fillRect(x-8,y-22,16,19);
- ctx.fillStyle='#f4d38e';ctx.fillRect(x-15,y-39,4,7);ctx.fillRect(x+11,y-39,4,7);
- ctx.fillStyle='#f7e7b9';ctx.textAlign='center';ctx.font='bold 9px system-ui';ctx.fillText(name,x,y-49,86);
-};
-const drawOre=(ctx,x,y,o)=>{
- rock(ctx,x,y);
- if(o.type!=='stone'){
-   ctx.fillStyle=({iron:'#b3c0cd',copper:'#f19b64',tin:'#f4dfa8',coal:'#343f52',quartz:'#8ae5e7',silver:'#dceaff',gold:'#f4c74a'})[o.type]||'#fff';
-   ctx.fillRect(x-5,y-13,7,7);ctx.fillRect(x+5,y-10,4,4);
-   ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='#ecf3e4';
-   ctx.fillText(({iron:'Fe',copper:'Cu',tin:'Sn',coal:'C',quartz:'Qz',silver:'Ag',gold:'Au'})[o.type],x,y-20);
- }
-};
+const drawCaveEntrance=(ctx,x,y,name)=>drawPremiumCave(ctx,x,y,name);
+const drawOre=(ctx,x,y,o)=>drawPremiumRock(ctx,x,y,o.type);
 const grass=(ctx,x,y)=>{ctx.fillStyle='#267d57';for(const dx of [-6,0,6])ctx.fillRect(x+dx,y-5+Math.abs(dx)/3,2,8);ctx.fillStyle='#dbd15f';ctx.fillRect(x-1,y-7,3,3);};
-const house=(ctx,x,y,blue=false)=>{
-  ctx.fillStyle='#384950';ctx.fillRect(x-31,y-13,62,18);
-  ctx.fillStyle=blue?'#d5bbaa':'#e5ca9a';ctx.fillRect(x-31,y-45,62,35);
-  ctx.fillStyle=blue?'#456d83':'#a95e4a';ctx.beginPath();ctx.moveTo(x-38,y-43);ctx.lineTo(x,y-72);ctx.lineTo(x+38,y-43);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#503d2e';ctx.fillRect(x-7,y-30,14,27);
-  ctx.fillStyle='#9cdce5';ctx.fillRect(x-24,y-35,11,10);ctx.fillRect(x+15,y-35,11,10);
-  ctx.fillStyle='#ffffff55';ctx.fillRect(x-23,y-34,4,4);
-};
-const drawBridge=(ctx,x,y,built)=>{
-  ctx.fillStyle=built?'#8b613f':'#644c38';ctx.fillRect(x-26,y-7,52,15);
-  if(built){for(let i=-22;i<24;i+=9){ctx.fillStyle=i%2?'#b38b57':'#d4ad72';ctx.fillRect(x+i,y-8,6,16);}ctx.fillStyle='#5f3c28';ctx.fillRect(x-24,y-14,4,12);ctx.fillRect(x+20,y-14,4,12);}
-  else{ctx.fillStyle='#385d6a';ctx.fillRect(x-6,y-8,14,17);ctx.fillStyle='#cd9879';ctx.fillRect(x-25,y-13,3,10);ctx.fillRect(x+23,y-13,3,10);}
-};
+const house=(ctx,x,y,blue=false)=>drawPremiumHouse(ctx,x,y,blue);
+const drawBridge=(ctx,x,y,built)=>drawPremiumBridge(ctx,x,y,built);
 
 export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions=()=>{},notify,onProgress=()=>{}}){
   root.innerHTML='<canvas class="adventure-canvas" aria-label="Mapa isométrico interactivo de Crafterra"></canvas>'+
@@ -759,13 +720,16 @@ function worldObjects(){
       const contact=o.kind==='resource'?(o.type==='wood'?'wood':o.type==='animal'?'animal':'stone'):o.kind;
       drawContactShadow(ctx,p.x,p.y,contact);
       if(o.kind==='workshop'){
-        const furnace=o.station==='foundry';
-        ctx.fillStyle=furnace?'#534e48':'#6b665d';ctx.fillRect(p.x-19,p.y-14,38,17);
-        ctx.fillStyle=furnace?'#aaa39b':'#b0b9ae';ctx.fillRect(p.x-17,p.y-22,34,10);
-        ctx.fillStyle=furnace?'#d38b4c':'#ded0a4';ctx.fillRect(p.x-11,p.y-28,22,8);
-        if(furnace&&heatOf(state(),o.id)>0){ctx.fillStyle='#f5b353';ctx.fillRect(p.x-6,p.y-25,12,13);ctx.fillStyle='#ffe69e';ctx.fillRect(p.x-2,p.y-22,4,7);}
-        ctx.fillStyle='#fff5d2';ctx.textAlign='center';ctx.font='bold 9px system-ui';ctx.fillText(furnace?'⚒️ FUNDICIÓN':'🪨 CANTERÍA',p.x,p.y-39);
-        if(furnace){ctx.font='bold 10px system-ui';ctx.fillText(heatOf(state(),o.id)+'/'+MAX_FIRE_HEAT+' ♨',p.x,p.y-51);}
+        const furnace=o.station==='foundry',fuel=furnace?heatOf(state(),o.id):0;
+        if(furnace)drawPremiumForge(ctx,p.x,p.y,fuel>0);
+        else{
+          drawPremiumRock(ctx,p.x,p.y,'stone');
+          ctx.fillStyle='#c49c65';ctx.fillRect(p.x-18,p.y-31,35,6);
+          ctx.fillStyle='#ead4a0';ctx.fillRect(p.x-15,p.y-35,29,6);
+        }
+        ctx.fillStyle='#fff2c0';ctx.textAlign='center';ctx.font='bold 9px system-ui';
+        ctx.fillText(furnace?'⚒ FUNDICIÓN':'🪨 CANTERÍA',p.x,p.y-(furnace?65:44));
+        if(furnace){ctx.font='bold 10px system-ui';ctx.fillText(fuel+'/'+MAX_FIRE_HEAT+' ♨',p.x,p.y-78);}
       }
       if(o.kind==='fire'){
         const fuel=heatOf(state(),'valley');
@@ -779,7 +743,7 @@ function worldObjects(){
       if(o.kind==='house'){house(ctx,p.x,p.y,o.id==='house_lia');ctx.fillStyle='#fff1b5';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(o.label,p.x,p.y-82);}
       if(o.kind==='bridgeart')drawBridge(ctx,p.x,p.y,a.bridge);
       if(o.kind==='resource'){
-        if(o.type==='wood')tree(ctx,p.x,p.y,o.species);
+        if(o.type==='wood')tree(ctx,p.x,p.y,o.species,o.x*113+o.y*71);
         if(o.type==='stone')drawOre(ctx,p.x,p.y,o);
         if(o.type==='animal'){
           const last=state().adventure?.gathered?.[o.id],shorn=o.species==='sheep'&&!!last&&Date.now()-last<RESPAWN;
@@ -847,7 +811,7 @@ function worldObjects(){
     for(const e of entities()){
       const p=project(e.x,e.y);
       const tall=e.type==='wood'||e.type==='animal'||e.kind==='npc'||e.kind==='house'||e.kind==='station'||e.kind==='workshop'||e.kind==='cave';
-      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:e.kind==='workshop'?29:e.kind==='cave'?28:e.type==='animal'?12:30):12;
+      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:e.kind==='workshop'?29:e.kind==='cave'?52:e.type==='animal'?12:30):12;
       const radius=tall?43:27;
       const d=Math.hypot(x-p.x,y-(p.y-shift));
       if(d<radius&&d<min+15){hit=e;min=d;}
