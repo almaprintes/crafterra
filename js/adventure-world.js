@@ -207,7 +207,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     const n=nearby();
     const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='workshop'?'Utilizar':n.kind==='fire'?'Hoguera':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
     el('#adv-interact').textContent='✦ '+label;
-    el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Árboles: cortar o golpear · Río: cuenco · Vetas: pico · Casas: entrar';
+    el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Cantería: tallar y preparar · Horno: fundir y forjar · Río: cuenco';
   }
   function showDialog(name,message,buttons=[{label:'Continuar',action:'close'}]){
     dialogOpen=true;path=[];pending=null;harvest=null;el('#adv-work').hidden=true;
@@ -436,11 +436,21 @@ function roomWalkable(x,y){
 function tickGather(dt){
     if(!harvest)return;
     const h=harvest;
-    if(!near(h.node)||!available(h.node)){harvest=null;el('#adv-work').hidden=true;return;}
+    if(!near(h.node)||(h.kind!=='station'&&!available(h.node))){
+      harvest=null;el('#adv-work').hidden=true;return;
+    }
     h.elapsed+=dt*1000;
     el('#adv-work-bar').style.width=Math.min(100,100*h.elapsed/h.ms)+'%';
     if(h.elapsed<h.ms)return;
     harvest=null;el('#adv-work').hidden=true;
+    if(h.kind==='station'){
+      // Revalidación atómica: no se gasta calor ni herramienta hasta terminar.
+      const result=runStationProcess(state(),h.station,h.actionId,h.fireId,Date.now());
+      if(!result.ok){notify(result.reason||'El trabajo no pudo completarse');return;}
+      savePosition();onProgress();updateHud();
+      notify('✓ '+result.message);
+      return;
+    }
     const result=completeWorldAction(state(),h.node,h.actionId,Date.now());
     if(!result.ok){notify(result.reason);return;}
     savePosition();onProgress();
@@ -575,8 +585,8 @@ function worldObjects(){
     let hit=null,min=29;
     for(const e of entities()){
       const p=project(e.x,e.y);
-      const tall=e.type==='wood'||e.kind==='npc'||e.kind==='house'||e.kind==='station';
-      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:30):12;
+      const tall=e.type==='wood'||e.kind==='npc'||e.kind==='house'||e.kind==='station'||e.kind==='workshop';
+      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:e.kind==='workshop'?29:30):12;
       const radius=tall?43:27;
       const d=Math.hypot(x-p.x,y-(p.y-shift));
       if(d<radius&&d<min+15){hit=e;min=d;}
