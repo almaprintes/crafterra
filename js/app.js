@@ -270,12 +270,13 @@ function boardQty(id){return board.reduce((n,x)=>n+(x===id?1:0),0)}
 function canPlaceFromInventory(id){return stockOf(id)>boardQty(id)}
 
 function toolCapacity(id){
+ if(STATIONS.includes(id))return stockOf(id)>0?Number.MAX_SAFE_INTEGER:0;
  if(!isReusableTool(id))return stockOf(id);
  syncTools(S);
  return (S.toolDurability[id]||[]).reduce((n,v)=>n+v,0);
 }
 function sufficientMaterial(id,qty){
- return isReusableTool(id)?stockOf(id)>0&&toolCapacity(id)>=qty:stockOf(id)>=qty;
+ return STATIONS.includes(id)?stockOf(id)>0:isReusableTool(id)?stockOf(id)>0&&toolCapacity(id)>=qty:stockOf(id)>=qty;
 }
 function renderCraft(){
  syncTools(S);
@@ -303,6 +304,7 @@ async function doMerge(i,j){
    renderBoard();persist();return
  }
  for(const [id,q] of Object.entries(need)){
+   if(STATIONS.includes(id))continue;
    if(isReusableTool(id)){for(let n=0;n<q;n++)wearTool(S,id)}
    else S.stock[id]=Math.max(0,stockOf(id)-q);
  }
@@ -487,7 +489,7 @@ function directPlans(target){
      const make=mergeQty(A.make,B.make);
      const missing={};
      for(const [id,q] of Object.entries(cost)){
-       const lack=Math.max(0,q-(isReusableTool(id)?toolCapacity(id):stockOf(id)));
+       const lack=Math.max(0,q-(isReusableTool(id)||STATIONS.includes(id)?toolCapacity(id):stockOf(id)));
        if(lack)addQty(missing,id,lack)
      }
      plans.push({
@@ -524,7 +526,7 @@ function scaledPlan(plan,qty=1){
  const scale=obj=>Object.fromEntries(Object.entries(obj||{}).map(([id,q])=>[id,q*qty]));
  const cost=scale(plan.cost),make=scale(plan.make),missing={};
  for(const [id,q] of Object.entries(cost)){
-   const lack=Math.max(0,q-(isReusableTool(id)?toolCapacity(id):stockOf(id)));
+   const lack=Math.max(0,q-(isReusableTool(id)||STATIONS.includes(id)?toolCapacity(id):stockOf(id)));
    if(lack)missing[id]=lack
  }
  return{...plan,cost,make,missing,ok:Object.keys(missing).length===0,qty}
@@ -538,8 +540,8 @@ function routeName(plan){
 }
 function routeMaterialsHTML(plan){
  return `<div class="route-materials">${Object.entries(plan.cost||{}).map(([id,q])=>{
-   const have=isReusableTool(id)?toolCapacity(id):stockOf(id),ok=have>=q;
-   return `<div class="route-mat ${ok?'':'short'}">${icon(item(id))}<span><b>${item(id).name}</b><small>${isReusableTool(id)?'Usos disponibles':'Tienes'} ${have}</small></span><strong>×${q}</strong></div>`
+   const reusableStation=STATIONS.includes(id),have=reusableStation?stockOf(id):isReusableTool(id)?toolCapacity(id):stockOf(id),ok=reusableStation?have>0:have>=q;
+   return `<div class="route-mat ${ok?'':'short'}">${icon(item(id))}<span><b>${item(id).name}</b><small>${reusableStation?'Estación reutilizable · en inventario':isReusableTool(id)?'Usos disponibles':'Tienes'} ${have}</small></span><strong>×${q}</strong></div>`
  }).join('')}</div>`
 }
 function autoStepsHTML(plan){
@@ -590,6 +592,7 @@ function showDirectChain(id){
 
 function applyDirectPlan(id,plan,qty=1){
  for(const [mat,q] of Object.entries(plan.cost||{})){
+   if(STATIONS.includes(mat))continue;
    if(isReusableTool(mat)){for(let n=0;n<q*qty;n++)wearTool(S,mat);}
    else S.stock[mat]=Math.max(0,stockOf(mat)-q*qty);
  }
