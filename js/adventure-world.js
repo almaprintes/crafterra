@@ -132,7 +132,7 @@ const drawBridge=(ctx,x,y,built)=>{
 
 export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProgress=()=>{}}){
   root.innerHTML='<canvas class="adventure-canvas" aria-label="Mapa isométrico interactivo de Crafterra"></canvas>'+
-    '<div class="adventure-hud"><b>🌿 VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
+    '<div class="adventure-hud"><b id="adv-region">🌿 VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
     '<div class="adventure-inventory" id="adv-inventory"></div>'+
     '<div class="adventure-tool" id="adv-tool">🪓 Manos · ⛏ Manos</div>'+
     '<div class="adventure-work" id="adv-work" hidden><b id="adv-work-label">Trabajando…</b><div class="adventure-work-track"><span id="adv-work-bar"></span></div></div>'+
@@ -141,7 +141,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
     '<button class="adv-left" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
     '</div><button id="adv-interact" class="adventure-action">✦ Interactuar</button><button id="adv-workshop" class="adventure-craft">⚒ Taller</button></div>'+
     '<div class="adventure-dialog" hidden><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p><div id="adv-dialog-actions"></div></div>'+
-    '<div class="adventure-hint">Toca para caminar · Árboles con marca dorada: talar · La herramienta reduce el tiempo</div>';
+    '<div class="adventure-hint" id="adv-tip">Toca un recurso para decidir qué hacer · Las casas tienen interior</div>';
   const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d',{alpha:false});
   if(!ctx){notify('No se pudo iniciar la vista gráfica.');return{refresh(){}};}
   const el=q=>root.querySelector(q);
@@ -153,38 +153,54 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
     if(!s.adventure||typeof s.adventure!=='object')s.adventure={x:9,y:10,metMara:false,bridge:false,completed:false,gathered:{}};
     const a=s.adventure;
     if(!a.gathered||typeof a.gathered!=='object')a.gathered={};
+    if(!a.roomPositions||typeof a.roomPositions!=='object')a.roomPositions={};
+    if(a.scene&&!HOUSE_ROOMS[a.scene])a.scene=null;
     if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||!isWalkable(Math.round(a.x),Math.round(a.y),!!a.bridge,a.gathered)){a.x=9;a.y=10;}
     return a;
   }
-  function loadPosition(){if(loaded)return;const a=adventure();player={x:a.x,y:a.y};cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};loaded=true;}
-  function savePosition(){const a=adventure();a.x=player.x;a.y=player.y;persist();}
+  function loadPosition(){if(loaded)return;const a=adventure();player=a.scene?{...(a.roomPositions[a.scene]||{x:5,y:6})}:{x:a.x,y:a.y};cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};loaded=true;}
+  function savePosition(){const a=adventure();if(a.scene)a.roomPositions[a.scene]={...player};else{a.x=player.x;a.y=player.y;}persist();}
   function project(x,y){return{x:(x-y)*TW/2-cam.x+w/2,y:(x+y)*TH/2-cam.y+h*.53};}
   function screenToTile(sx,sy){const ix=sx-w/2+cam.x,iy=sy-h*.53+cam.y;return{x:Math.round(ix/TW+iy/TH),y:Math.round(iy/TH-ix/TW)};}
-  function available(node){return canGather(state(),node,Date.now(),RESPAWN);}
-  function entities(){return [
-    ...actors.map(n=>({...n,kind:'npc'})),
-    ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
-    ...WORLD_DECOR.map(n=>({...n,kind:'scenery'})),
-    {id:'puente',x:14,y:10,kind:'bridge'}
-  ];}
+function available(node){return nodeAvailable(state(),node,Date.now());}
+  function riverNode(y,side=player.x<15?14:16){
+    return {id:'rio_'+side+'_'+y,x:side,y,type:'water',kind:'node',qty:1,label:'Agua del río'};
+  }
+  function entities(){
+    const scene=adventure().scene;
+    if(scene)return ROOM_OBJECTS[scene].map(x=>({...x}));
+    return [
+      ...actors.map(n=>({...n,kind:'npc'})),
+      ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
+      ...WORLD_DECOR.filter(available).map(n=>({...n,kind:'node'})),
+      ...WORLD_HOUSES,
+      {id:'puente',x:14,y:10,kind:'bridge'},
+      ...(Math.abs(player.x-15)<3?[riverNode(Math.min(20,Math.max(1,Math.round(player.y))))]:[])
+    ];
+  }
   function near(e){return Math.hypot(player.x-e.x,player.y-e.y)<=1.65;}
-  function nearby(){return entities().filter(e=>e.kind!=='scenery').map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
+  function nearby(){return entities().map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
   function updateHud(){
-    const a=adventure(),s=state();
-    el('#adv-objective').textContent=a.completed?'Capítulo 1 completo · Explora a tu ritmo':!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Repara el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
+    const a=adventure(),s=state(),scene=a.scene;
+    el('#adv-region').textContent=scene?'🏠 '+HOUSE_ROOMS[scene].name:'🌿 VALLE DEL ORIGEN';
+    el('#adv-objective').textContent=scene?'Interactúa con sus estaciones o sal por la puerta':a.completed?'Capítulo 1 completo · Sigue explorando':!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Construye el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
     const gather=gatheringPlan(s,'wood'),mine=gatheringPlan(s,'stone');
-    el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+'  🪨 '+(s.stock?.stone||0)+'  🌱 '+(s.stock?.plant_fiber||0)+'  ▤ '+(s.stock?.plank||0)+'  🧶 '+(s.stock?.rope||0);
-    el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+'   ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
-    const n=nearby();el('#adv-interact').textContent=n&&n.d<2.2?'✦ '+(n.kind==='npc'?'Hablar':n.kind==='bridge'?'Puente':n.type==='wood'?'Talar':n.type==='stone'?'Picar':'Recolectar'):'✦ Interactuar';
+    el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+' · 🪓 '+(s.stock?.rough_wood||0)+' · 💧 '+(s.stock?.water||0)+' · 🪨 '+(s.stock?.stone||0)+' · 🧶 '+(s.stock?.plant_fiber||0);
+    el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+' · ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
+    const n=nearby();
+    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
+    el('#adv-interact').textContent='✦ '+label;
+    el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Árboles: cortar o golpear · Río: cuenco · Vetas: pico · Casas: entrar';
   }
   function showDialog(name,message,buttons=[{label:'Continuar',action:'close'}]){
     dialogOpen=true;path=[];pending=null;harvest=null;
     el('#adv-speaker').textContent=name;el('#adv-dialog-text').textContent=message;
     const actions=el('#adv-dialog-actions');actions.replaceChildren();
-    buttons.forEach(b=>{const btn=document.createElement('button');btn.textContent=b.label;btn.addEventListener('click',()=>{
+    buttons.forEach(b=>{const btn=document.createElement('button');btn.textContent=b.label;btn.disabled=b.enabled===false;if(b.need)btn.title=b.need;btn.addEventListener('click',()=>{
       el('.adventure-dialog').hidden=true;dialogOpen=false;
       if(b.action==='craft')onCraft();
       if(b.action==='repair')repair();
+      if(typeof b.run==='function')b.run();
     });actions.append(btn);});
     el('.adventure-dialog').hidden=false;
   }
