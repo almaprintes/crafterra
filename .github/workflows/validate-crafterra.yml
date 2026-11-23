@@ -17,6 +17,8 @@ jobs:
           node-version: '22'
       - name: Verificar catálogo y PWA
         run: node tests/validate.mjs
+      - name: Verificar navegación inferior y cinco pantallas
+        run: node tests/navigation.mjs
       - name: Verificar mundo isométrico
         run: node tests/adventure.mjs
       - name: Validar progresión de piedra y metalurgia
