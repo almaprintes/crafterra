@@ -1,4 +1,25 @@
-# CRAFTERRA 0.9.0 — biomas, caza y cuevas: pruebas manuales
+# CRAFTERRA 0.10.0 — revisión de texturas en dispositivos
+
+**Automatizadas:** \`node tests/terrain-textures.mjs\` comprueba biomas, variedad de textura, reproducibilidad sin parpadeos, atlas bajo demanda, sombras, materiales de interior y seguridad offline. GitHub Actions también revisa la sintaxis del motor.
+
+**Prueba manual en iPhone:**
+
+1. Entrar en el Valle y moverse: la hierba debe tener microdetalle y pequeñas manchas naturales, sin parecer un mosaico plano o tener costuras brillantes.
+2. Caminar a un bosque: observar hojarasca y diferencias claras respecto a la pradera.
+3. Ir a la sierra: debe notarse la aspereza de roca, con grietas y estratos. Las vetas siguen siendo objetos separados e interactivos.
+4. Acercarse al río y las orillas: comprobar agua texturizada y bordes de tierra húmeda.
+5. Entrar en ambas cuevas: comprobar suelo rugoso y paredes más oscuras, sin tapar las vetas ni la salida.
+6. Entrar en casa de Mara y taller de Lía: observar distintas texturas de madera y piedra.
+7. Observar el contacto entre personajes, árboles, animales, rocas y suelo: deben tener sombra que dé sensación de peso.
+8. Desplazarse repetidamente por el mapa: no debe cambiar aleatoriamente la textura de una misma casilla.
+9. Comprobar rendimiento y calor del iPhone tras jugar un rato, y comparar con v0.9.0. El motor limita la resolución interna a 2× para evitar una carga Retina excesiva.
+10. Comprobar todos los controles y la fabricación: el cambio es visual y no debería alterar el inventario ni los hitboxes.
+11. Abrir la PWA sin conexión tras haberla cargado una vez: no debe depender de archivos de textura descargados.
+
+**Pendiente:** hasta disponer de resultados reales en Safari iPhone, los tests automáticos no garantizan FPS ni ausencia de detalles visuales inesperados.
+
+---
+
 
 ## Comprobación en iPhone y Android
 
