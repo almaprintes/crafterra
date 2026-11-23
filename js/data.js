@@ -52,6 +52,11 @@ export const ITEMS=[
   {id:'hinge',name:'Bisagra',category:'Componentes',rarity:'RARO',era:3,description:'Pieza intermedia diseñada para ensamblajes más complejos.'},
   {id:'screw',name:'Tornillo',category:'Componentes',rarity:'ÉPICO',era:4,description:'Pieza intermedia diseñada para ensamblajes más complejos.'},
   {id:'spring',name:'Muelle',category:'Componentes',rarity:'ÉPICO',era:4,description:'Pieza intermedia diseñada para ensamblajes más complejos.'},
+  {id:'iron_concentrate',name:'Mineral de hierro preparado',category:'Minerales',rarity:'INUSUAL',era:2,description:'Mena clasificada y triturada en la mesa de cantería para su fundición.'},
+  {id:'copper_concentrate',name:'Mineral de cobre preparado',category:'Minerales',rarity:'INUSUAL',era:2,description:'Mena clasificada y triturada en la mesa de cantería para su fundición.'},
+  {id:'tin_concentrate',name:'Mineral de estaño preparado',category:'Minerales',rarity:'INUSUAL',era:2,description:'Mena clasificada y triturada en la mesa de cantería para su fundición.'},
+  {id:'silver_concentrate',name:'Mineral de plata preparado',category:'Minerales',rarity:'INUSUAL',era:3,description:'Mena clasificada y triturada en la mesa de cantería para su fundición.'},
+  {id:'gold_concentrate',name:'Mineral de oro preparado',category:'Minerales',rarity:'INUSUAL',era:3,description:'Mena clasificada y triturada en la mesa de cantería para su fundición.'},
   {id:'iron_ingot',name:'Lingote de hierro',category:'Metalurgia',rarity:'INUSUAL',era:2,description:'Metal refinado o aleación preparado para manufactura.'},
   {id:'copper_ingot',name:'Lingote de cobre',category:'Metalurgia',rarity:'INUSUAL',era:2,description:'Metal refinado o aleación preparado para manufactura.'},
   {id:'tin_ingot',name:'Lingote de estaño',category:'Metalurgia',rarity:'INUSUAL',era:2,description:'Metal refinado o aleación preparado para manufactura.'},
@@ -476,7 +481,12 @@ export const RECIPES=[
   {id:'r231',a:'advanced_motor',b:'generator',result:'complex_machine',station:null,era:7,rarity:'SECRETO',xp:90,reward:125,secret:false,hints:['Piensa en cómo podrían trabajar juntos Motor avanzado y Generador.','Una pista: Motor avanzado es una de las dos piezas.','Motor avanzado + Generador.']},
   {id:'r232',a:'complex_machine',b:'optical_glass',result:'tech_core',station:null,era:7,rarity:'SECRETO',xp:90,reward:125,secret:false,hints:['Piensa en cómo podrían trabajar juntos Máquina compleja y Cristal óptico.','Una pista: Máquina compleja es una de las dos piezas.','Máquina compleja + Cristal óptico.']},
   {id:'r234',a:'rough_wood',b:'rough_wood',result:'wood',station:null,era:1,rarity:'COMÚN',xp:20,reward:15,secret:false,hints:['Los trozos irregulares pueden juntarse y trabajarse.','Necesitas dos unidades de madera tosca.','Madera tosca + Madera tosca → Madera.']},
-  {id:'r235',a:'rough_wood',b:'saw',result:'wood',station:null,era:3,rarity:'RARO',xp:25,reward:20,secret:false,hints:['Una herramienta precisa aprovecha mejor la madera.','Utiliza la sierra sin consumirla; se desgasta por usos.','Madera tosca + Sierra → Madera.']}
+  {id:'r235',a:'rough_wood',b:'saw',result:'wood',station:null,era:3,rarity:'RARO',xp:25,reward:20,secret:false,hints:['Una herramienta precisa aprovecha mejor la madera.','Utiliza la sierra sin consumirla; se desgasta por usos.','Madera tosca + Sierra → Madera.']},
+  {id:'r236',a:'iron',b:'iron',result:'iron_concentrate',station:null,era:2,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Hierro + Hierro → mineral preparado.']},
+  {id:'r237',a:'copper',b:'copper',result:'copper_concentrate',station:null,era:2,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Cobre + Cobre → mineral preparado.']},
+  {id:'r238',a:'tin',b:'tin',result:'tin_concentrate',station:null,era:2,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Estaño + Estaño → mineral preparado.']},
+  {id:'r239',a:'silver',b:'silver',result:'silver_concentrate',station:null,era:3,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Plata + Plata → mineral preparado.']},
+  {id:'r240',a:'gold',b:'gold',result:'gold_concentrate',station:null,era:3,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Oro + Oro → mineral preparado.']}
 ];
 
 export const COLLECTIONS=[
