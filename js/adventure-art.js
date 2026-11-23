@@ -20,9 +20,12 @@ const art={
  hide:'<g><path d="M36 10l10 10 14-2-4 16 7 14-16 3-11 13-13-13-15-4 6-14-3-15 14 2z" fill="#bb8e62" stroke="#65472f" stroke-width="3"/><path d="M28 27l9-8 10 9-5 22-15-9z" fill="#ddbb88" opacity=".7"/></g>',
  wool:'<g><circle cx="25" cy="28" r="13" fill="#eef3e4"/><circle cx="43" cy="27" r="16" fill="#f6f9ed"/><circle cx="27" cy="44" r="18" fill="#dce4d6"/><circle cx="45" cy="45" r="14" fill="#edf4e6"/><path d="M19 40Q35 18 51 42" fill="none" stroke="#a7c7c1" stroke-width="2"/></g>',
  cave:'<g><path d="M7 57l9-31 20-16 21 17 10 30z" fill="#899995" stroke="#d0d4be" stroke-width="2"/><path d="M20 57q0-31 17-31 18 0 18 31z" fill="#132b39"/><path d="M27 53q5-15 12-17" stroke="#5aa3a5" stroke-width="3" opacity=".8"/></g>',
+ tent:'<path d="M8 54L31 15l31 39-8 5H15z" fill="#d3a86c" stroke="#705037" stroke-width="2"/><path d="M31 15l2 44H15z" fill="#f1cb85"/><path d="M33 59l12-24 12 24z" fill="#76523a"/><path d="M39 59l6-17 9 17" fill="#253642"/><path d="M8 54h54" stroke="#ffe5a8" stroke-width="3"/><path d="M31 15l3 44" stroke="#fff1c5" stroke-width="2" opacity=".65"/>',
+ island:'<path d="M8 37l26-15 31 15-26 16z" fill="#82ba61" stroke="#a7d776" stroke-width="3"/><path d="M8 38l31 16v11L8 48z" fill="#785e42"/><path d="M39 54l26-16v10L39 65z" fill="#584f3b"/><path d="M24 38l8-19 10 20" fill="#256b48"/><path d="M20 35l12-11 15 13" fill="#43945d"/><path d="M32 34v13" stroke="#785c3d" stroke-width="4"/>',
  shield:'<path d="M36 8l26 9-3 27-23 22-23-22-3-27z" fill="url(#steel)" stroke="#c8deea" stroke-width="2"/><path d="M36 13v47l19-18 2-21z" fill="#a7c2c7"/><path d="M25 35l8 7 15-18" fill="none" stroke="#f9df93" stroke-width="6" stroke-linecap="round"/>'
 };
 const palette={
+ tent:['#52614c','#243a49','#ffe1a1'],island:['#3a7064','#1b394a','#c5ed9c'],
  fire:['#66412d','#232339','#ffb553'],forge:['#684632','#212739','#ffb553'],
  stone:['#456a7a','#193144','#b4e7e5'],ore:['#456a7a','#193144','#b4e7e5'],
  log:['#5c7855','#233c3c','#dfc484'],axe:['#3f707b','#192f41','#c8e6e9'],
@@ -36,6 +39,8 @@ const palette={
 };
 export function actionKind(id='',label=''){
  const k=String(id).toLowerCase(),n=String(label).toLowerCase();
+ if(k.includes('expedition')||n.includes('expedición'))return'tent';
+ if(k==='world'||n==='mundo')return'island';
  if(k.includes('cave')||n.includes('cueva')||n.includes('gruta'))return'cave';
  if(k.includes('shear')||k.includes('wool')||n.includes('lana'))return'wool';
  if(k.includes('rabbit')||n.includes('conejo'))return'rabbit';
