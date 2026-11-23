@@ -1,6 +1,7 @@
 import{gatheringPlan}from './adventure-rules.js?v=0.9.0';
 import{actionArt,actionKind}from './adventure-art.js?v=0.9.0';
-import{drawTerrainTile,drawContactShadow}from './terrain-textures.js?v=0.11.0';
+import{drawTerrainTile,drawContactShadow,terrainTextureRevision}from './terrain-textures.js?v=0.11.1';
+import{safeCanvasDpr,targetFrameInterval,captureRuntimeFault,noteRuntimeScene}from './runtime-diagnostics.js?v=0.11.1';
 import{drawPremiumTree,drawPremiumRock,drawPremiumHouse,drawPremiumCave,drawPremiumForge,drawPremiumBridge}from './world-art-premium.js?v=0.11.0';
 import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.9.0';
@@ -196,6 +197,8 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions
   if(!ctx){notify('No se pudo iniciar la vista gráfica.');return{refresh(){}};}
   const el=q=>root.querySelector(q);
   let player={x:9,y:10},path=[],pending=null,cam={x:0,y:0},last=0,step=0,frameCount=0,dialogOpen=false,loaded=false,w=480,h=300,harvest=null,walkPhase=0,facing=1,held=null,workPhase=0,lastStrike=0,fx=[];
+  let lastDrawAt=0,lastFaultAt=-Infinity,renderFailures=0,currentDpr=1;
+  const floorCache=new Map();let floorCacheRevision=-1;
   const actors=WORLD_NPCS.map(n=>({...n,homeX:n.x,homeY:n.y,phase:0,facing:1,idle:0,steps:[]}));
   const state=()=>getState();
   function adventure(){
@@ -208,7 +211,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions
     if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||!isWalkable(Math.round(a.x),Math.round(a.y),!!a.bridge,a.gathered)){a.x=9;a.y=10;}
     return a;
   }
-  function loadPosition(){if(loaded)return;const a=adventure();player=a.scene?{...(a.roomPositions[a.scene]||{x:5,y:6})}:{x:a.x,y:a.y};cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};loaded=true;}
+  function loadPosition(){if(loaded)return;const a=adventure();player=a.scene?{...(a.roomPositions[a.scene]||{x:5,y:6})}:{x:a.x,y:a.y};cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};loaded=true;noteRuntimeScene(a.scene||'valley');}
   function savePosition(){const a=adventure();if(a.scene)a.roomPositions[a.scene]={...player};else{a.x=player.x;a.y=player.y;}persist();}
   function project(x,y){return{x:(x-y)*TW/2-cam.x+w/2,y:(x+y)*TH/2-cam.y+h*.53};}
   function screenToTile(sx,sy){const ix=sx-w/2+cam.x,iy=sy-h*.53+cam.y;return{x:Math.round(ix/TW+iy/TH),y:Math.round(iy/TH-ix/TW)};}
@@ -355,14 +358,14 @@ function enterRoom(id){
     path=[];pending=null;harvest=null;held=null;
     el('#adv-work').hidden=true;
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
-    savePosition();updateHud();notify('Has entrado en '+HOUSE_ROOMS[id].name);
+    savePosition();noteRuntimeScene(id);updateHud();notify('Has entrado en '+HOUSE_ROOMS[id].name);
   }
   function leaveRoom(){
     const a=adventure();
     a.roomPositions[a.scene]={...player};a.scene=null;
     player={x:a.x,y:a.y};path=[];pending=null;harvest=null;held=null;
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
-    savePosition();updateHud();notify('Has salido al Valle del Origen');
+    savePosition();noteRuntimeScene('valley');updateHud();notify('Has salido al Valle del Origen');
   }
   function activateWork(label,ms,kind){
     const work=el('#adv-work');
@@ -655,19 +658,40 @@ function worldObjects(){
     objects.push({kind:'bridgeart',x:15,y:10},{kind:'player',x:player.x,y:player.y});
     return objects.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
   }
+  // Precompose each indoor floor only once per room and texture revision.
+  // Before this change a stationary workshop painted 99 textured tiles every
+  // frame, even though only the player and interactive workstations changed.
+  function getRoomFloor(scene){
+    const revision=terrainTextureRevision();
+    if(floorCacheRevision!==revision){floorCache.clear();floorCacheRevision=revision;}
+    if(floorCache.has(scene))return floorCache.get(scene);
+    const layer=document.createElement('canvas');layer.width=560;layer.height=285;
+    const g=layer.getContext('2d',{alpha:true});
+    if(!g)return null;
+    g.imageSmoothingEnabled=false;
+    const cave=!!CAVE_NODES[scene],home=scene==='house_mara';
+    for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
+      const px=(x-y)*TW/2+270,py=(x+y)*TH/2+24;
+      drawTerrainTile(g,px,py,cave?'cave':home?'cottage':'workshop',x+(cave?39:21),y+(cave?17:9));
+      if(cave&&(x===0||y===0||x===10||y===8)){
+        g.fillStyle='#293b49';g.fillRect(Math.round(px-18),Math.round(py-18),36,9);
+        g.fillStyle='#64747b';g.fillRect(Math.round(px-18),Math.round(py-19),36,3);
+        g.fillStyle='#9ca9a2';g.fillRect(Math.round(px-14),Math.round(py-21),10,2);
+      }
+    }
+    floorCache.set(scene,layer);
+    return layer;
+  }
+  function paintRoomFloor(scene){
+    const layer=getRoomFloor(scene);
+    if(layer){
+      ctx.drawImage(layer,Math.round(w/2-cam.x-270),Math.round(h*.53-cam.y-24));
+    }
+  }
   function drawInside(scene){
     if(CAVE_NODES[scene]){
       ctx.fillStyle='#101f2b';ctx.fillRect(0,0,w,h);
-      const phase=performance.now()/1000;
-      for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
-        const p=project(x,y),wall=x===0||y===0||x===10||y===8;
-        drawTerrainTile(ctx,p.x,p.y,'cave',x+39,y+17);
-        if(wall){
-          ctx.fillStyle='#293b49';ctx.fillRect(Math.round(p.x-18),Math.round(p.y-18),36,9);
-          ctx.fillStyle='#64747b';ctx.fillRect(Math.round(p.x-18),Math.round(p.y-19),36,3);
-          ctx.fillStyle='#9ca9a2';ctx.fillRect(Math.round(p.x-14),Math.round(p.y-21),10,2);
-        }
-      }
+      paintRoomFloor(scene);
       for(const o of worldObjects()){
         const p=project(o.x,o.y);
         drawContactShadow(ctx,p.x,p.y,o.kind==='resource'?'stone':o.kind==='player'?'player':'cave');
@@ -687,10 +711,7 @@ function worldObjects(){
     }
     ctx.fillStyle=scene==='house_mara'?'#57483f':'#303f58';ctx.fillRect(0,0,w,h);
     const home=scene==='house_mara';
-    for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
-      const p=project(x,y);
-      drawTerrainTile(ctx,p.x,p.y,home?'cottage':'workshop',x+21,y+9);
-    }
+    paintRoomFloor(scene);
     for(const o of worldObjects()){
       const p=project(o.x,o.y);
       drawContactShadow(ctx,p.x,p.y,o.kind==='player'?'player':'workshop');
@@ -770,19 +791,20 @@ function worldObjects(){
     paintEffects();
   }
   function resize(){
-    const rect=root.getBoundingClientRect();w=Math.max(200,Math.round(rect.width));h=Math.max(180,Math.round(rect.height));
-    // iPhone retina: 2x internal resolution, capped for sustained battery/FPS.
-    const dpr=Math.min(2,Math.max(1,typeof window==='undefined'?1:window.devicePixelRatio||1));
-    const pxW=Math.round(w*dpr),pxH=Math.round(h*dpr);
+    const rect=root.getBoundingClientRect();
+    w=Math.max(200,Math.round(rect.width));h=Math.max(180,Math.round(rect.height));
+    currentDpr=safeCanvasDpr(w,h,typeof window==='undefined'?1:window.devicePixelRatio||1);
+    const pxW=Math.round(w*currentDpr),pxH=Math.round(h*currentDpr);
     if(canvas.width!==pxW||canvas.height!==pxH){
       canvas.width=pxW;canvas.height=pxH;
-      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.setTransform(currentDpr,0,0,currentDpr,0,0);
       ctx.imageSmoothingEnabled=false;
     }
   }
 
   function tick(t){
     const dt=clamp((t-last)/1000||0,0,.06);last=t;
+    try{
     if(root.closest('.view')?.classList.contains('active')&&document.visibilityState!=='hidden'){
       resize();frameCount++;
       if(held&&!path.length)stepDir(...held);
@@ -800,10 +822,31 @@ function worldObjects(){
       walkNPCs(dt);tickGather(dt);tickEffects(dt);
       const desiredX=(player.x-player.y)*TW/2,desiredY=(player.x+player.y)*TH/2;
       cam.x+=(desiredX-cam.x)*Math.min(1,dt*8);cam.y+=(desiredY-cam.y)*Math.min(1,dt*8);
-      if(frameCount%2===0)draw();
+      const moving=!!path.length||!!held;
+      const interval=targetFrameInterval(moving,!!harvest,!!fx.length);
+      if(t-lastDrawAt>=interval){
+        draw();
+        lastDrawAt=t;
+        renderFailures=0;
+      }
       if(frameCount%12===0)updateHud();
     }
-    requestAnimationFrame(tick);
+    }catch(error){
+      renderFailures++;
+      if(t-lastFaultAt>6000){
+        lastFaultAt=t;
+        captureRuntimeFault(error,{
+          scene:adventure().scene||'valley',
+          stage:'animation-frame',
+          width:canvas.width,height:canvas.height,dpr:currentDpr
+        });
+        console.error('[CRAFTERRA] Error del motor gráfico recuperado:',error);
+        if(renderFailures===1)notify('Error gráfico detectado. Puedes exportar diagnóstico en Ajustes.');
+      }
+    }finally{
+      // A single painting error must never permanently stop the world loop.
+      requestAnimationFrame(tick);
+    }
   }
   canvas.addEventListener('click',ev=>{
     const r=canvas.getBoundingClientRect(),x=(ev.clientX-r.left)*w/r.width,y=(ev.clientY-r.top)*h/r.height;
@@ -860,5 +903,11 @@ function worldObjects(){
     if(ev.key===' '||ev.key==='Enter'){const n=nearby();if(n&&n.d<2.2)interact(n);}
   });
   loadPosition();resize();updateHud();requestAnimationFrame(tick);
-  return {refresh(){updateHud();draw();}};
+  return {refresh(){
+    try{updateHud();draw();}
+    catch(error){
+      captureRuntimeFault(error,{scene:adventure().scene||'valley',stage:'refresh',width:canvas.width,height:canvas.height,dpr:currentDpr});
+      console.error('[CRAFTERRA] Error de refresco recuperado:',error);
+    }
+  }};
 }
