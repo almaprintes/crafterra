@@ -310,3 +310,9 @@
 @media(prefers-reduced-motion:reduce){
  .adventure-dialog,.adventure-bottom button,.adv-strike{animation:none!important;transition:none!important}
 }
+
+/* 0.8: la navegación inferior también forma parte del lenguaje visual del juego */
+nav button i{display:grid;place-items:center;min-height:34px;margin-bottom:3px}
+nav button i .adv-art-xs{width:31px;height:31px;filter:drop-shadow(0 2px 3px #0009);transition:transform .14s ease,filter .14s ease}
+nav button.active i .adv-art-xs{transform:translateY(-2px) scale(1.12);filter:drop-shadow(0 0 7px #f0d08772)}
+nav button:active i .adv-art-xs{transform:scale(.93)}
