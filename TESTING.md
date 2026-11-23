@@ -1,4 +1,30 @@
-# CRAFTERRA 0.8.0 — revisión visual y de acción móvil
+# CRAFTERRA 0.8.1 — optimización de la pantalla Crear
+
+## Diagnóstico basado en grabación real de iPhone (23/11/2026)
+
+La vista de fabricación mostraba una mesa de altura fija de 38 vh, con mucho espacio vacío, y debajo un inventario recortado a 185 píxeles de altura que generaba otro scroll. El resultado era desplazamiento vertical/horizontal dentro del inventario, además del desplazamiento de la página.
+
+## Criterios de aceptación del rediseño
+
+- **Un único scroll vertical:** el de la vista Crear. El inventario y la barra de estaciones nunca tendrán barras de desplazamiento propias.
+- **Mesa compacta:** altura 195 px en móvil, dos huecos visibles y máximo dos ingredientes a la vez.
+- **Acceso inmediato al crafteo:** seleccionar dos tarjetas y tocar FUSIONAR, sin arrastrar; opcionalmente se conserva el gesto de arrastre.
+- **Mesa accesible mientras bajas por el inventario:** tablero fijo en la parte superior del área de Crear. El buscador queda justo debajo.
+- **Inventario útil por defecto:** mostrar solo unidades disponibles; opción Descubiertos para ver también lo que ya no tienes.
+- **Búsqueda y contador:** funcionan sin crear scroll horizontal o resetear la posición al escribir.
+- **Tarjetas adaptativas:** cuatro columnas en pantallas móviles y seis en pantallas anchas, sin clipping lateral.
+- **Filtros y estados accesibles:** los materiales agotados no se pueden añadir; botón Fusionar deshabilitado hasta colocar dos ingredientes.
+- **Seguridad de partida:** comprobar con 2 maderas toscas, receta de agua, hierro y herramientas gastadas, sin consumir recursos extra ni duplicarlos.
+- **Orientación horizontal:** mesa aún más compacta y un único scroll de página, sin anidar paneles.
+
+## Pruebas automáticas
+
+\`node tests/craft-layout.mjs\` comprueba integración HTML, limitación a dos ingredientes, selector de inventario, búsqueda, una sola área de scroll y caché offline. Se mantienen las pruebas de catálogo, aventuras, metalurgia e interfaz premium.
+
+**Pendiente:** inspección visual/táctil en Safari iPhone. Las comprobaciones automáticas no certifican la experiencia real en pantalla.
+
+---
+
 
 ## Pruebas automatizadas
 - \`node tests/adventure-ui.mjs\`: SVG con arte original, sin descargas externas, iconos únicos, hojas visuales y controles activos.
