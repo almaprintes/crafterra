@@ -40,7 +40,7 @@ PWA móvil de exploración isométrica con recursos interactivos, talleres, inve
 - **Herramientas persistentes:** piedra 10 usos, hierro 100; la herramienta se desgasta al terminar el trabajo y puede reutilizarse.
 - **Guardado:** posición exterior e interior, recursos agotados, avance del puente, inventario y durabilidad se mantienen con el sistema anterior.
 
-El inventario suma **238 objetos** (incluida la madera tosca, obtenida en el mundo) y conserva las **233 recetas** anteriores, sin alterar sus identificadores. La nueva pieza se puede refinar en el taller de la inventora.
+El inventario suma **243 objetos** (incluida la madera tosca, obtenida en el mundo) y conserva las **240 recetas** anteriores, sin alterar sus identificadores. La nueva pieza se puede refinar en el taller de la inventora.
 
 ## Estado
 Esta es la **primera región prototipo**, no un mundo abierto completo. El siguiente paso es validar la experiencia en Safari de iPhone y perfeccionar gráficos, interiores, movimiento e historia. No se añaden servicios externos ni pagos; la web se publica desde main en GitHub Pages.
