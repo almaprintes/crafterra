@@ -36,9 +36,9 @@ export function terrainTextureCount(){return atlas.size;}
 function pathTop(c){
  c.beginPath();
  c.moveTo(24,3);
- c.lineTo(47.4,15);
+ c.lineTo(48,15);
  c.lineTo(24,27);
- c.lineTo(.6,15);
+ c.lineTo(0,15);
  c.closePath();
 }
 function makeAtlasSprite(type,variant){
@@ -51,10 +51,10 @@ function makeAtlasSprite(type,variant){
  const tint=(c,alpha)=>{g.globalAlpha=alpha;g.fillStyle=c;};
  // Small topographically raised tile, with two darker visible side facets.
  g.fillStyle=pal.side;
- g.beginPath();g.moveTo(.7,15);g.lineTo(24,27);g.lineTo(24,32);
- g.lineTo(.7,20);g.closePath();g.fill();
+ g.beginPath();g.moveTo(0,15);g.lineTo(24,27);g.lineTo(24,32);
+ g.lineTo(0,20);g.closePath();g.fill();
  g.fillStyle=pal.edge;
- g.beginPath();g.moveTo(24,27);g.lineTo(47.3,15);g.lineTo(47.3,20);g.lineTo(24,32);g.closePath();g.fill();
+ g.beginPath();g.moveTo(24,27);g.lineTo(48,15);g.lineTo(48,20);g.lineTo(24,32);g.closePath();g.fill();
  g.fillStyle=pal.dark;g.fillRect(23,30,2,2);
  g.globalAlpha=1;
  g.save();
