@@ -27,10 +27,13 @@ jobs:
         run: node tests/craft-layout.mjs
       - name: Validar hábitats, fauna y galerías minerales
         run: node tests/biomes.mjs
+      - name: Verificar texturas del terreno, relieve y sombras
+        run: node tests/terrain-textures.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
           node --check js/adventure-world.js
+          node --check js/terrain-textures.js
           node --check js/adventure-art.js
           node --check js/world-actions.js
           node --check js/world-biomes.js
