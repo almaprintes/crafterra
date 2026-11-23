@@ -25,12 +25,15 @@ jobs:
         run: node tests/adventure-ui.mjs
       - name: Validar taller sin scroll anidado
         run: node tests/craft-layout.mjs
+      - name: Validar hábitats, fauna y galerías minerales
+        run: node tests/biomes.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
           node --check js/adventure-world.js
           node --check js/adventure-art.js
           node --check js/world-actions.js
+          node --check js/world-biomes.js
           node --check js/material-economy.js
           node --check js/adventure-rules.js
           node --check js/engine.js
