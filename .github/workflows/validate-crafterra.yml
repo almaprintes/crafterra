@@ -19,6 +19,8 @@ jobs:
         run: node tests/validate.mjs
       - name: Verificar mundo isométrico
         run: node tests/adventure.mjs
+      - name: Validar progresión de piedra y metalurgia
+        run: node tests/metallurgy.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
