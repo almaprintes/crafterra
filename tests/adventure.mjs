@@ -18,7 +18,7 @@ const ids=new Set([...WORLD_NODES,...WORLD_NPCS].map(e=>e.id));
 assert.equal(ids.size,WORLD_NODES.length+WORLD_NPCS.length,'unique NPC and node IDs');
 assert.ok(WORLD_TREES.length>0,'scenery trees populated');
 for(const node of WORLD_NODES){
-  assert.equal(isWalkable(node.x,node.y,true),node.type==='plant_fiber','trees and rocks block walking; low plants do not');
+  assert.equal(isWalkable(node.x,node.y,true),['plant_fiber','berries','herbs','mushroom'].includes(node.type),'trees and rocks block walking; low forage does not');
   assert.ok([[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy])=>isWalkable(node.x+dx,node.y+dy,true)),'resource approach '+node.id);
 }
 for(const tree of WORLD_TREES)assert.equal(isWalkable(tree.x,tree.y,true),false,'decorative tree solid '+tree.id);
