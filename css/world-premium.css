@@ -1,0 +1,224 @@
+/* CRAFTERRA 0.11 · Mundo sin scroll y expediciones integradas.
+   La referencia de arte es la maqueta aprobada el 23/11/2026. */
+#view-world.view.active{
+  display:flex;flex-direction:column;position:relative;
+  height:100%;min-height:0;padding:6px 8px 7px;
+  overflow:hidden!important;overscroll-behavior:none;
+  gap:6px;isolation:isolate;
+}
+#view-world .world-head{
+  flex:0 0 55px;min-height:0;max-height:55px;
+  padding:5px 10px;border-radius:14px;
+  background:linear-gradient(104deg,#0e2c44e8,#244e69de 56%,#122c4aef),
+   radial-gradient(ellipse at 70% 92%,#779db1 0,transparent 55%);
+  border:1px solid #9ccee06d;box-shadow:inset 0 1px #f8fbec39,0 4px 13px #03142192;
+}
+#view-world .world-head small{color:#f7ce7c;letter-spacing:1.5px;font-size:9px}
+#view-world .world-head h1{margin:0;font-size:19px;line-height:1.14;color:#fff5e4;text-shadow:0 2px 2px #0009}
+#view-world .world-head p{display:none}
+#view-world .world-head .daily{
+  padding:5px 10px;min-width:78px;min-height:41px;
+  border:1px solid #ffe4a9;border-radius:12px;
+  background:linear-gradient(160deg,#d4a361,#865631);
+  color:#fff4da;box-shadow:inset 0 1px #fff4c680,0 3px 0 #513a29;
+}
+#view-world .world-head .daily b{font-size:11px}
+#view-world #world.adventure-world{
+  flex:1 1 auto;position:relative;height:auto!important;
+  min-height:0!important;max-height:none!important;
+  margin:0!important;border:1px solid #bbd7bdc7;
+  border-radius:18px;overflow:hidden;
+  box-shadow:inset 0 0 0 2px #0a3c4a55,
+    inset 0 0 40px #092c3655,0 4px 0 #285354,0 7px 17px #06192ba8;
+  background:#4d957a;
+}
+#view-world #questStrip.adventure-quest{
+  flex:0 0 48px;min-height:48px;max-height:48px;
+  margin:0;padding:5px 11px 6px;display:grid;
+  grid-template-columns:minmax(0,1fr) auto;align-content:center;
+  overflow:hidden;border-radius:12px;
+  border:1px solid #dcba85a3;
+  background:linear-gradient(130deg,#906038,#49362f);
+  box-shadow:inset 0 1px #ffe4a84c,0 3px 8px #03162455;
+}
+#view-world #questStrip b{font-size:11px;line-height:1.2;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-world #questStrip span{font-size:9px;line-height:1.2;display:block;max-height:21px;overflow:hidden;grid-column:1}
+#view-world #questStrip strong{grid-row:1/3;grid-column:2;align-self:center;padding-left:5px;font-size:12px;white-space:nowrap}
+#view-world .adventure-hud{width:58%;max-width:58%;left:8px;top:9px}
+#view-world .adventure-hud b{
+  padding:6px 8px;letter-spacing:1.1px;font-size:10px;
+  border:1px solid #b5d9ba;border-radius:11px;
+  background:linear-gradient(120deg,#193d42e8,#092934dd);
+  box-shadow:0 3px 9px #08212c77;
+}
+#view-world .adventure-hud small{padding:5px 7px;font-size:8px;letter-spacing:.18px;max-height:36px}
+#view-world .adventure-inventory{
+ top:8px;right:8px;width:40%;max-width:40%;
+ border-color:#a5d3ddbc;background:linear-gradient(150deg,#11394ce8,#0c2437ea);
+ padding:5px;gap:1px;
+}
+#view-world .adv-resource .adv-art-xs{width:26px;height:26px}
+#view-world .adventure-tool{top:95px;right:8px;border-color:#95bcca;background:#0d2b3be8}
+#view-world .adventure-bottom{
+ left:7px;right:7px;bottom:11px;gap:5px;
+ align-items:end;z-index:5;
+}
+#view-world .adventure-dpad{
+ grid-template-columns:repeat(3,32px);grid-template-rows:repeat(2,32px);
+ gap:3px;min-width:102px;flex:0 0 102px;
+}
+#view-world .adventure-dpad button{
+ width:32px;height:32px;border-radius:10px;
+ font-size:13px;background:linear-gradient(135deg,#3a6677,#133547);
+ border:1px solid #c3d8d5;
+}
+#view-world .adventure-action,
+#view-world .adventure-craft,
+#view-world .adventure-expeditions{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ padding:3px 1px;gap:1px;min-height:70px;max-height:74px;
+ border-radius:13px;min-width:0;flex:1 1 0;
+ font-size:9px;letter-spacing:.45px;font-weight:900;
+ border:1px solid #d5ecdb;
+ text-shadow:0 1px 3px #000b;
+ box-shadow:inset 0 2px #ffffff58,0 3px 0 #10242a,0 6px 14px #0823327e;
+}
+#view-world .adventure-action{background:linear-gradient(135deg,#48a880,#0b6658)}
+#view-world .adventure-craft{background:linear-gradient(135deg,#296c81,#143b55);flex:1 1 0}
+#view-world .adventure-expeditions{
+ position:relative;flex:1.1 1 0;
+ background:linear-gradient(150deg,#786348,#193a4e);
+ border:2px solid #ffc66b;color:#ffedc5;
+ box-shadow:0 0 0 2px #f6ad4240,inset 0 1px #ffe7af8a,0 3px 0 #80512d;
+}
+#view-world .adventure-expeditions[aria-expanded=true]{background:linear-gradient(140deg,#ab7c34,#234d52)}
+#view-world .adventure-expeditions .adv-art-sm,
+#view-world .adventure-action .adv-art-sm,
+#view-world .adventure-craft .adv-art-sm{width:35px;height:35px}
+#view-world .adventure-expeditions .exp-notice{
+ position:absolute;top:-8px;right:-6px;
+ width:19px;height:19px;line-height:18px;border-radius:50%;
+ border:1px solid #fce9c7;background:linear-gradient(#f45b54,#a5292d);
+ font-size:12px;color:white;text-align:center;box-shadow:0 2px 5px #041c2a
+}
+#view-world .adventure-hint{display:none}
+#view-world .adventure-work{bottom:88px;z-index:12}
+#view-world .adventure-dialog{bottom:91px;max-height:64%;z-index:12}
+#view-world #expeditionPanel{
+ display:flex;flex-direction:column;position:absolute;z-index:15;
+ left:7px;right:7px;bottom:6px;top:auto;
+ width:auto;max-width:none;height:auto;
+ max-height:min(76%,600px);min-height:0;
+ margin:0!important;padding:9px 10px 12px!important;
+ overflow:hidden!important;
+ border:1px solid #98cde3;border-radius:19px;
+ background:linear-gradient(156deg,#164b63f6,#0d263afc 58%,#10364cf7);
+ box-shadow:0 0 0 4px #081e2b99,0 15px 34px #020c1ab9,inset 0 1px #e0fbff62;
+ backdrop-filter:blur(17px);-webkit-backdrop-filter:blur(17px);
+}
+#view-world #expeditionPanel[hidden]{display:none!important}
+.exp-sheet-head{display:flex;gap:8px;align-items:center;flex:none;padding:0 1px 7px;border-bottom:1px solid #9cd7d54c}
+.exp-sheet-head .exp-sheet-icon{width:34px;height:34px}
+.exp-sheet-title{flex:1;min-width:0}
+.exp-sheet-title b{display:block;font-size:14px;letter-spacing:.7px;color:#fff4d3}
+.exp-sheet-title small{display:block;font-size:9px;line-height:1.25;color:#b8d5e4}
+.exp-close{
+ width:32px;height:32px;min-width:32px;
+ border-radius:50%;border:1px solid #b9d7d8b0;background:#11374b;
+ color:#eaf4ed;font-size:23px;line-height:25px;
+}
+.exp-sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px 0;flex:none}
+.exp-tile{
+ display:flex;align-items:center;gap:6px;min-width:0;min-height:64px;
+ padding:6px;border-radius:11px;border:1px solid #8dbcc67c;
+ background:linear-gradient(140deg,#214c64,#102e49);
+ box-shadow:inset 0 1px #ffffff2c,0 3px 0 #0b2433;
+ text-align:left;color:#f4f5e9;
+}
+.exp-tile.selected{
+ border:2px solid #ffe1a0;
+ background:linear-gradient(135deg,#315a70,#15344b);
+ box-shadow:0 0 0 2px #fbbf5944,0 0 15px #f9d07552,inset 0 1px #e9ffff80;
+}
+.exp-tile:disabled{opacity:.55;filter:saturate(.55)}
+.exp-tile-icon{flex:none}
+.exp-tile-icon .adv-art-sm{width:38px;height:38px}
+.exp-tile-label{min-width:0;display:flex;flex-direction:column;gap:2px;flex:1}
+.exp-tile-label strong{font-size:10px;line-height:1.1;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.exp-tile-label small{font-size:9px;color:#b8d8df;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.exp-tile .exp-locked{font-size:12px;color:#f1c780}
+.exp-config{
+ display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+ padding:6px 8px;background:#061d309c;border:1px solid #6b9fad70;
+ border-radius:11px;min-height:39px;
+}
+.exp-config label{font-size:9px;color:#d4e7e0;font-weight:800}
+.exp-config select{
+ flex:1;min-width:80px;max-width:100%;
+ padding:6px 4px;border-radius:7px;border:1px solid #80bbc3;
+ background:#14384d;color:#f4f1e2;font-size:11px;
+}
+.exp-duration{
+ display:flex;gap:5px;min-width:0;flex:1;justify-content:end
+}
+.exp-duration button{
+ min-width:0;flex:1;padding:6px 3px;border-radius:7px;
+ border:1px solid #5d92a7;background:#12344a;
+ color:#cce2df;font-size:10px;font-weight:900
+}
+.exp-duration button.selected{border-color:#ffe2a2;background:#8d623c;color:#fff4d6}
+.exp-sheet-footer{display:flex;flex-direction:column;gap:6px;margin-top:7px;min-height:0}
+.exp-sheet-status{font-size:10px;line-height:1.3;color:#c9e0e3;min-height:14px;text-align:center;max-height:26px;overflow:hidden}
+.exp-primary{
+ display:flex;align-items:center;justify-content:center;gap:8px;
+ width:100%;min-height:43px;padding:6px 10px;border-radius:12px;
+ border:1px solid #bcf8b0;color:#fff9e8;font-size:15px;font-weight:950;
+ text-shadow:0 2px 2px #134a30;background:linear-gradient(#66de9a,#218b65);
+ box-shadow:inset 0 2px #ecffeeb8,0 4px 0 #14503d,0 7px 18px #0d312f77;
+}
+.exp-primary:disabled{opacity:.52;filter:grayscale(.35)}
+.exp-secondary{min-height:29px;padding:5px 10px;border-radius:9px;border:1px solid #8aaeb5;background:#194b5f;color:#f3e8c7;font-size:11px}
+.exp-result{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding:3px 1px;max-height:53px;overflow:hidden}
+.exp-result span{padding:4px 6px;background:#18394b;border:1px solid #759eaf8a;border-radius:7px;font-size:10px}
+.exp-sheet-status[data-exp-countdown]{font-variant-numeric:tabular-nums;color:#f7d18c}
+@media(max-width:380px){
+ #view-world.view.active{padding-left:5px;padding-right:5px;gap:4px}
+ #view-world .world-head{flex-basis:49px;max-height:49px}
+ #view-world .world-head h1{font-size:16px}
+ #view-world #questStrip.adventure-quest{flex-basis:43px;min-height:43px;max-height:43px}
+ #view-world .adventure-bottom{left:4px;right:4px;gap:3px}
+ #view-world .adventure-dpad{grid-template-columns:repeat(3,29px);grid-template-rows:repeat(2,29px);min-width:93px;flex-basis:93px;gap:2px}
+ #view-world .adventure-dpad button{width:29px;height:29px}
+ #view-world .adventure-action,#view-world .adventure-craft,#view-world .adventure-expeditions{font-size:8px;min-height:63px}
+ #view-world .adventure-bottom .adv-art-sm{height:29px;width:29px}
+ #view-world #expeditionPanel{left:4px;right:4px;padding:7px 7px 10px!important}
+ .exp-tile{min-height:57px;padding:4px;gap:4px}
+ .exp-tile-icon .adv-art-sm{width:32px;height:32px}
+ .exp-tile-label strong{font-size:9px}
+ .exp-tile-label small{font-size:8px}
+ .exp-sheet-title b{font-size:12px}
+ .exp-primary{min-height:38px;font-size:12px}
+}
+@media(max-height:720px){
+ #view-world #expeditionPanel{max-height:80%;padding:7px!important}
+ .exp-sheet-grid{gap:5px;padding:6px 0}
+ .exp-tile{min-height:55px;padding:4px}
+ .exp-sheet-head{padding-bottom:4px}
+ .exp-primary{min-height:37px}
+ .exp-config{min-height:34px;padding:4px}
+ #view-world .adventure-hud small{max-height:28px}
+}
+@media(max-height:520px) and (orientation:landscape){
+ #view-world .world-head{flex-basis:37px;max-height:37px}
+ #view-world .world-head h1{font-size:14px}
+ #view-world #questStrip.adventure-quest{display:none}
+ #view-world .adventure-bottom{bottom:4px}
+ #view-world .adventure-action,#view-world .adventure-craft,#view-world .adventure-expeditions{min-height:43px;max-height:46px;font-size:8px}
+ #view-world .adventure-bottom .adv-art-sm{width:24px;height:24px}
+ #view-world #expeditionPanel{max-height:94%;width:min(500px,94%);left:auto;right:4px}
+ .exp-sheet-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .exp-tile{min-height:55px}
+ .exp-tile-icon .adv-art-sm{width:29px;height:29px}
+ .exp-tile-label strong{font-size:8px}
+ .exp-config{min-height:32px}
+}
