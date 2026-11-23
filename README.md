@@ -1,38 +1,35 @@
-# CRAFTERRA v0.1.0
+# CRAFTERRA v0.3.1 — Primera aventura isométrica
 
-**De una piedra a las estrellas.** Juego móvil de crafting, descubrimiento, colección y evolución tecnológica. Es una PWA sin dependencias, npm, compilación, servicios remotos ni telemetría.
+**De una piedra a las estrellas.** PWA offline de exploración, descubrimiento, crafteo y evolución tecnológica.
 
-## Publicación en GitHub Pages
+## Novedad: Valle del Origen (prototipo jugable)
+- La pantalla **Mundo** abre un valle isométrico con protagonista pixel art, cámara de seguimiento, movimiento táctil (tocar destino o flechas) y teclado.
+- Tres habitantes: Mara, Taro y Lía, con diálogos e hilo argumental.
+- Recursos físicos recogibles: madera, piedra y fibra vegetal. Los nodos vuelven a estar disponibles después de 5 minutos.
+- **Misión El puente roto:** habla con Mara, fabrica **2 tablones + 1 cuerda** en el Taller, vuelve al puente y repáralo para atravesar el río. Después encuentra a Lía.
+- El mundo comparte inventario y guardado con el crafteo existente. Persiste ubicación, materiales, diálogo y reparaciones.
+- Esta primera aventura aún no incluye IA de movimiento de NPC, combates, grandes regiones ni sprites definitivos.
 
-1. Descomprime el ZIP en la raíz del repositorio.
-2. En GitHub, abre **Settings → Pages** y publica la rama y carpeta raíz elegidas.
-3. Abre la URL generada. Las rutas relativas permiten publicar en una subcarpeta.
+## Crafteo heredado
+El catálogo jugable contiene **237 objetos, 233 recetas explícitas**, 21 colecciones, 28 misiones tradicionales, 15 puzles, 25 logros y 10 estaciones. Mantiene maestría, fabricación directa, expediciones, libro de recetas y recompensas.
 
-También puede probarse con cualquier servidor estático local. No debe abrirse con `file://`, porque los módulos y el service worker requieren HTTP(S).
+## Publicación
+El sitio es estático: publicar la raíz de `main` con GitHub Pages. No necesita npm ni compilación. Instalar como PWA en iPhone desde Safari. Los módulos y el service worker necesitan HTTP(S), no `file://`.
 
-## Juego
+## Pruebas
+- `node tests/validate.mjs`
+- `node tests/adventure.mjs`
+- GitHub Actions: `.github/workflows/validate-crafterra.yml`
 
-- En **Crear**, toca objetos para ponerlos en la mesa y arrastra una pieza sobre otra.
-- Los cinco recursos naturales y cuatro conceptos iniciales son reutilizables.
-- Los hallazgos alimentan misiones, 12 colecciones, 15 puzles, 25 logros y el mundo persistente.
-- El archivo ofrece fichas, filtros y recetas parcialmente ocultas.
-- El desafío diario es determinista según la fecha local.
-
-Incluye 95 objetos, 104 recetas data-driven, 12 estaciones y siete eras, con contenido jugable desde Naturaleza hasta Espacio. La economía está centralizada en `js/config.js`.
+Las pruebas automáticas **no sustituyen la prueba manual de controles, animación, rendimiento y guardado en Safari/iPhone**.
 
 ## Arquitectura
+- `js/adventure-world.js`: motor Canvas isométrico, ruta, personaje, NPC, diálogos, recursos y primera misión.
+- `css/adventure-world.css`: vista móvil, HUD, controles y diálogos.
+- `js/data.js`: catálogo y recetas.
+- `js/engine.js`: crafting y progresión.
+- `js/db.js`: IndexedDB con respaldo local.
+- `js/app.js`: integración de aventura, crafting e interfaz.
+- `sw.js`: caché offline.
 
-- `js/data.js`: objetos, recetas y metacontenido.
-- `js/engine.js`: reglas puras de crafting y progresión.
-- `js/db.js`: IndexedDB v2 y migraciones.
-- `js/providers.js`: `RewardedAdsProvider` y `StoreProvider` en DEVELOPMENT.
-- `tools/recipe-editor.html`: editor offline, validación de conflictos, alcanzabilidad y balance.
-- `sw.js`: caché offline con ámbito relativo.
-
-Los proveedores comerciales nunca representan operaciones reales. Para producción, implemente las interfaces de `js/providers.js`, mantenga la devolución explícita de errores y conecte únicamente SDK e identificadores propios verificados.
-
-## Accesibilidad y privacidad
-
-La interfaz admite teclado en navegación y botones, reduce movimiento según el sistema, usa objetivos táctiles amplios y no depende del color para el estado. El juego guarda solamente datos locales y funciona sin conexión.
-
-Consulta [TESTING.md](TESTING.md), [PRIVACY.md](PRIVACY.md) y [COMMERCIAL_CHECKLIST.md](COMMERCIAL_CHECKLIST.md).
+La tienda y `RewardedAdsProvider` continúan en modo DEVELOPMENT: no hay pagos ni anuncios comerciales configurados. Consulta [TESTING.md](TESTING.md), [COMMERCIAL_CHECKLIST.md](COMMERCIAL_CHECKLIST.md) y [ADVENTURE_ROADMAP.md](ADVENTURE_ROADMAP.md).
