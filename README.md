@@ -1,4 +1,19 @@
-# CRAFTERRA 0.5.1 — Un mundo en el que todo sirve para algo
+# CRAFTERRA v0.6.0 — Economía de materiales y combustible
+
+## Nuevo: madera tosca y hogueras útiles
+- **Receta básica:** 2 maderas toscas → 1 madera. Disponible en el laboratorio como combinación r234 y en el banco de carpintería de Lía.
+- **Receta con herramienta:** madera tosca + sierra → 1 madera (r235). La sierra no desaparece; gasta 1 uso de sus 100.
+- **Combustibles:** madera tosca +3 calor, madera +5, carbón vegetal +7, carbón mineral +12. La hoguera tiene una capacidad máxima de 24.
+- **Procesos físicos:** cocinar carne o pescado cuesta 2 calor; carbonizar una madera cuesta 3 calor y produce 1 carbón vegetal.
+- **Dos fuegos independientes:** hogar de Mara y hoguera comunitaria en el valle. Su combustible y calor se conservan al guardar.
+- **Hoguera reutilizable:** en la aventura, cocinar consume calor y comida, nunca destruye el fuego o la instalación. En el laboratorio, las estaciones conocidas dejan de gastarse como ingredientes.
+- Se conserva todo el catálogo anterior: **238 objetos y 235 recetas explícitas**, incluyendo las dos rutas nuevas.
+
+**Reglas oficiales y balance:** [RESOURCE_ECONOMY.md](RESOURCE_ECONOMY.md). Allí están los usos de madera, piedra, fibras, agua, minerales, combustible y la lista de sistemas aún pendientes de convertir en instalaciones físicas.
+
+**Comprobación:** \`node tests/validate.mjs\` y \`node tests/adventure.mjs\`. GitHub Actions también verifica la sintaxis de los motores.
+
+---
 
 **De una piedra a las estrellas.** Aventura isométrica PWA, con progreso y fabricación integrados.
 
