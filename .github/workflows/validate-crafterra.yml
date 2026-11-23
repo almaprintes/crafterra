@@ -21,10 +21,13 @@ jobs:
         run: node tests/adventure.mjs
       - name: Validar progresión de piedra y metalurgia
         run: node tests/metallurgy.mjs
+      - name: Verificar interfaz premium y acción
+        run: node tests/adventure-ui.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
           node --check js/adventure-world.js
+          node --check js/adventure-art.js
           node --check js/world-actions.js
           node --check js/material-economy.js
           node --check js/adventure-rules.js
