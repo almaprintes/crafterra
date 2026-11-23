@@ -36,6 +36,7 @@ export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(x===15&&(!bridge||y!==10))return false;
   if(WORLD_HOUSES.some(t=>t.x===x&&t.y===y))return false;
   if(WORLD_CAMPFIRE.x===x&&WORLD_CAMPFIRE.y===y)return false;
+  if(WORLD_WORKSTATIONS.some(o=>o.x===x&&o.y===y))return false;
   if(WORLD_TREES.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
   if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&nodeAvailable({adventure:{gathered}},n,now)))return false;
   return true;
@@ -57,6 +58,10 @@ export function findPath(from,to,bridge=false,gathered={}){
 }
 const TW=48,TH=24,RESPAWN=RESOURCE_RESPAWN;
 export const WORLD_CAMPFIRE=Object.freeze({id:'valley_campfire',x:10,y:12,kind:'fire',label:'Hoguera del valle'});
+export const WORLD_WORKSTATIONS=Object.freeze([
+  {id:'stone_table',x:8,y:12,kind:'workshop',station:'stonework',label:'Mesa de cantería'},
+  {id:'village_foundry',x:12,y:7,kind:'workshop',station:'foundry',label:'Horno y forja del valle'}
+]);
 export const WORLD_HOUSES=Object.freeze([{id:'house_mara',x:6,y:7,kind:'house',label:'Casa de Mara'},{id:'house_lia',x:21,y:7,kind:'house',label:'Taller de Lía'}]);
 const color={
   avatar:{h:'#61402e',s:'#f8ce99',j:'#e8b04b',p:'#274b65'},
@@ -73,6 +78,7 @@ export const WORLD_TREES=Object.freeze((()=>{
    if(WORLD_HOUSES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<3))continue;
    if(WORLD_NPCS.some(n=>Math.abs(n.x-x)<3&&Math.abs(n.y-y)<3))continue;
    if(WORLD_NODES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
+   if(WORLD_WORKSTATIONS.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
    out.push({id:'bosque_'+x+'_'+y,x,y,type:'wood',species:(x+y)%2?'pine':'oak',qty:(x+y)%2?2:3,kind:'node'});
  }
  return out;
@@ -183,6 +189,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_TREES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_HOUSES,
+      ...WORLD_WORKSTATIONS,
       WORLD_CAMPFIRE,
       {id:'puente',x:14,y:10,kind:'bridge'},
       ...(Math.abs(player.x-15)<3?[riverNode(Math.min(20,Math.max(1,Math.round(player.y))))]:[])
@@ -198,7 +205,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+' · 🪓 '+(s.stock?.rough_wood||0)+' · 💧 '+(s.stock?.water||0)+' · 🪨 '+(s.stock?.stone||0)+' · 🧶 '+(s.stock?.plant_fiber||0);
     el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+' · ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
     const n=nearby();
-    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='fire'?'Hoguera':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
+    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='workshop'?'Utilizar':n.kind==='fire'?'Hoguera':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
     el('#adv-interact').textContent='✦ '+label;
     el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Árboles: cortar o golpear · Río: cuenco · Vetas: pico · Casas: entrar';
   }
@@ -298,7 +305,8 @@ function enterRoom(id){
         {label:'Quedarme fuera',action:'close'}]);
       return;
     }
-    if(e.kind==='fire'){showStationMenu('fire','valley','🔥 Hoguera del valle');return;}
+    if(e.kind==='fire'){showStationMenu('fire','valley','🔥 Hoguera del valle',null,e);return;}
+    if(e.kind==='workshop'){showStationMenu(e.station,e.id,e.label,null,e);return;}
     if(e.kind==='bridge'){repair();return;}
     if(e.kind==='node'){
       if(!available(e)||harvest)return;
@@ -425,7 +433,7 @@ function worldObjects(){
     ].sort((a,b)=>(a.x+a.y)-(b.x+b.y));
     const objects=[];
     for(const n of [...WORLD_TREES,...WORLD_NODES])if(available(n))objects.push({...n,kind:'resource'});
-    objects.push(...WORLD_HOUSES,WORLD_CAMPFIRE);
+    objects.push(...WORLD_HOUSES,...WORLD_WORKSTATIONS,WORLD_CAMPFIRE);
     for(const n of actors)objects.push({...n,kind:'npc'});
     objects.push({kind:'bridgeart',x:15,y:10},{kind:'player',x:player.x,y:player.y});
     return objects.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
@@ -466,6 +474,15 @@ function worldObjects(){
     }
     for(const o of worldObjects()){
       const p=project(o.x,o.y);if(p.x<-80||p.x>w+80||p.y<-95||p.y>h+65)continue;
+      if(o.kind==='workshop'){
+        const furnace=o.station==='foundry';
+        ctx.fillStyle=furnace?'#534e48':'#6b665d';ctx.fillRect(p.x-19,p.y-14,38,17);
+        ctx.fillStyle=furnace?'#aaa39b':'#b0b9ae';ctx.fillRect(p.x-17,p.y-22,34,10);
+        ctx.fillStyle=furnace?'#d38b4c':'#ded0a4';ctx.fillRect(p.x-11,p.y-28,22,8);
+        if(furnace&&heatOf(state(),o.id)>0){ctx.fillStyle='#f5b353';ctx.fillRect(p.x-6,p.y-25,12,13);ctx.fillStyle='#ffe69e';ctx.fillRect(p.x-2,p.y-22,4,7);}
+        ctx.fillStyle='#fff5d2';ctx.textAlign='center';ctx.font='bold 9px system-ui';ctx.fillText(furnace?'⚒️ FUNDICIÓN':'🪨 CANTERÍA',p.x,p.y-39);
+        if(furnace){ctx.font='bold 10px system-ui';ctx.fillText(heatOf(state(),o.id)+'/'+MAX_FIRE_HEAT+' ♨',p.x,p.y-51);}
+      }
       if(o.kind==='fire'){
         const fuel=heatOf(state(),'valley');
         ctx.fillStyle='#725443';ctx.fillRect(p.x-17,p.y-7,34,10);
