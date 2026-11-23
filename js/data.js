@@ -30,6 +30,7 @@ export const ITEMS=[
   {id:'lapis',name:'Lapislázuli',category:'Gemas',rarity:'RARO',era:3,description:'Cristal o gema natural de alto valor técnico y de colección.'},
   {id:'obsidian',name:'Obsidiana',category:'Minerales',rarity:'RARO',era:3,description:'Mineral en bruto obtenido mediante exploración y extracción.'},
   {id:'bone',name:'Hueso',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
+  {id:'animal_hide',name:'Piel cruda',category:'Recursos',rarity:'COMÚN',era:2,description:'Piel obtenida al cazar en praderas o bosques. Debe curtirse antes de utilizarla como cuero.'},
   {id:'leather',name:'Cuero',category:'Materiales',rarity:'INUSUAL',era:2,description:'Material procesado útil para construir y fabricar componentes.'},
   {id:'plant_fiber',name:'Fibra vegetal',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
   {id:'fabric',name:'Tela',category:'Materiales',rarity:'INUSUAL',era:2,description:'Material procesado útil para construir y fabricar componentes.'},
@@ -74,6 +75,7 @@ export const ITEMS=[
   {id:'iron_axe',name:'Hacha de hierro',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
   {id:'iron_pickaxe',name:'Pico de hierro',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
   {id:'iron_hammer',name:'Martillo de hierro',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
+  {id:'shears',name:'Tijeras de esquilar',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta reutilizable de hierro para obtener lana de ovejas sin dañarlas. Dura 100 esquilas.'},
   {id:'saw',name:'Sierra',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
   {id:'shovel',name:'Pala',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
   {id:'tongs',name:'Tenazas',category:'Herramientas',rarity:'RARO',era:3,description:'Herramienta funcional que desbloquea nuevas formas de trabajo.'},
@@ -486,7 +488,9 @@ export const RECIPES=[
   {id:'r237',a:'copper',b:'copper',result:'copper_concentrate',station:null,era:2,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Cobre + Cobre → mineral preparado.']},
   {id:'r238',a:'tin',b:'tin',result:'tin_concentrate',station:null,era:2,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Estaño + Estaño → mineral preparado.']},
   {id:'r239',a:'silver',b:'silver',result:'silver_concentrate',station:null,era:3,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Plata + Plata → mineral preparado.']},
-  {id:'r240',a:'gold',b:'gold',result:'gold_concentrate',station:null,era:3,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Oro + Oro → mineral preparado.']}
+  {id:'r240',a:'gold',b:'gold',result:'gold_concentrate',station:null,era:3,rarity:'INUSUAL',xp:30,reward:20,secret:false,hints:['Prepara la mena antes de llevarla al horno.','Dos unidades del mismo mineral se clasifican en una unidad preparada.','Oro + Oro → mineral preparado.']},
+  {id:'r241',a:'metal_plate',b:'saw',result:'shears',station:null,era:3,rarity:'RARO',xp:45,reward:55,secret:false,hints:['Una hoja metálica trabajada puede dividirse en dos cuchillas.', 'Una sierra permite cortar la placa y sigue siendo reutilizable.', 'Placa metálica + Sierra → Tijeras de esquilar.']},
+  {id:'r242',a:'animal_hide',b:'water',result:'leather',station:null,era:2,rarity:'INUSUAL',xp:30,reward:35,secret:false,hints:['La piel cruda necesita un proceso antes de ser cuero.', 'Empieza por tratar la piel con agua.', 'Piel cruda + Agua → Cuero.']}
 ];
 
 export const COLLECTIONS=[
