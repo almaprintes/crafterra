@@ -324,16 +324,91 @@ function renderBoard(){
    if(i>1)break;
    const it=item(id),el=document.createElement('button');
    el.className='piece';el.type='button';el.dataset.index=i;
-   el.setAttribute('aria-label','Ingrediente '+(i+1)+': '+it.name+'. Arrastra sobre el otro ingrediente para combinar.');
+   el.setAttribute('aria-label','Ingrediente '+(i+1)+': '+it.name+'. Arrastra al inventario para quitarlo, o sobre el otro ingrediente para combinar.');
    el.style.cssText='--x:'+(i===0?26:74)+'%;--y:43%;';
    el.innerHTML=icon(it)+'<small>'+it.name+'</small>';
-   el.draggable=true;el.addEventListener('pointerdown',dragStart);b.append(el);
+   el.draggable=false;el.addEventListener('pointerdown',dragStart);b.append(el);
  }
  const combine=$('#combineBoard');
  combine.disabled=board.length!==2;
  combine.textContent=board.length===2?'⚒ FUSIONAR':'ELIGE DOS MATERIALES';
 }
-function dragStart(ev){const el=ev.currentTarget,idx=+el.dataset.index;el.setPointerCapture(ev.pointerId);el.classList.add('held');const move=e=>{const r=$('#craftBoard').getBoundingClientRect();el.style.left=`${e.clientX-r.left}px`;el.style.top=`${e.clientY-r.top}px`;el.style.transform='translate(-50%,-50%) scale(1.12)'};const up=async e=>{el.removeEventListener('pointermove',move);el.classList.remove('held');el.style.pointerEvents='none';const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.piece');el.style.pointerEvents='';if(target&&+target.dataset.index!==idx){await doMerge(idx,+target.dataset.index)}else renderBoard()};el.addEventListener('pointermove',move);el.addEventListener('pointerup',up,{once:true})}
+function dragStart(ev){
+ if(ev.button!==0&&ev.pointerType==='mouse')return;
+ const el=ev.currentTarget,idx=Number(el.dataset.index);
+ if(!board[idx])return;
+ ev.preventDefault();
+ el.setPointerCapture(ev.pointerId);
+ const inventory=$('#view-craft .inventory');
+ const count=$('#inventoryCount');
+ const originalCount=count?.textContent||'';
+ const startX=ev.clientX,startY=ev.clientY;
+ let dragging=false,ghost=null,overInventory=false;
+ const contains=(rect,x,y)=>x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom;
+ const inInventory=(x,y)=>!!inventory&&contains(inventory.getBoundingClientRect(),x,y);
+ const setTarget=isOver=>{
+   if(overInventory===isOver)return;
+   overInventory=isOver;
+   inventory?.classList.toggle('craft-drop-target',isOver);
+   if(count)count.textContent=isOver?'SUELTA PARA DEVOLVER':originalCount;
+ };
+ const move=e=>{
+   if(e.pointerId!==ev.pointerId)return;
+   const dx=e.clientX-startX,dy=e.clientY-startY;
+   if(!dragging&&Math.hypot(dx,dy)<8)return;
+   if(!dragging){
+     dragging=true;
+     el.classList.add('held');
+     ghost=el.cloneNode(true);
+     ghost.className='craft-drag-ghost';
+     ghost.removeAttribute('data-index');
+     ghost.setAttribute('aria-hidden','true');
+     ghost.style.width=Math.round(el.getBoundingClientRect().width)+'px';
+     document.body.append(ghost);
+   }
+   e.preventDefault();
+   ghost.style.left=e.clientX+'px';
+   ghost.style.top=e.clientY+'px';
+   setTarget(inInventory(e.clientX,e.clientY));
+ };
+ const cleanup=()=>{
+   el.removeEventListener('pointermove',move);
+   el.removeEventListener('pointerup',finish);
+   el.removeEventListener('pointercancel',cancel);
+   el.classList.remove('held');
+   inventory?.classList.remove('craft-drop-target');
+   if(count)count.textContent=originalCount;
+   ghost?.remove();
+   if(el.hasPointerCapture(ev.pointerId))el.releasePointerCapture(ev.pointerId);
+ };
+ const cancel=e=>{
+   if(e.pointerId!==ev.pointerId)return;
+   cleanup();renderBoard();
+ };
+ const finish=async e=>{
+   if(e.pointerId!==ev.pointerId)return;
+   const didDrag=dragging;
+   const returned=didDrag&&inInventory(e.clientX,e.clientY);
+   let target=null;
+   if(didDrag&&!returned){
+     // Detect the underlying piece, not the finger's captured origin or ghost.
+     el.style.pointerEvents='none';
+     target=document.elementFromPoint(e.clientX,e.clientY)?.closest('#craftBoard .piece');
+     el.style.pointerEvents='';
+   }
+   cleanup();
+   if(returned){
+     // The table is only a selection: removing a piece must not change stock.
+     board.splice(idx,1);
+     renderBoard();
+   }else if(didDrag&&target&&Number(target.dataset.index)!==idx){
+     await doMerge(idx,Number(target.dataset.index));
+   }else renderBoard();
+ };
+ el.addEventListener('pointermove',move);
+ el.addEventListener('pointerup',finish);
+ el.addEventListener('pointercancel',cancel);
+}
 async function doMerge(i,j){
  const a=board[i],b=board[j];
  const need={};need[a]=(need[a]||0)+1;need[b]=(need[b]||0)+1;
