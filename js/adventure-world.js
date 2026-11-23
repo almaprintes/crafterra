@@ -200,7 +200,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
   function updateHud(){
     const a=adventure(),s=state(),scene=a.scene;
     el('#adv-region').textContent=scene?'🏠 '+HOUSE_ROOMS[scene].name:'🌿 VALLE DEL ORIGEN';
-    el('#adv-objective').textContent=scene?'Interactúa con sus estaciones o sal por la puerta':a.completed?'Capítulo 1 completo · Sigue explorando':!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Construye el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
+    el('#adv-objective').textContent=scene?'Interactúa con sus estaciones o sal por la puerta':a.completed?((s.stock?.iron_pickaxe||0)>0?'¡Forja dominada! Explora nuevos minerales':'Nueva meta: prepara hierro, fúndelo y forja un pico'):!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Construye el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
     const gather=gatheringPlan(s,'wood'),mine=gatheringPlan(s,'stone');
     el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+' · 🪓 '+(s.stock?.rough_wood||0)+' · 💧 '+(s.stock?.water||0)+' · 🪨 '+(s.stock?.stone||0)+' · 🧶 '+(s.stock?.plant_fiber||0);
     el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+' · ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
@@ -284,7 +284,7 @@ function enterRoom(id){
     const displayed=group?opts.filter(o=>group==='fuel'?o.kind==='fuel':o.group===group):opts;
     showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
       ...displayed.map(o=>({
-        label:o.enabled?o.label+' · '+((o.ms||0)/1000).toFixed(1).replace('.0','')+' s':'🔒 '+o.label+' — '+o.reason,
+        label:o.enabled?o.label+(o.kind==='fuel'?'':' · '+((o.ms||1200)/1000).toFixed(1)+' s'):'🔒 '+o.label+' — '+o.reason,
         enabled:o.enabled,
         need:o.reason,
         run:()=>{
