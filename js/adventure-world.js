@@ -48,7 +48,7 @@ export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(WORLD_CAMPFIRE.x===x&&WORLD_CAMPFIRE.y===y)return false;
   if(WORLD_WORKSTATIONS.some(o=>o.x===x&&o.y===y))return false;
   if(WORLD_TREES.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
-  if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&nodeAvailable({adventure:{gathered}},n,now)))return false;
+  if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&!['plant_fiber','berries','herbs','mushroom'].includes(n.type)&&nodeAvailable({adventure:{gathered}},n,now)))return false;
   return true;
 }
 export function findPath(from,to,bridge=false,gathered={}){
