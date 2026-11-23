@@ -1,5 +1,6 @@
-import{gatheringPlan}from './adventure-rules.js?v=0.5.0';
-import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.5.0';
+import{gatheringPlan}from './adventure-rules.js?v=0.6.0';
+import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.6.0';
+import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.6.0';
 // CRAFTERRA · Primer mundo isométrico (sin dependencias externas)
 // La aventura comparte inventario y guardado con el juego original.
 export const WORLD_SIZE = Object.freeze({width:30,height:22});
@@ -34,6 +35,7 @@ export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(!Number.isInteger(x)||!Number.isInteger(y)||x<1||x>=WORLD_SIZE.width-1||y<1||y>=WORLD_SIZE.height-1)return false;
   if(x===15&&(!bridge||y!==10))return false;
   if(WORLD_HOUSES.some(t=>t.x===x&&t.y===y))return false;
+  if(WORLD_CAMPFIRE.x===x&&WORLD_CAMPFIRE.y===y)return false;
   if(WORLD_TREES.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
   if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&nodeAvailable({adventure:{gathered}},n,now)))return false;
   return true;
@@ -54,6 +56,7 @@ export function findPath(from,to,bridge=false,gathered={}){
   return path;
 }
 const TW=48,TH=24,RESPAWN=RESOURCE_RESPAWN;
+export const WORLD_CAMPFIRE=Object.freeze({id:'valley_campfire',x:10,y:12,kind:'fire',label:'Hoguera del valle'});
 export const WORLD_HOUSES=Object.freeze([{id:'house_mara',x:6,y:7,kind:'house',label:'Casa de Mara'},{id:'house_lia',x:21,y:7,kind:'house',label:'Taller de Lía'}]);
 const color={
   avatar:{h:'#61402e',s:'#f8ce99',j:'#e8b04b',p:'#274b65'},
@@ -180,6 +183,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_TREES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_HOUSES,
+      WORLD_CAMPFIRE,
       {id:'puente',x:14,y:10,kind:'bridge'},
       ...(Math.abs(player.x-15)<3?[riverNode(Math.min(20,Math.max(1,Math.round(player.y))))]:[])
     ];
@@ -194,7 +198,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+' · 🪓 '+(s.stock?.rough_wood||0)+' · 💧 '+(s.stock?.water||0)+' · 🪨 '+(s.stock?.stone||0)+' · 🧶 '+(s.stock?.plant_fiber||0);
     el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+' · ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
     const n=nearby();
-    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
+    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='fire'?'Hoguera':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
     el('#adv-interact').textContent='✦ '+label;
     el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Árboles: cortar o golpear · Río: cuenco · Vetas: pico · Casas: entrar';
   }
@@ -249,9 +253,33 @@ function enterRoom(id){
     el('#adv-work-bar').style.width='0%';
     updateHud();
   }
+  function showStationMenu(kind,fireId,title){
+    const s=state(),opts=stationOptions(s,kind,fireId),heat=kind==='fire'?heatOf(s,fireId):null;
+    const description=kind==='fire'?
+      'Calor disponible: '+heat+'/'+MAX_FIRE_HEAT+'. Añade combustible primero y utiliza el calor para cocinar o preparar carbón vegetal. La hoguera no se consume.':
+      'Trabajar a mano cuesta 2 maderas toscas por 1 madera. Con sierra basta una madera tosca y la herramienta pierde un uso.';
+    showDialog(title,description,[
+      ...opts.map(o=>({
+        label:o.enabled?o.label:'🔒 '+o.label,
+        enabled:o.enabled,
+        need:o.reason,
+        run:()=>{
+          const result=runStationProcess(state(),kind,o.id,fireId);
+          if(result.ok){persist();onProgress();updateHud();}
+          showDialog(title,result.ok?result.message:(result.reason||'No puedes realizar la acción'),[
+            {label:'Volver a las acciones',run:()=>showStationMenu(kind,fireId,title)},
+            {label:'Cerrar',action:'close'}
+          ]);
+        }
+      })),
+      {label:'Volver',action:'close'}
+    ]);
+  }
   function roomStation(e){
     const a=adventure(),s=state();
     if(e.id==='workbench'){onCraft();return;}
+    if(e.id==='hearth'){showStationMenu('fire','house_mara','🔥 Hogar de Mara');return;}
+    if(e.id==='sawmill'){showStationMenu('sawmill','house_lia','🪚 Banco de carpintería');return;}
     const r=performRoomAction(s,a.scene,e.id);
     if(r.ok){persist();onProgress();updateHud();}
     showDialog(e.label,r.ok?r.message:r.reason);
@@ -270,6 +298,7 @@ function enterRoom(id){
         {label:'Quedarme fuera',action:'close'}]);
       return;
     }
+    if(e.kind==='fire'){showStationMenu('fire','valley','🔥 Hoguera del valle');return;}
     if(e.kind==='bridge'){repair();return;}
     if(e.kind==='node'){
       if(!available(e)||harvest)return;
@@ -396,7 +425,7 @@ function worldObjects(){
     ].sort((a,b)=>(a.x+a.y)-(b.x+b.y));
     const objects=[];
     for(const n of [...WORLD_TREES,...WORLD_NODES])if(available(n))objects.push({...n,kind:'resource'});
-    objects.push(...WORLD_HOUSES);
+    objects.push(...WORLD_HOUSES,WORLD_CAMPFIRE);
     for(const n of actors)objects.push({...n,kind:'npc'});
     objects.push({kind:'bridgeart',x:15,y:10},{kind:'player',x:player.x,y:player.y});
     return objects.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
@@ -437,6 +466,14 @@ function worldObjects(){
     }
     for(const o of worldObjects()){
       const p=project(o.x,o.y);if(p.x<-80||p.x>w+80||p.y<-95||p.y>h+65)continue;
+      if(o.kind==='fire'){
+        const fuel=heatOf(state(),'valley');
+        ctx.fillStyle='#725443';ctx.fillRect(p.x-17,p.y-7,34,10);
+        ctx.fillStyle='#8b9595';for(const dx of [-17,-8,5,14])ctx.fillRect(p.x+dx,p.y-6,6,5);
+        ctx.fillStyle='#50391f';ctx.fillRect(p.x-11,p.y-11,22,7);
+        if(fuel){ctx.fillStyle='#f8aa3e';ctx.fillRect(p.x-6,p.y-25,12,16);ctx.fillStyle='#fbed74';ctx.fillRect(p.x-2,p.y-19,6,11);}
+        ctx.fillStyle='#fff6d1';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('🔥 '+fuel+'/'+MAX_FIRE_HEAT,p.x,p.y-32);
+      }
       if(o.kind==='house'){house(ctx,p.x,p.y,o.id==='house_lia');ctx.fillStyle='#fff1b5';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(o.label,p.x,p.y-82);}
       if(o.kind==='bridgeart')drawBridge(ctx,p.x,p.y,a.bridge);
       if(o.kind==='resource'){
