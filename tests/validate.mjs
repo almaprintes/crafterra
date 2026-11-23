@@ -2,7 +2,7 @@ import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'../
 import{readFile}from'node:fs/promises';
 const ok=(v,m)=>{if(!v)throw Error(m)};
 ok(ITEMS.length===237,`Objetos: ${ITEMS.length}`);
-ok(RECIPES.length===232,`Recetas explícitas: ${RECIPES.length}`);
+ok(RECIPES.length===233,`Recetas explícitas: ${RECIPES.length}`);
 ok(COLLECTIONS.length>=20,`Colecciones: ${COLLECTIONS.length}`);
 ok(PUZZLES.length===15,`Puzles: ${PUZZLES.length}`);
 ok(MISSIONS.length>=28,`Misiones: ${MISSIONS.length}`);
@@ -18,5 +18,14 @@ for(const m of MISSIONS)ok(ids.has(m.target),`Misión ${m.name}: objetivo inexis
 for(const p of PUZZLES){ok(ids.has(p.target),`Puzle ${p.name}: objetivo inexistente`);for(const id of p.resources)ok(ids.has(id),`Puzle ${p.name}: recurso ${id} inexistente`)}
 for(const id of STATIONS)ok(ids.has(id),`Estación inexistente: ${id}`);
 const source=await readFile(new URL('../js/data.js',import.meta.url),'utf8');ok(!source.includes('R.length<'),'Existe relleno automático de recetas');ok(!source.includes("'zinc'")&&!source.includes("'nickel'")&&!source.includes("'flower'"),'Referencias heredadas inválidas');
-const sw=await readFile(new URL('../sw.js',import.meta.url),'utf8');for(const f of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.2.0','./js/config.js','./js/data.js','./js/db.js','./js/engine.js','./js/providers.js','./css/game.css?v=0.2.0'])ok(sw.includes(f),`Falta ${f} en caché`);
-console.log(JSON.stringify({status:'OK',objects:ITEMS.length,recipes:RECIPES.length,reachable:reachable.size,collections:COLLECTIONS.length,puzzles:PUZZLES.length,missions:MISSIONS.length,achievements:ACHIEVEMENTS.length,stations:STATIONS.length},null,2));
+const sw=await readFile(new URL('../sw.js',import.meta.url),'utf8');
+const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+for(const file of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.3.0-adventure',
+ './js/adventure-world.js?v=0.3.0','./css/adventure-world.css?v=0.3.0',
+ './js/config.js','./js/data.js','./js/db.js','./js/engine.js','./js/providers.js'])
+ ok(sw.includes(file),'Falta '+file+' en caché');
+ok(html.includes('class="adventure-world"'),'Falta el nuevo mundo isométrico en index');
+ok(html.includes('js/app.js?v=0.3.0-adventure'),'Falta versión nueva en el arranque');
+console.log(JSON.stringify({status:'OK',objects:ITEMS.length,recipes:RECIPES.length,
+ reachable:reachable.size,collections:COLLECTIONS.length,puzzles:PUZZLES.length,
+ missions:MISSIONS.length,achievements:ACHIEVEMENTS.length,stations:STATIONS.length},null,2));
