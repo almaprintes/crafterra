@@ -9,7 +9,7 @@ const begin=app.indexOf('function showView(v){'),end=app.indexOf('function rende
 assert.ok(begin>=0&&end>begin,'navigation handler must be present');
 const fn=app.slice(begin,end).trim();
 assert.ok(fn.includes("$$('.view').forEach"),'all views must be selected, not the first .view only');
-assert.ok(!fn.includes("$('.view').forEach"),'querySelector returns one element, never an array');
+assert.ok(!/(^|[^$])\$\('\.view'\)\.forEach/.test(fn),'querySelector returns one element, never an array');
 const names=['world','craft','book','goals','shop'];
 for(const name of names)assert.ok(html.includes('data-view="'+name+'"'),'footer must contain '+name);
 let sheetOpen=false,closeCount=0;
