@@ -1,6 +1,7 @@
 // CRAFTERRA · Interacciones de mundo: reglas puras, sin DOM.
-import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.7.0';
-import {runStationProcess} from './material-economy.js?v=0.7.0';
+import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.9.0';
+import {runStationProcess} from './material-economy.js?v=0.9.0';
+import {ANIMAL_SPECIES,CAVE_NODES,ORE_TYPES,isBiomeResource} from './world-biomes.js?v=0.9.0';
 export const RESOURCE_RESPAWN=5*60*1000;
 export const TREE_SPECIES=Object.freeze({
   pine:{label:'Pino',wood:2,rough:2,bonus:null,factor:1},
@@ -8,7 +9,9 @@ export const TREE_SPECIES=Object.freeze({
 });
 export const HOUSE_ROOMS=Object.freeze({
   house_mara:{name:'Casa de Mara',label:'Casa familiar'},
-  house_lia:{name:'Taller de la inventora',label:'Taller de Lía'}
+  house_lia:{name:'Taller de la inventora',label:'Taller de Lía'},
+  cave_west:{name:'Cueva de la sierra',label:'Galería de la montaña'},
+  cave_east:{name:'Gruta de los cristales',label:'Galería mineral'}
 });
 export const ROOM_OBJECTS=Object.freeze({
  house_mara:[
@@ -21,11 +24,14 @@ export const ROOM_OBJECTS=Object.freeze({
   {id:'exit',x:5,y:7,label:'Puerta',kind:'exit'},
   {id:'workbench',x:3,y:3,label:'Mesa de trabajo',kind:'station'},
   {id:'sawmill',x:7,y:3,label:'Banco de madera',kind:'station'},
-  {id:'repair',x:5,y:2,label:'Banco de reparación',kind:'station'}
- ]
+  {id:'repair',x:5,y:2,label:'Banco de reparación',kind:'station'},
+  {id:'tannery',x:8,y:5,label:'Curtiduría',kind:'station'}
+ ],
+ cave_west:[{id:'exit',x:5,y:7,label:'Salir de la cueva',kind:'exit'}],
+ cave_east:[{id:'exit',x:5,y:7,label:'Salir de la gruta',kind:'exit'}]
 });
 export function hasBowl(s){return (s.stock?.wood_bowl||0)>0||(s.stock?.clay_bowl||0)>0;}
-export function isOre(node){return ['iron','copper','tin','coal','quartz','silver','gold'].includes(node.type);}
+export function isOre(node){return ORE_TYPES.includes(node.type);}
 export function nodeAvailable(s,node,now=Date.now()){
  if(node.type==='water')return true;
  const last=s.adventure?.gathered?.[node.id];
@@ -33,6 +39,31 @@ export function nodeAvailable(s,node,now=Date.now()){
 }
 export function availableActions(s,node){
  if(!node)return [];
+ if(node.type==='animal'){
+   const species=ANIMAL_SPECIES[node.species];
+   if(!species)return [];
+   if(species.method==='shear'){
+     const shears=pickTool(s,'shear'),knife=(s.stock?.flint_knife||0)>0&&toolCharge(s,'flint_knife')?'flint_knife':null;
+     return [
+       {id:'shear',label:'Esquilar oveja',tool:shears,enabled:!!shears,need:'Necesitas tijeras de esquilar',ms:1250,output:{wool:3}},
+       {id:'trim',label:'Cortar lana con cuchillo',tool:knife,enabled:!!knife,need:'Necesitas cuchillo de pedernal',ms:3100,output:{wool:2}},
+       {id:'loose_wool',label:'Recoger lana suelta',tool:null,enabled:true,ms:5200,output:{wool:1}}
+     ];
+   }
+   const weapons=['iron_spear','stone_spear','bow'].filter(id=>(s.stock?.[id]||0)>0&&toolCharge(s,id)>0&&
+     (id!=='bow'||(s.stock?.arrow||0)>0));
+   const weapon=weapons[0]||null;
+   const output={raw_meat:species.meat,animal_hide:species.hide,...(species.bone?{bone:species.bone}:{})};
+   return [
+    {id:'hunt',label:'Cazar '+species.name.toLowerCase(),tool:weapon,extraCost:weapon==='bow'?{arrow:1}:null,
+      enabled:!!weapon,need:'Necesitas una lanza o arco con flechas',ms:weapon?TOOL_RULES[weapon].ms:3700,output},
+    ...(node.species==='rabbit'?[{id:'catch',label:'Capturar conejo a mano',tool:null,enabled:true,ms:7400,output}]:[])
+   ];
+ }
+ if(node.type==='berries'||node.type==='herbs'||node.type==='mushroom'){
+   return [{id:'forage',label:node.type==='berries'?'Recoger bayas':node.type==='herbs'?'Recolectar hierbas':'Recoger setas',
+     tool:null,enabled:true,ms:1800,output:{[node.type]:node.qty||1}}];
+ }
  if(node.type==='wood'){
    const species=TREE_SPECIES[node.species]||TREE_SPECIES.pine;
    const tool=pickTool(s,'wood');
@@ -65,7 +96,11 @@ export function completeWorldAction(s,node,actionId,now=Date.now()){
  if(!nodeAvailable(s,node,now))return {ok:false,reason:'Recurso agotado temporalmente'};
  const action=availableActions(s,node).find(a=>a.id===actionId);
  if(!action||!action.enabled)return {ok:false,reason:action?.need||'Acción no disponible'};
+ if(action.extraCost&&Object.entries(action.extraCost).some(([id,q])=>(s.stock?.[id]||0)<q))
+   return {ok:false,reason:'Ya no tienes las flechas necesarias'};
  const amount=action.output||{},wear=action.tool?wearTool(s,action.tool):null;
+ if(action.tool&&!wear?.ok)return {ok:false,reason:'La herramienta ya no tiene usos'};
+ for(const [id,qty] of Object.entries(action.extraCost||{}))s.stock[id]-=qty;
  s.stock=s.stock||{};s.discovered=s.discovered||{};
  for(const [id,qty] of Object.entries(amount)){
    s.stock[id]=(Number(s.stock[id])||0)+qty;
