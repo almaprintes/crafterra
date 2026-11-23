@@ -33,11 +33,11 @@ export const ROOM_OBJECTS=Object.freeze({
 export function hasBowl(s){return (s.stock?.wood_bowl||0)>0||(s.stock?.clay_bowl||0)>0;}
 export function isOre(node){return ORE_TYPES.includes(node.type);}
 export function nodeAvailable(s,node,now=Date.now()){
- if(node.type==='water')return true;
+ if(node.type==='water'||node.type==='animal'&&node.species==='sheep')return true;
  const last=s.adventure?.gathered?.[node.id];
  return !last||now-last>=RESOURCE_RESPAWN;
 }
-export function availableActions(s,node){
+export function availableActions(s,node,now=Date.now()){
  if(!node)return [];
  // Ningún mineral se extrae de una pradera: el hábitat es una regla, no solo un color.
  if(Number.isFinite(node.x)&&Number.isFinite(node.y)&&!isBiomeResource(node))return [];
@@ -45,11 +45,12 @@ export function availableActions(s,node){
    const species=ANIMAL_SPECIES[node.species];
    if(!species)return [];
    if(species.method==='shear'){
+     const last=s.adventure?.gathered?.[node.id],growing=!!last&&now-last<RESOURCE_RESPAWN;
      const shears=pickTool(s,'shear'),knife=(s.stock?.flint_knife||0)>0&&toolCharge(s,'flint_knife')?'flint_knife':null;
      return [
-       {id:'shear',label:'Esquilar oveja',tool:shears,enabled:!!shears,need:'Necesitas tijeras de esquilar',ms:1250,output:{wool:3}},
-       {id:'trim',label:'Cortar lana con cuchillo',tool:knife,enabled:!!knife,need:'Necesitas cuchillo de pedernal',ms:3100,output:{wool:2}},
-       {id:'loose_wool',label:'Recoger lana suelta',tool:null,enabled:true,ms:5200,output:{wool:1}}
+       {id:'shear',label:'Esquilar oveja',tool:shears,enabled:!!shears&&!growing,need:growing?'La lana está creciendo':'Necesitas tijeras de esquilar',ms:1250,output:{wool:3}},
+       {id:'trim',label:'Cortar lana con cuchillo',tool:knife,enabled:!!knife&&!growing,need:growing?'La lana está creciendo':'Necesitas cuchillo de pedernal',ms:3100,output:{wool:2}},
+       {id:'loose_wool',label:'Recoger lana suelta',tool:null,enabled:!growing,need:growing?'La lana está creciendo':null,ms:5200,output:{wool:1}}
      ];
    }
    const weapons=['iron_spear','stone_spear','bow'].filter(id=>(s.stock?.[id]||0)>0&&toolCharge(s,id)>0&&
@@ -96,7 +97,7 @@ export function availableActions(s,node){
 }
 export function completeWorldAction(s,node,actionId,now=Date.now()){
  if(!nodeAvailable(s,node,now))return {ok:false,reason:'Recurso agotado temporalmente'};
- const action=availableActions(s,node).find(a=>a.id===actionId);
+ const action=availableActions(s,node,now).find(a=>a.id===actionId);
  if(!action||!action.enabled)return {ok:false,reason:action?.need||'Acción no disponible'};
  if(action.extraCost&&Object.entries(action.extraCost).some(([id,q])=>(s.stock?.[id]||0)<q))
    return {ok:false,reason:'Ya no tienes las flechas necesarias'};
