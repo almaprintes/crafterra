@@ -71,8 +71,11 @@ assert.equal(completeWorldAction(animalState,sheep,'loose_wool',1000000).ok,true
 assert.equal(animalState.stock.wool,1,'wool does not require killing sheep');
 assert.equal(animalState.stock.raw_meat||0,0);
 assert.equal(animalState.stock.animal_hide||0,0);
-assert.equal(nodeAvailable(animalState,sheep,1000001),false,'sheep must regrow fleece');
+assert.equal(nodeAvailable(animalState,sheep,1000001),true,'sheep must remain in the meadow after shearing');
+assert.equal(availableActions(animalState,sheep,1000001).find(o=>o.id==='loose_wool').enabled,false,'fleece must regrow before harvesting');
+assert.equal(completeWorldAction(animalState,sheep,'loose_wool',1000001).ok,false,'cannot duplicate wool during regrowth');
 assert.equal(nodeAvailable(animalState,sheep,1000000+300001),true);
+assert.equal(availableActions(animalState,sheep,1000000+300001).find(o=>o.id==='loose_wool').enabled,true,'wool is renewable once fleece regrows');
 const shearingState=state({shears:1});
 assert.equal(completeWorldAction(shearingState,sheep,'shear',1000000).ok,true);
 assert.equal(shearingState.stock.wool,3);
