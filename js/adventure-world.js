@@ -206,29 +206,101 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
   function near(e){return Math.hypot(player.x-e.x,player.y-e.y)<=1.65;}
   function nearby(){return entities().map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
   function updateHud(){
-    const a=adventure(),s=state(),scene=a.scene;
-    el('#adv-region').textContent=scene?'🏠 '+HOUSE_ROOMS[scene].name:'🌿 VALLE DEL ORIGEN';
-    el('#adv-objective').textContent=scene?'Interactúa con sus estaciones o sal por la puerta':a.completed?((s.stock?.iron_pickaxe||0)>0?'¡Forja dominada! Explora nuevos minerales':'Nueva meta: prepara hierro, fúndelo y forja un pico'):!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Construye el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
+    const a=adventure(),s=state(),scene=a.scene,region=scene?HOUSE_ROOMS[scene].name:'VALLE DEL ORIGEN';
+    const heading=el('#adv-region');
+    if(heading.textContent!==region)heading.textContent=region;
+    const goal=scene?'EXPLORA EL INTERIOR':a.completed?((s.stock?.iron_pickaxe||0)>0?'FORJA DOMINADA · EXPLORA':'META: FORJAR PICO DE HIERRO'):!a.metMara?'BUSCA A MARA':!a.bridge?'REPARA EL PUENTE':'HABLA CON LÍA';
+    if(el('#adv-objective').textContent!==goal)el('#adv-objective').textContent=goal;
+    const get=id=>Math.max(0,Number(s.stock?.[id]||0));
+    const resources=[['log','wood',get('wood')],['log','rough_wood',get('rough_wood')],['bowl','water',get('water')],
+                     ['stone','stone',get('stone')],['basket','fiber',get('plant_fiber')],['ingot','iron',get('iron_ingot')]];
+    const signature=resources.map(r=>r[2]).join('|');
+    const inv=el('#adv-inventory');
+    if(inv.dataset.signature!==signature){
+      inv.dataset.signature=signature;
+      inv.innerHTML=resources.map(r=>'<span class="adv-resource" title="'+r[1]+'">'+actionArt(r[0],'xs')+'<b>'+r[2]+'</b></span>').join('');
+    }
     const gather=gatheringPlan(s,'wood'),mine=gatheringPlan(s,'stone');
-    el('#adv-inventory').textContent='🪵 '+(s.stock?.wood||0)+' · 🪓 '+(s.stock?.rough_wood||0)+' · 💧 '+(s.stock?.water||0)+' · 🪨 '+(s.stock?.stone||0)+' · 🧶 '+(s.stock?.plant_fiber||0);
-    el('#adv-tool').textContent='🪓 '+(gather.tool?gather.label+' '+gather.remaining+'/'+gather.max:'Manos')+' · ⛏ '+(mine.tool?mine.label+' '+mine.remaining+'/'+mine.max:'Manos');
-    const n=nearby();
-    const label=n&&n.d<2.2?(n.kind==='npc'?'Hablar':n.kind==='house'?'Entrar':n.kind==='workshop'?'Utilizar':n.kind==='fire'?'Hoguera':n.kind==='exit'?'Salir':n.kind==='station'?'Usar':n.kind==='bridge'?'Puente':n.type==='water'?'Agua':n.type==='wood'?'Árbol':n.type==='plant_fiber'?'Recoger':'Extraer'):'Interactuar';
-    el('#adv-interact').textContent='✦ '+label;
-    el('#adv-tip').textContent=scene?'Toca una estación para utilizarla · Puerta: salir al exterior':'Cantería: tallar y preparar · Horno: fundir y forjar · Río: cuenco';
+    const toolText=(gather.tool?gather.remaining+'/'+gather.max:'MANOS')+' · '+(mine.tool?mine.remaining+'/'+mine.max:'MANOS');
+    const tool=el('#adv-tool');
+    if(tool.dataset.signature!==toolText){
+      tool.dataset.signature=toolText;
+      tool.innerHTML='<span>'+actionArt('axe','xs')+'<b>'+(gather.tool?gather.remaining+'/'+gather.max:'MANOS')+'</b></span>'+
+                     '<span>'+actionArt('pick','xs')+'<b>'+(mine.tool?mine.remaining+'/'+mine.max:'MANOS')+'</b></span>';
+    }
+    const nearbyEntity=nearby();
+    const kind=nearbyEntity&&nearbyEntity.d<2.2?(nearbyEntity.kind==='npc'?'shield':
+      nearbyEntity.kind==='house'||nearbyEntity.kind==='exit'?'door':
+      nearbyEntity.kind==='workshop'?(nearbyEntity.station==='stonework'?'stone':'forge'):
+      nearbyEntity.kind==='fire'?'fire':nearbyEntity.kind==='station'?actionKind(nearbyEntity.id):
+      nearbyEntity.kind==='bridge'?'shield':actionKind(nearbyEntity.type,nearbyEntity.label||'')):'gem';
+    const label=nearbyEntity&&nearbyEntity.d<2.2?(nearbyEntity.kind==='npc'?'HABLAR':
+      nearbyEntity.kind==='house'?'ENTRAR':nearbyEntity.kind==='exit'?'SALIR':
+      nearbyEntity.kind==='workshop'||nearbyEntity.kind==='station'?'USAR':
+      nearbyEntity.kind==='fire'?'FOGATA':nearbyEntity.kind==='bridge'?'PUENTE':
+      nearbyEntity.type==='water'?'AGUA':nearbyEntity.type==='wood'?'CORTAR':
+      nearbyEntity.type==='plant_fiber'?'RECOGER':'EXTRAER'):'EXPLORAR';
+    const btn=el('#adv-interact');
+    if(btn.dataset.signature!==kind+'|'+label){
+      btn.dataset.signature=kind+'|'+label;
+      btn.innerHTML=actionArt(kind,'sm')+'<span>'+label+'</span>';
+    }
+    const tip=scene?'TOCA UNA ESTACIÓN O LA PUERTA':'TOCA ÁRBOLES, VETAS Y TALLERES PARA ACTUAR';
+    if(el('#adv-tip').textContent!==tip)el('#adv-tip').textContent=tip;
+  }
+
+  function closeDialog(){
+    el('.adventure-dialog').hidden=true;
+    dialogOpen=false;
+    root.classList.remove('adv-menu-open');
   }
   function showDialog(name,message,buttons=[{label:'Continuar',action:'close'}]){
-    dialogOpen=true;path=[];pending=null;harvest=null;el('#adv-work').hidden=true;
-    el('#adv-speaker').textContent=name;el('#adv-dialog-text').textContent=message;
-    const actions=el('#adv-dialog-actions');actions.replaceChildren();
-    buttons.forEach(b=>{const btn=document.createElement('button');btn.textContent=b.label;btn.disabled=b.enabled===false;if(b.need)btn.title=b.need;btn.addEventListener('click',()=>{
-      el('.adventure-dialog').hidden=true;dialogOpen=false;
-      if(b.action==='craft')onCraft();
-      if(b.action==='repair')repair();
-      if(typeof b.run==='function')b.run();
-    });actions.append(btn);});
+    dialogOpen=true;path=[];pending=null;harvest=null;
+    el('#adv-work').hidden=true;
+    root.classList.add('adv-menu-open');
+    el('#adv-speaker').textContent=name;
+    el('#adv-dialog-text').textContent=message;
+    const title=String(name||'').toLowerCase();
+    const art=title.includes('canter')?'stone':title.includes('horno')||title.includes('forja')?'forge':
+       title.includes('pino')||title.includes('roble')?'log':title.includes('veta')?'pick':
+       title.includes('casa')?'door':title.includes('río')?'bowl':actionKind('',name);
+    el('#adv-dialog-emblem').innerHTML=actionArt(art,'lg');
+    const actions=el('#adv-dialog-actions');
+    actions.replaceChildren();
+    buttons.forEach(b=>{
+      const secondary=b.secondary===true||b.action==='close'||/^(salir|cancelar|volver|continuar|quedarme)/i.test(b.label||'');
+      const button=document.createElement('button');
+      button.type='button';
+      button.className='adv-choice'+(secondary?' adv-choice-secondary':'');
+      button.disabled=b.enabled===false;
+      const graphic=document.createElement('span');
+      graphic.className='adv-choice-graphic';
+      graphic.innerHTML=actionArt(b.art||actionKind(b.id||'',b.title||b.label),'md');
+      const text=document.createElement('span');
+      text.className='adv-choice-copy';
+      const titleEl=document.createElement('strong');
+      titleEl.className='adv-choice-title';
+      titleEl.textContent=String(b.title||b.label||'Continuar').replace(/^[^\p{L}\p{N}]+/u,'').replace(/\s+[·—]\s+\d+(?:\.\d+)?\s*s$/i,'').split(' — ')[0];
+      text.append(titleEl);
+      if(b.detail||b.need){
+        const detail=document.createElement('small');
+        detail.className='adv-choice-detail';
+        detail.textContent=b.enabled===false?(b.need||b.detail):(b.detail||'');
+        text.append(detail);
+      }
+      button.append(graphic,text);
+      button.setAttribute('aria-label',(b.title||b.label||'Acción')+(b.need?' · '+b.need:''));
+      button.addEventListener('click',()=>{
+        closeDialog();
+        if(b.action==='craft')onCraft();
+        if(b.action==='repair')repair();
+        if(typeof b.run==='function')b.run();
+      });
+      actions.append(button);
+    });
     el('.adventure-dialog').hidden=false;
   }
+
   function repair(){
     const a=adventure(),s=state();
     if(a.bridge){showDialog('Puente del río','El puente ya está reparado. ¡Puedes cruzarlo!');return;}
