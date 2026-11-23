@@ -1,5 +1,6 @@
 import{gatheringPlan}from './adventure-rules.js?v=0.9.0';
 import{actionArt,actionKind}from './adventure-art.js?v=0.9.0';
+import{drawTerrainTile,drawContactShadow}from './terrain-textures.js?v=0.10.0';
 import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.9.0';
 import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.9.0';
@@ -698,13 +699,16 @@ function worldObjects(){
       const phase=performance.now()/1000;
       for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
         const p=project(x,y),wall=x===0||y===0||x===10||y===8;
-        const palette=wall?(x+y)%2?'#424f58':'#56616a':(x+y)%2?'#566575':'#4c5865';
-        diamond(ctx,p.x,p.y,palette,'#374451');
-        if(wall){ctx.fillStyle='#9aa29b';ctx.fillRect(p.x-7,p.y-9,11,4);}
-        if(!wall&&hash(x,y)%6===0){ctx.fillStyle='#8da7a0aa';ctx.fillRect(p.x+4,p.y-1,6,2);}
+        drawTerrainTile(ctx,p.x,p.y,'cave',x+39,y+17);
+        if(wall){
+          ctx.fillStyle='#293b49';ctx.fillRect(Math.round(p.x-18),Math.round(p.y-18),36,9);
+          ctx.fillStyle='#64747b';ctx.fillRect(Math.round(p.x-18),Math.round(p.y-19),36,3);
+          ctx.fillStyle='#9ca9a2';ctx.fillRect(Math.round(p.x-14),Math.round(p.y-21),10,2);
+        }
       }
       for(const o of worldObjects()){
         const p=project(o.x,o.y);
+        drawContactShadow(ctx,p.x,p.y,o.kind==='resource'?'stone':o.kind==='player'?'player':'cave');
         if(o.kind==='player'){sprite(ctx,p.x,p.y,'avatar',harvest?workPhase:walkPhase,facing);continue;}
         if(o.kind==='resource'){
           drawOre(ctx,p.x,p.y,o);
@@ -723,11 +727,11 @@ function worldObjects(){
     const home=scene==='house_mara';
     for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
       const p=project(x,y);
-      const floor=(x+y)%2===0?(home?'#c6a06d':'#7790a2'):(home?'#b58d61':'#698294');
-      diamond(ctx,p.x,p.y,floor,home?'#977352':'#567083');
+      drawTerrainTile(ctx,p.x,p.y,home?'cottage':'workshop',x+21,y+9);
     }
     for(const o of worldObjects()){
       const p=project(o.x,o.y);
+      drawContactShadow(ctx,p.x,p.y,o.kind==='player'?'player':'workshop');
       if(o.kind==='player'){sprite(ctx,p.x,p.y,'avatar',harvest?workPhase:walkPhase,facing);continue;}
       const icon={exit:'🚪',bed:'🛏',pantry:'🧺',hearth:'🔥',workbench:'⚒',sawmill:'🪚',repair:'🔧',tannery:'🧵'}[o.id]||'⚙';
       ctx.fillStyle=o.kind==='exit'?'#486a52':home?'#78513a':'#3e6573';
@@ -746,20 +750,13 @@ function worldObjects(){
     if(a.scene){drawInside(a.scene);paintEffects();return;}
     for(let y=0;y<WORLD_SIZE.height;y++)for(let x=0;x<WORLD_SIZE.width;x++){
       const p=project(x,y);if(p.x<-TW||p.x>w+TW||p.y<-65||p.y>h+45)continue;
-      const area=biomeAt(x,y),river=area==='river';
-      const config=BIOMES[area],base=river?'#4c92ba':config.ground;
-      const fill=river?(hash(x,y)%2?'#5aa9cc':base):
-        area==='rocky'?(hash(x,y)%3===0?'#aab5a9':base):
-        area==='forest'?(hash(x,y)%4===0?'#3c815b':base):
-        (hash(x,y)%4===0?'#b1d58b':base);
-      diamond(ctx,p.x,p.y,fill,river?'#69b9d7':config.edge);
-      if(river){ctx.fillStyle='#b4ddda';ctx.fillRect(p.x-10+hash(x,y)%6,p.y-1,7,2);}
-      if(area==='rocky'&&hash(x,y)%4===0){ctx.fillStyle='#d7d4c3';ctx.fillRect(p.x-7,p.y-3,8,2);ctx.fillStyle='#4e6669';ctx.fillRect(p.x+5,p.y+2,4,2);}
-      if(area==='meadow'&&hash(x,y)%5===0){ctx.fillStyle='#f5dd81';ctx.fillRect(p.x-2,p.y-1,2,2);}
-      if(area==='forest'&&hash(x,y)%4===0){ctx.fillStyle='#b9c982';ctx.fillRect(p.x+2,p.y-2,5,2);}
+      const area=biomeAt(x,y);
+      drawTerrainTile(ctx,p.x,p.y,area,x,y,x===14?-1:x===16?1:0);
     }
     for(const o of worldObjects()){
       const p=project(o.x,o.y);if(p.x<-80||p.x>w+80||p.y<-95||p.y>h+65)continue;
+      const contact=o.kind==='resource'?(o.type==='wood'?'wood':o.type==='animal'?'animal':'stone'):o.kind;
+      drawContactShadow(ctx,p.x,p.y,contact);
       if(o.kind==='workshop'){
         const furnace=o.station==='foundry';
         ctx.fillStyle=furnace?'#534e48':'#6b665d';ctx.fillRect(p.x-19,p.y-14,38,17);
@@ -809,7 +806,14 @@ function worldObjects(){
   }
   function resize(){
     const rect=root.getBoundingClientRect();w=Math.max(200,Math.round(rect.width));h=Math.max(180,Math.round(rect.height));
-    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;ctx.imageSmoothingEnabled=false;}
+    // iPhone retina: 2x internal resolution, capped for sustained battery/FPS.
+    const dpr=Math.min(2,Math.max(1,typeof window==='undefined'?1:window.devicePixelRatio||1));
+    const pxW=Math.round(w*dpr),pxH=Math.round(h*dpr);
+    if(canvas.width!==pxW||canvas.height!==pxH){
+      canvas.width=pxW;canvas.height=pxH;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.imageSmoothingEnabled=false;
+    }
   }
 
   function tick(t){
