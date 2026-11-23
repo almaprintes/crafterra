@@ -53,8 +53,8 @@ for(const needle of ['makeAtlasSprite','atlas=new Map','g.clip()','createLinearG
 assert.ok(!art.includes('Math.random'),'terrain cannot flicker when the camera moves');
 assert.ok(!art.includes('fetch('),'offline procedural material texturing cannot request external assets');
 assert.ok(world.includes("drawTerrainTile(ctx,p.x,p.y,area,x,y"),'the exterior uses the textured atlas');
-assert.ok(world.includes("drawTerrainTile(ctx,p.x,p.y,'cave'"),'caves have rough rock floors');
-assert.ok(world.includes("drawTerrainTile(ctx,p.x,p.y,home?'cottage':'workshop'"),'houses have real plank/stone material');
+assert.ok(world.includes("drawTerrainTile(g,px,py,cave?'cave':home?'cottage':'workshop'"),'caves use textured rock in their cached floor');
+assert.ok(world.includes("home?'cottage':'workshop'"),'houses use real plank/stone materials');
 assert.ok(world.includes('drawContactShadow(ctx,p.x,p.y,contact)'), 'objects ground to terrain');
-assert.ok(world.includes('ctx.setTransform(dpr,0,0,dpr,0,0)'), 'retina render without changing gameplay coordinates');
+assert.ok(world.includes('ctx.setTransform(currentDpr,0,0,currentDpr,0,0)'), 'bounded retina scaling preserves gameplay coordinates');
 console.log('CRAFTERRA 0.10: cached procedural textured terrain, bevels, varied cave/interior floors, shadows, retina and offline safety OK');
