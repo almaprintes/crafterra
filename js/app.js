@@ -1,6 +1,7 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.3.1';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.3.1';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.3.1';
 import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
-import{mountIsometricWorld}from'./adventure-world.js?v=0.3.1';
+import{mountIsometricWorld}from'./adventure-world.js?v=0.4.0';
+import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.4.0';
 let isoWorld=null;
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
@@ -267,14 +268,33 @@ function renderWorld(){
 function stockOf(id){return Math.max(0,Number(S.stock?.[id]||0))}
 function boardQty(id){return board.reduce((n,x)=>n+(x===id?1:0),0)}
 function canPlaceFromInventory(id){return stockOf(id)>boardQty(id)}
-function renderCraft(){const known=ITEMS.filter(i=>S.discovered[i.id]);$('#inventoryGrid').innerHTML=known.map(i=>`<button class="item" data-add="${i.id}">${icon(i)}<small>${i.name}</small>${S.stock[i.id]?`<em class="qty">×${S.stock[i.id]}</em>`:''}</button>`).join('');$('#stationBar').innerHTML=['none',...STATIONS.filter(x=>S.discovered[x])].map((id,i)=>`<button>${i?'⚙ '+item(id).name:'Mesa libre'}</button>`).join('');renderBoard();renderDailyRun()}
+
+function toolCapacity(id){
+ if(!isReusableTool(id))return stockOf(id);
+ syncTools(S);
+ return (S.toolDurability[id]||[]).reduce((n,v)=>n+v,0);
+}
+function sufficientMaterial(id,qty){
+ return isReusableTool(id)?stockOf(id)>0&&toolCapacity(id)>=qty:stockOf(id)>=qty;
+}
+function renderCraft(){
+ syncTools(S);
+ const known=ITEMS.filter(i=>S.discovered[i.id]);
+ $('#inventoryGrid').innerHTML=known.map(i=>{
+   const qty=stockOf(i.id),dur=isReusableTool(i.id)&&qty?' <span class="tool-remaining">🛠 '+toolCharge(S,i.id)+'/'+toolUses(i.id)+'</span>':'';
+   return '<button class="item" data-add="'+i.id+'">'+icon(i)+'<small>'+i.name+'</small>'+
+       (qty?'<em class="qty">×'+qty+'</em>':'')+dur+'</button>';
+ }).join('');
+ $('#stationBar').innerHTML=['none',...STATIONS.filter(x=>S.discovered[x])].map((id,i)=>'<button>'+ (i?'⚙ '+item(id).name:'Mesa libre')+'</button>').join('');
+ renderBoard();renderDailyRun();
+}
 function renderBoard(){const b=$('#craftBoard');b.querySelectorAll('.piece').forEach(x=>x.remove());board.forEach((id,i)=>{const it=item(id),el=document.createElement('button');el.className='piece';el.dataset.index=i;el.style.cssText=`--x:${18+(i%4)*22}%;--y:${25+Math.floor(i/4)*28}%;`;el.innerHTML=icon(it)+`<small>${it.name}</small>`;el.draggable=true;el.addEventListener('pointerdown',dragStart);b.append(el)})}
 function dragStart(ev){const el=ev.currentTarget,idx=+el.dataset.index;el.setPointerCapture(ev.pointerId);el.classList.add('held');const move=e=>{const r=$('#craftBoard').getBoundingClientRect();el.style.left=`${e.clientX-r.left}px`;el.style.top=`${e.clientY-r.top}px`;el.style.transform='translate(-50%,-50%) scale(1.12)'};const up=async e=>{el.removeEventListener('pointermove',move);el.classList.remove('held');el.style.pointerEvents='none';const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.piece');el.style.pointerEvents='';if(target&&+target.dataset.index!==idx){await doMerge(idx,+target.dataset.index)}else renderBoard()};el.addEventListener('pointermove',move);el.addEventListener('pointerup',up,{once:true})}
 async function doMerge(i,j){
  const a=board[i],b=board[j];
  const need={};need[a]=(need[a]||0)+1;need[b]=(need[b]||0)+1;
  for(const [id,q] of Object.entries(need)){
-   if(stockOf(id)<q){toast(`No tienes suficiente ${item(id)?.name||'material'}.`);renderCraft();return}
+   if(!sufficientMaterial(id,q)){toast(`No tienes suficiente ${item(id)?.name||'material'} o le faltan usos.`);renderCraft();return}
  }
  const out=merge(S,a,b);
  const masteryAwards=out.ok?recordMastery(out.recipe?.id,1,'manual'):[];
@@ -282,8 +302,12 @@ async function doMerge(i,j){
    toast(['Eso no parece funcionar.','Interesante… pero no.','Quizá necesites otra herramienta.'][S.stats.failed%3]);
    renderBoard();persist();return
  }
- for(const [id,q] of Object.entries(need))S.stock[id]=Math.max(0,stockOf(id)-q);
+ for(const [id,q] of Object.entries(need)){
+   if(isReusableTool(id)){for(let n=0;n<q;n++)wearTool(S,id)}
+   else S.stock[id]=Math.max(0,stockOf(id)-q);
+ }
  S.stock[out.result.id]=stockOf(out.result.id)+1;
+ syncTools(S);
  board=board.filter((_,k)=>k!==i&&k!==j);
  board.push(out.result.id);
 
@@ -463,7 +487,7 @@ function directPlans(target){
      const make=mergeQty(A.make,B.make);
      const missing={};
      for(const [id,q] of Object.entries(cost)){
-       const lack=Math.max(0,q-stockOf(id));
+       const lack=Math.max(0,q-(isReusableTool(id)?toolCapacity(id):stockOf(id)));
        if(lack)addQty(missing,id,lack)
      }
      plans.push({
@@ -500,7 +524,7 @@ function scaledPlan(plan,qty=1){
  const scale=obj=>Object.fromEntries(Object.entries(obj||{}).map(([id,q])=>[id,q*qty]));
  const cost=scale(plan.cost),make=scale(plan.make),missing={};
  for(const [id,q] of Object.entries(cost)){
-   const lack=Math.max(0,q-stockOf(id));
+   const lack=Math.max(0,q-(isReusableTool(id)?toolCapacity(id):stockOf(id)));
    if(lack)missing[id]=lack
  }
  return{...plan,cost,make,missing,ok:Object.keys(missing).length===0,qty}
@@ -514,8 +538,8 @@ function routeName(plan){
 }
 function routeMaterialsHTML(plan){
  return `<div class="route-materials">${Object.entries(plan.cost||{}).map(([id,q])=>{
-   const have=stockOf(id),ok=have>=q;
-   return `<div class="route-mat ${ok?'':'short'}">${icon(item(id))}<span><b>${item(id).name}</b><small>Tienes ${have}</small></span><strong>×${q}</strong></div>`
+   const have=isReusableTool(id)?toolCapacity(id):stockOf(id),ok=have>=q;
+   return `<div class="route-mat ${ok?'':'short'}">${icon(item(id))}<span><b>${item(id).name}</b><small>${isReusableTool(id)?'Usos disponibles':'Tienes'} ${have}</small></span><strong>×${q}</strong></div>`
  }).join('')}</div>`
 }
 function autoStepsHTML(plan){
@@ -563,11 +587,16 @@ function showDirectChain(id){
  const html=recipeChainHTML(id);
  modal(`<div class="direct-modal"><small>CADENA APRENDIDA</small><h2>${item(id).name}</h2><p>Estos pasos pueden ejecutarse automáticamente durante la Fabricación directa.</p><div class="recipe-chain">${html||'<p>No hay pasos intermedios.</p>'}</div><button class="primary" data-direct-back="${id}">Volver</button></div>`)
 }
+
 function applyDirectPlan(id,plan,qty=1){
- for(const [mat,q] of Object.entries(plan.cost||{}))S.stock[mat]=Math.max(0,stockOf(mat)-q*qty);
+ for(const [mat,q] of Object.entries(plan.cost||{})){
+   if(isReusableTool(mat)){for(let n=0;n<q*qty;n++)wearTool(S,mat);}
+   else S.stock[mat]=Math.max(0,stockOf(mat)-q*qty);
+ }
  for(const [mid,q] of Object.entries(plan.make||{}))S.crafted[mid]=(S.crafted[mid]||0)+q*qty;
  S.stock[id]=stockOf(id)+qty;
  S.crafted[id]=(S.crafted[id]||0)+qty;
+ syncTools(S);
  return recordPlanMastery(plan,qty)
 }
 async function executeDirectCraft(id,routeIndex=0,qty=1,returnTo=null){
