@@ -1,6 +1,6 @@
 # CRAFTERRA · Reglas de recursos, combustible y transformación
 
-**Versión de reglas 0.6 · 23 noviembre 2026.** Este documento es la referencia para añadir recursos y recetas al RPG. Se distingue entre lo **implementado** y lo **pendiente de diseño**.
+**Versión de reglas 0.7 · 23 noviembre 2026.** Este documento es la referencia para añadir recursos y recetas al RPG. Se distingue entre lo **implementado** y lo **pendiente de diseño**.
 
 ## Regla principal
 
@@ -48,6 +48,53 @@ Pino y roble son **especies de árbol**, no nuevos ítems de madera: la calidad 
 - La carbonización no crea calor gratuito: gastar 1 madera en producir carbón cuesta 3 de calor; el carbón obtenido proporciona 7, frente a los 5 que daba esa madera sin transformar.
 - Las recetas originales del laboratorio permanecen para no romper partidas. Su integración con los costes físicos de calor en todas las ramas del árbol tecnológico es una **tarea posterior**.
 
+## Piedra y metalurgia: IMPLEMENTADO en el mundo 0.7
+
+Hay dos instalaciones públicas accesibles antes de cruzar el río: **mesa de cantería** y **horno/forja del valle**. Son objetos sólidos e interactivos. La extracción de minerales requiere acercarse a una veta concreta; la barra de progreso se completa antes de entregar recursos.
+
+### Piedra y herramientas iniciales
+
+| Proceso | Materiales consumidos | Resultado |
+|---|---|---|
+| Tallado básico | 2 piedras, 3,5 segundos | 1 piedra tallada |
+| Tallado con martillo | 1 piedra + 1 uso de martillo de piedra, 1,3 s | 1 piedra tallada |
+| Pico de piedra | 1 mango + 1 piedra tallada + 1 cuerda, 1,9 s | Pico de 10 usos |
+| Hacha de piedra | 1 mango + 1 piedra tallada + 1 cuerda, 1,9 s | Hacha de 10 usos |
+
+La receta de **mango** sigue siendo madera + piedra tallada. La del primer martillo de piedra sigue siendo mango + piedra. Esto proporciona una progresión continua sin tener que inventar una materia prima nueva.
+
+### Preparar las menas
+
+Hierro, cobre, estaño, plata y oro se extraen de vetas con el pico adecuado. En la cantería se combinan **2 unidades de la mena → 1 unidad preparada** (2,3–2,6 s). Cada mena preparada existe en el catálogo y tiene también su receta de descubrimiento (r236–r240). El carbón mineral se extrae de una veta y se usa directamente como combustible.
+
+### Fundir y fabricar aleaciones
+
+El horno almacena hasta **24 unidades de calor**, persistentes entre partidas e independientes de los otros fuegos. Acepta madera tosca (+3), madera normal (+5), carbón vegetal (+7) y carbón mineral (+12).
+
+| Operación | Consume | Calor | Tiempo |
+|---|---|---:|---:|
+| Hierro | 1 hierro preparado | 8 | 4 s |
+| Cobre | 1 cobre preparado | 6 | 3,4 s |
+| Estaño | 1 estaño preparado | 6 | 3,4 s |
+| Plata | 1 plata preparada | 10 | 4,3 s |
+| Oro | 1 oro preparado | 10 | 4,3 s |
+| Bronce | 1 lingote cobre + 1 lingote estaño | 7 | 3,4 s |
+| Acero | 1 lingote hierro + 1 carbón mineral | 9 | 3,9 s |
+
+### Forja y herramientas de hierro
+
+| Producto | Ingredientes | Herramienta reutilizada | Calor |
+|---|---|---|---:|
+| Martillo de hierro | 1 lingote hierro + 1 mango | Martillo de piedra, pierde 1 uso | 4 |
+| Hacha de hierro | 1 lingote hierro + 1 mango | Martillo de hierro, pierde 1 uso | 4 |
+| Pico de hierro | 1 lingote hierro + 1 mango | Martillo de hierro, pierde 1 uso | 4 |
+
+Cada forja tarda 3,3 s. Las herramientas metálicas comienzan con 100 usos. El pico de hierro permite extraer cuarzo, plata y oro.
+
+**Regla de integridad:** se validan ingredientes, calor y herramienta al iniciar y completar la acción; hasta terminar el trabajo no se consume material ni se entrega producto. Las herramientas pierden un uso, pero no desaparecen tras una sola receta. La estación tampoco se consume.
+
+**Límite actual:** el laboratorio mantiene recetas heredadas como mineral + hoguera → lingote, aunque el proceso físico del valle exige mena preparada y horno con combustible. Se conservan por compatibilidad. Unificar ambos sistemas sin bloquear las partidas antiguas sigue siendo una fase posterior. Las unidades de calor son abstracciones de juego, no temperaturas reales.
+
 ## Reglas base del resto de materiales
 
 | Familia | Obtener | Transformación / propósito |
@@ -61,7 +108,7 @@ Pino y roble son **especies de árbol**, no nuevos ítems de madera: la calidad 
 | Carbón vegetal | Carbonizar madera en instalación | Combustible concentrado y fabricación |
 | Carbón mineral | Picar veta de carbón | Calor de mayor densidad, metalurgia futura |
 
-Lo anterior parte del catálogo y las interacciones actuales. Para **metalurgia física** quedan por definir estaciones, combustible por lingote, tiempos y rendimiento, sin sustituir a ciegas las 235 recetas del laboratorio.
+Estos materiales disponen ya de una primera cadena física de procesamiento. El catálogo contiene **243 objetos y 240 recetas de descubrimiento**; siguen pendientes el transporte, la colocación libre de instalaciones y otros procesos industriales.
 
 ## Cómo se añade cualquier material nuevo: norma de diseño
 
@@ -91,7 +138,7 @@ No multiplicar recursos o recetas solo por aumentar el contador de la encicloped
 
 1. Unificar el coste físico del calor con todas las recetas antiguas que usan hoguera y horno, sin bloquear jugadores existentes.
 2. Construir y colocar la propia hoguera en un punto del mapa, en lugar de depender solo de la hoguera comunitaria.
-3. Dotar a cada mineral de un proceso físico de fundición con temperatura, combustible y herramientas.
+3. Permitir construir y colocar hornos, mesas de cantería y forjas personales; ahora son instalaciones comunitarias.
 4. Definir recipientes de distintas capacidades, agua potable, líquidos y transporte de materiales.
 5. Hacer que camas, alimentación y energía tengan consecuencias jugables proporcionadas, sin convertir Crafterra en un simulador de hambre.
 6. Introducir tablas de rendimiento por herramienta, especie y tipo de veta, y comprobarlas con simulaciones antes de equilibrarlas.
