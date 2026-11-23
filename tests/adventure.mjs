@@ -1,3 +1,4 @@
+import {FUEL_HEAT,MAX_FIRE_HEAT,RESOURCE_ROLES,STATION_PROCESSES,stationOptions,runStationProcess,heatOf} from '../js/material-economy.js';
 import {TREE_SPECIES,ROOM_OBJECTS,HOUSE_ROOMS,availableActions,completeWorldAction,performRoomAction,hasBowl,nodeAvailable} from '../js/world-actions.js';
 import assert from 'node:assert/strict';
 import {WORLD_SIZE,WORLD_NODES,WORLD_NPCS,WORLD_TREES,isWalkable,findPath} from '../js/adventure-world.js';
@@ -112,7 +113,10 @@ assert.equal(home.stock.rough_wood,0);
 assert.equal(home.stock.wood,3);
 assert.equal(performRoomAction(home,'house_lia','repair').ok,true);
 assert.equal(home.toolDurability.stone_axe[0],10);
-assert.equal(performRoomAction(home,'house_mara','hearth').ok,true);
+assert.equal(performRoomAction(home,'house_mara','hearth').ok,false,'No cooking with unlit hearth');
+assert.equal(runStationProcess(home,'fire','fuel_rough','house_mara').ok,false,'No rough wood left after sawmill');
+assert.equal(runStationProcess(home,'fire','fuel_wood','house_mara').ok,true,'Wood fuels the hearth');
+assert.equal(performRoomAction(home,'house_mara','hearth').ok,true,'Cooking uses fire heat');
 assert.equal(home.stock.cooked_meat,1);
 const p1=performRoomAction(home,'house_mara','pantry',Date.UTC(2026,10,23));
 assert.equal(p1.ok,true);
@@ -120,3 +124,43 @@ assert.equal(performRoomAction(home,'house_mara','pantry',Date.UTC(2026,10,23)+1
 assert.equal(performRoomAction(home,'house_mara','bed').ok,true);
 assert.equal(home.adventure.energy,100);
 console.log('Crafterra 0.5: tree species, bowls, ores and interactive house actions OK');
+
+
+// Economía: materiales con usos reales, costes y recetas de combustible.
+assert.equal(FUEL_HEAT.rough_wood,3,'rough wood has fuel value');
+assert.equal(FUEL_HEAT.wood,5,'processed wood can burn but is better reserved for crafting');
+assert.ok(FUEL_HEAT.charcoal>FUEL_HEAT.wood,'charcoal is more energy dense');
+assert.equal(RESOURCE_ROLES.rough_wood.uses.includes('Combustible'),true);
+assert.equal(STATION_PROCESSES.refine_basic.inputs.rough_wood,2);
+assert.equal(STATION_PROCESSES.refine_saw.inputs.rough_wood,1);
+const economy={stock:{rough_wood:4,wood:0,saw:1,raw_meat:1,fish:1},
+ toolDurability:{saw:[100]},discovered:{},adventure:{fires:{}},xp:0};
+assert.equal(runStationProcess(economy,'sawmill','refine_basic').ok,true);
+assert.equal(economy.stock.rough_wood,2);
+assert.equal(economy.stock.wood,1);
+assert.equal(runStationProcess(economy,'sawmill','refine_saw').ok,true);
+assert.equal(economy.stock.rough_wood,1);
+assert.equal(economy.stock.wood,2);
+assert.equal(economy.stock.saw,1,'saw is reused');
+assert.equal(economy.toolDurability.saw[0],99,'saw loses exactly one use');
+assert.equal(runStationProcess(economy,'fire','cook_meat','valley').ok,false,'fuel required to cook');
+assert.equal(runStationProcess(economy,'fire','fuel_rough','valley').ok,true);
+assert.equal(economy.stock.rough_wood,0);
+assert.equal(heatOf(economy,'valley'),3);
+assert.equal(runStationProcess(economy,'fire','cook_meat','valley').ok,true);
+assert.equal(economy.stock.cooked_meat,1);
+assert.equal(heatOf(economy,'valley'),1);
+assert.equal(runStationProcess(economy,'fire','cook_fish','valley').ok,false,'no free heat');
+assert.equal(runStationProcess(economy,'fire','fuel_wood','valley').ok,true);
+assert.equal(runStationProcess(economy,'fire','cook_fish','valley').ok,true);
+assert.equal(economy.stock.cooked_fish,1);
+assert.ok(heatOf(economy,'valley')>0);
+assert.equal(heatOf(economy,'house_mara'),0,'house and outdoor fire are independent');
+assert.equal(runStationProcess(economy,'fire','fuel_coal','valley').ok,false,'missing fuel not accepted');
+assert.equal(runStationProcess(economy,'sawmill','cook_meat').ok,false,'no cooking at carpentry bench');
+assert.equal(runStationProcess(economy,'fire','refine_basic').ok,false,'no carpentry at fireplace');
+economy.stock.coal=3;
+assert.equal(runStationProcess(economy,'fire','fuel_coal','valley').ok,true);
+assert.equal(runStationProcess(economy,'fire','fuel_coal','valley').ok,false,'do not waste fuel above capacity');
+assert.ok(heatOf(economy,'valley')<=MAX_FIRE_HEAT);
+console.log('Economía 0.6: 2 rutas de refinado, utensilios reutilizables y combustible persistente OK');
