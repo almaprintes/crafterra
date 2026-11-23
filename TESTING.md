@@ -1,4 +1,30 @@
-# CRAFTERRA 0.7 — pruebas de cantería y metalurgia
+# CRAFTERRA 0.8.0 — revisión visual y de acción móvil
+
+## Pruebas automatizadas
+- \`node tests/adventure-ui.mjs\`: SVG con arte original, sin descargas externas, iconos únicos, hojas visuales y controles activos.
+- Además de \`tests/validate.mjs\`, \`tests/adventure.mjs\` y \`tests/metallurgy.mjs\`, ya existentes.
+
+## Validación manual recomendada en Safari iPhone y Android
+
+1. Abrir mundo desde una partida antigua: monedas, mapa, inventario, puente y logros intactos.
+2. Ver que la cabecera del mundo sea compacta y se vea más terreno sin bloquear el mapa.
+3. Tocar la mesa de cantería y el horno: aparece un **panel inferior** con grandes ilustraciones en vez de cuatro botones verdes con párrafos largos.
+4. Verificar que cada acción tiene **imagen, título y coste/requisito breve**, incluidos los botones bloqueados.
+5. Abrir «Combustible», «Fundir» y «Forjar» y volver: los grupos son navegables sin menús fuera de pantalla.
+6. Extraer o talar: aparece barra de progreso en panel compacto, icono y animación de impacto sobre el objeto, con chispas.
+7. Durante el trabajo tocar varias veces «¡GOLPEA!»: progreso acelera sin entregar el recurso antes de completar la barra.
+8. Empezar una acción y mover al personaje: se cancela sin duplicar, regalar ni consumir recursos.
+9. Comprobar la animación del personaje al trabajar y el anillo de progreso alrededor del objeto.
+10. Repetir en orientación vertical y horizontal, con controles de movimiento D-pad y botón contextual ACCIÓN.
+11. Probar con conexión desactivada después de instalar la PWA; los SVG siguen cargando offline.
+12. Revisar modo oscuro del sistema, tamaño de letra aumentado, zonas seguras y accesibilidad de botones.
+13. Repetir en taller de Lía, hogar de Mara, árboles y vetas. La UI debe ser igual de clara en todos.
+14. Registrar captura y vídeo para valorar el siguiente salto artístico del mapa, edificios y personajes.
+
+**Importante:** esta lista sigue pendiente de pruebas manuales en hardware real. Los tests Node comprueban lógica y estructura, no sensaciones táctiles ni calidad gráfica perceptiva.
+
+---
+
 
 ## Automatizadas
 
