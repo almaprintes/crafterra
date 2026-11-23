@@ -1,5 +1,6 @@
 // CRAFTERRA · Interacciones de mundo: reglas puras, sin DOM.
-import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.5.0';
+import {pickTool,wearTool,toolCharge,TOOL_RULES} from './adventure-rules.js?v=0.6.0';
+import {runStationProcess} from './material-economy.js?v=0.6.0';
 export const RESOURCE_RESPAWN=5*60*1000;
 export const TREE_SPECIES=Object.freeze({
   pine:{label:'Pino',wood:2,rough:2,bonus:null,factor:1},
@@ -88,12 +89,10 @@ export function performRoomAction(s,room,actionId,now=Date.now()){
    r.pantryDay=day;add('berries',2);return {ok:true,message:'Has obtenido 2 bayas.'};
  }
  if(actionId==='hearth'){
-   if(!needs('raw_meat',1)||!needs('wood',1))return {ok:false,reason:'Necesitas 1 carne cruda y 1 madera para cocinar.'};
-   s.stock.raw_meat--;s.stock.wood--;add('cooked_meat',1);return {ok:true,message:'Has cocinado 1 ración de carne.'};
+   return runStationProcess(s,'fire','cook_meat','house_mara',now);
  }
  if(actionId==='sawmill'){
-   if(!needs('rough_wood',2))return {ok:false,reason:'Necesitas 2 unidades de madera tosca.'};
-   s.stock.rough_wood-=2;add('wood',1);return {ok:true,message:'Has refinado 2 maderas toscas en 1 madera.'};
+   return runStationProcess(s,'sawmill','refine_basic','house_lia',now);
  }
  if(actionId==='repair'){
    const candidates=['stone_axe','stone_pickaxe','iron_axe','iron_pickaxe'].filter(id=>needs(id,1));
