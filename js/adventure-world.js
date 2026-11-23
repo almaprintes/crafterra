@@ -125,9 +125,9 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
     '<div class="adventure-inventory" id="adv-inventory"></div>'+
     '<div class="adventure-tool" id="adv-tool">🪓 Manos · ⛏ Manos</div>'+
     '<div class="adventure-work" id="adv-work" hidden><b id="adv-work-label">Trabajando…</b><div class="adventure-work-track"><span id="adv-work-bar"></span></div></div>'+
-    '<div class="adventure-bottom"><div class="adventure-dpad">'+
-    '<button aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
-    '<div><button aria-label="Mover izquierda" data-dir="-1,1">◀</button><button aria-label="Mover abajo" data-dir="1,1">▼</button><button aria-label="Mover derecha" data-dir="1,-1">▶</button></div>'+
+    '<div class="adventure-bottom"><div class="adventure-dpad" aria-label="Controles de movimiento">'+
+    '<button class="adv-up" aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
+    '<button class="adv-left" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
     '</div><button id="adv-interact" class="adventure-action">✦ Interactuar</button><button id="adv-workshop" class="adventure-craft">⚒ Taller</button></div>'+
     '<div class="adventure-dialog" hidden><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p><div id="adv-dialog-actions"></div></div>'+
     '<div class="adventure-hint">Toca un lugar para caminar · Toca personas y recursos para interactuar</div>';
@@ -153,10 +153,11 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
   function entities(){return [
     ...actors.map(n=>({...n,kind:'npc'})),
     ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
+    ...WORLD_DECOR.map(n=>({...n,kind:'scenery'})),
     {id:'puente',x:14,y:10,kind:'bridge'}
   ];}
   function near(e){return Math.hypot(player.x-e.x,player.y-e.y)<=1.65;}
-  function nearby(){return entities().map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
+  function nearby(){return entities().filter(e=>e.kind!=='scenery').map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
   function updateHud(){
     const a=adventure(),s=state();
     el('#adv-objective').textContent=a.completed?'Capítulo 1 completo · Explora a tu ritmo':!a.metMara?'Habla con Mara, en la aldea':!a.bridge?'Repara el puente: 2 tablones + 1 cuerda':'Cruza el río y habla con Lía';
@@ -191,6 +192,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
   function interact(e){
     if(!e||!near(e))return;
     const a=adventure(),s=state();
+    if(e.kind==='scenery'){notify('🌳 Este árbol es decorativo. Los talables tienen una marca dorada.');return;}
     if(e.kind==='bridge'){repair();return;}
 
     if(e.kind==='node'){
@@ -359,7 +361,9 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
   canvas.addEventListener('click',ev=>{
     const r=canvas.getBoundingClientRect(),x=(ev.clientX-r.left)*w/r.width,y=(ev.clientY-r.top)*h/r.height;
     let hit=null,min=29;
-    for(const e of entities()){const p=project(e.x,e.y);const d=Math.hypot(x-p.x,y-(p.y-20));if(d<min){hit=e;min=d;}}
+    for(const e of entities()){const p=project(e.x,e.y);const shift=e.type==='wood'||e.kind==='scenery'?32:e.kind==='npc'?30:12;
+      const radius=e.type==='wood'||e.kind==='scenery'?35:28;
+      const d=Math.hypot(x-p.x,y-(p.y-shift));if(d<radius&&d<min+12){hit=e;min=d;}}
     if(hit){moveTo(hit.x,hit.y,hit);return;}
     const tile=screenToTile(x,y);moveTo(tile.x,tile.y);
   });
