@@ -3,6 +3,7 @@
 export const ITEMS=[
   {id:'stone',name:'Piedra',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
   {id:'wood',name:'Madera',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
+  {id:'rough_wood',name:'Madera tosca',category:'Recursos',rarity:'COMÚN',era:1,description:'Madera irregular obtenida golpeando árboles. Puede trabajarse en el banco de carpintería.'},
   {id:'water',name:'Agua',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
   {id:'fire',name:'Fuego',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
   {id:'earth',name:'Tierra',category:'Recursos',rarity:'COMÚN',era:1,description:'Recurso natural que abre nuevas posibilidades de recolección y transformación.'},
