@@ -106,7 +106,7 @@ Cada forja tarda 3,3 s. Las herramientas metálicas comienzan con 100 usos. El p
 | Cuarzo, plata, oro | Vetas de mineral difícil | Requieren pico de hierro |
 | Resina | Talar roble | Antorchas, adhesivos y otras recetas heredadas |
 | Carbón vegetal | Carbonizar madera en instalación | Combustible concentrado y fabricación |
-| Carbón mineral | Picar veta de carbón | Calor de mayor densidad, metalurgia futura |
+| Carbón mineral | Picar veta de carbón | Calor de mayor densidad y producción de acero en el horno |
 
 Estos materiales disponen ya de una primera cadena física de procesamiento. El catálogo contiene **243 objetos y 240 recetas de descubrimiento**; siguen pendientes el transporte, la colocación libre de instalaciones y otros procesos industriales.
 
