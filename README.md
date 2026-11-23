@@ -1,35 +1,37 @@
-# CRAFTERRA v0.3.1 — Primera aventura isométrica
+# CRAFTERRA 0.4.0 · El Valle del Origen
 
-**De una piedra a las estrellas.** PWA offline de exploración, descubrimiento, crafteo y evolución tecnológica.
+PWA de exploración isométrica, descubrimiento y fabricación. De una piedra a las estrellas.
 
-## Novedad: Valle del Origen (prototipo jugable)
-- La pantalla **Mundo** abre un valle isométrico con protagonista pixel art, cámara de seguimiento, movimiento táctil (tocar destino o flechas) y teclado.
-- Tres habitantes: Mara, Taro y Lía, con diálogos e hilo argumental.
-- Recursos físicos recogibles: madera, piedra y fibra vegetal. Los nodos vuelven a estar disponibles después de 5 minutos.
-- **Misión El puente roto:** habla con Mara, fabrica **2 tablones + 1 cuerda** en el Taller, vuelve al puente y repáralo para atravesar el río. Después encuentra a Lía.
-- El mundo comparte inventario y guardado con el crafteo existente. Persiste ubicación, materiales, diálogo y reparaciones.
-- Esta primera aventura aún no incluye IA de movimiento de NPC, combates, grandes regiones ni sprites definitivos.
+## Cambios 0.4.0
+- **Movimiento**: protagonista pixel art con brazos y piernas animados al caminar; habitantes que pasean sin teletransportarse.
+- **Colisiones**: los árboles y rocas son obstáculos; el jugador camina hasta una posición cercana antes de interactuar. Las plantas bajas pueden atravesarse.
+- **Recolección intencionada**: tocar un recurso o pulsar Interactuar inicia una tarea temporizada con barra de progreso, no una recompensa instantánea al pasar por encima. Los árboles talables presentan una marca dorada; los decorativos no dan madera.
+- **Herramientas**: hacha/pico de piedra 10 usos; hacha/pico de hierro 100 usos. También desgaste para cuchillo de pedernal (10), martillo de piedra (10), martillo de hierro, sierra y pala (100). Se emplean varias veces en el taller y en la exploración. Los usos restantes se guardan junto a la partida.
+- **Acceso sin herramienta**: tala a mano (6 s), minería a mano (7,5 s), fibras a mano (2,1 s). Las herramientas reducen el tiempo. Se desgastan al completar una acción, no por caminar.
+- **Interfaz**: cruceta en disposición de rombo, botones táctiles mayores, indicadores de inventario y herramientas, guía de misión y progreso de recolección.
+- **Preservación**: sigue activo el inventario y guardado local de versiones anteriores.
 
-## Crafteo heredado
-El catálogo jugable contiene **237 objetos, 233 recetas explícitas**, 21 colecciones, 28 misiones tradicionales, 15 puzles, 25 logros y 10 estaciones. Mantiene maestría, fabricación directa, expediciones, libro de recetas y recompensas.
+## Primera misión
+Habla con Mara, recoge madera, piedra y fibras, fabrica **dos tablones y una cuerda** y repara el puente. Cruza y habla con Lía. El taller original sigue en la pestaña Crear.
 
-## Publicación
-El sitio es estático: publicar la raíz de `main` con GitHub Pages. No necesita npm ni compilación. Instalar como PWA en iPhone desde Safari. Los módulos y el service worker necesitan HTTP(S), no `file://`.
+## Proyecto anterior conservado
+La base heredada cuenta con 237 objetos, 233 recetas explícitas, enciclopedia, estaciones, expediciones, logros y fabricación directa.
 
-## Pruebas
-- `node tests/validate.mjs`
-- `node tests/adventure.mjs`
-- GitHub Actions: `.github/workflows/validate-crafterra.yml`
+## Código
+- `js/adventure-world.js` — mundo Canvas isométrico, personajes, ruta, colisiones, acciones y NPC.
+- `js/adventure-rules.js` — recolección, tiempos, elección de herramientas, desgaste y persistencia por unidad.
+- `js/app.js` — integración con taller, inventario y UI.
+- `js/engine.js` — estado inicial, migración, crafting y progreso.
+- `css/adventure-world.css` — controles e interfaz.
+- `sw.js` — PWA sin conexión.
 
-Las pruebas automáticas **no sustituyen la prueba manual de controles, animación, rendimiento y guardado en Safari/iPhone**.
+## Comprobación automática
+```sh
+node tests/validate.mjs
+node tests/adventure.mjs
+```
+GitHub Actions valida el estado de `main`. Las pruebas de lógica no sustituyen una sesión real en Safari/iPhone para medir FPS, respuesta táctil, tamaño de controles y comportamiento al volver de otras pantallas.
 
-## Arquitectura
-- `js/adventure-world.js`: motor Canvas isométrico, ruta, personaje, NPC, diálogos, recursos y primera misión.
-- `css/adventure-world.css`: vista móvil, HUD, controles y diálogos.
-- `js/data.js`: catálogo y recetas.
-- `js/engine.js`: crafting y progresión.
-- `js/db.js`: IndexedDB con respaldo local.
-- `js/app.js`: integración de aventura, crafting e interfaz.
-- `sw.js`: caché offline.
+La aplicación continúa siendo estática, sin compilación ni dependencia de servicios externos. Se publica en GitHub Pages desde `main`. Los proveedores de tienda/anuncios siguen en DEVELOPMENT; no hay pagos reales.
 
-La tienda y `RewardedAdsProvider` continúan en modo DEVELOPMENT: no hay pagos ni anuncios comerciales configurados. Consulta [TESTING.md](TESTING.md), [COMMERCIAL_CHECKLIST.md](COMMERCIAL_CHECKLIST.md) y [ADVENTURE_ROADMAP.md](ADVENTURE_ROADMAP.md).
+Consulta [ADVENTURE_ROADMAP.md](ADVENTURE_ROADMAP.md), [TESTING.md](TESTING.md) y [COMMERCIAL_CHECKLIST.md](COMMERCIAL_CHECKLIST.md).
