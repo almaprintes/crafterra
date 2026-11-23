@@ -1,21 +1,29 @@
-import{gatheringPlan,applyHarvest,canGather,TOOL_RULES}from './adventure-rules.js?v=0.4.0';
+import{gatheringPlan}from './adventure-rules.js?v=0.5.0';
+import{TREE_SPECIES,HOUSE_ROOMS,ROOM_OBJECTS,nodeAvailable,availableActions,completeWorldAction,performRoomAction,RESOURCE_RESPAWN,hasBowl,isOre}from './world-actions.js?v=0.5.0';
 // CRAFTERRA · Primer mundo isométrico (sin dependencias externas)
 // La aventura comparte inventario y guardado con el juego original.
 export const WORLD_SIZE = Object.freeze({width:30,height:22});
 export const WORLD_NODES = Object.freeze([
-  {id:'arbol1',x:5,y:7,type:'wood',qty:2},
-  {id:'arbol2',x:4,y:14,type:'wood',qty:2},
-  {id:'arbol3',x:10,y:16,type:'wood',qty:2},
-  {id:'arbol4',x:8,y:3,type:'wood',qty:2},
-  {id:'roca1',x:6,y:14,type:'stone',qty:3},
-  {id:'roca2',x:11,y:5,type:'stone',qty:3},
-  {id:'roca3',x:3,y:10,type:'stone',qty:3},
-  {id:'fibra1',x:9,y:13,type:'plant_fiber',qty:2},
-  {id:'fibra2',x:5,y:17,type:'plant_fiber',qty:2},
-  {id:'fibra3',x:11,y:8,type:'plant_fiber',qty:2},
-  {id:'arbol5',x:20,y:13,type:'wood',qty:3},
-  {id:'roca4',x:24,y:6,type:'stone',qty:3},
-  {id:'fibra4',x:25,y:16,type:'plant_fiber',qty:2}
+ {id:'arbol1',x:5,y:7,type:'wood',species:'pine',qty:2},
+ {id:'arbol2',x:4,y:14,type:'wood',species:'oak',qty:3},
+ {id:'arbol3',x:10,y:16,type:'wood',species:'pine',qty:2},
+ {id:'arbol4',x:8,y:3,type:'wood',species:'oak',qty:3},
+ {id:'arbol5',x:20,y:13,type:'wood',species:'oak',qty:3},
+ {id:'roca1',x:6,y:14,type:'stone',qty:3},
+ {id:'roca2',x:11,y:5,type:'stone',qty:3},
+ {id:'roca3',x:3,y:10,type:'stone',qty:3},
+ {id:'roca4',x:24,y:6,type:'stone',qty:3},
+ {id:'fibra1',x:9,y:13,type:'plant_fiber',qty:2},
+ {id:'fibra2',x:5,y:17,type:'plant_fiber',qty:2},
+ {id:'fibra3',x:11,y:8,type:'plant_fiber',qty:2},
+ {id:'fibra4',x:25,y:16,type:'plant_fiber',qty:2},
+ {id:'mena_hierro',x:10,y:4,type:'iron',qty:2},
+ {id:'mena_cobre',x:9,y:17,type:'copper',qty:2},
+ {id:'mena_estano',x:25,y:12,type:'tin',qty:2},
+ {id:'carbon',x:6,y:19,type:'coal',qty:2},
+ {id:'cuarzo',x:24,y:17,type:'quartz',qty:1},
+ {id:'plata',x:26,y:7,type:'silver',qty:1},
+ {id:'oro',x:26,y:18,type:'gold',qty:1}
 ]);
 export const WORLD_NPCS = Object.freeze([
   {id:'mara',name:'Mara',x:7,y:10,palette:'orange'},
@@ -25,8 +33,9 @@ export const WORLD_NPCS = Object.freeze([
 export function isWalkable(x,y,bridge=false,gathered={},now=Date.now()){
   if(!Number.isInteger(x)||!Number.isInteger(y)||x<1||x>=WORLD_SIZE.width-1||y<1||y>=WORLD_SIZE.height-1)return false;
   if(x===15&&(!bridge||y!==10))return false;
-  if(WORLD_DECOR.some(t=>t.x===x&&t.y===y))return false;
-  if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&(!gathered[n.id]||now-gathered[n.id]>=RESPAWN)))return false;
+  if(WORLD_HOUSES.some(t=>t.x===x&&t.y===y))return false;
+  if(WORLD_DECOR.some(t=>t.x===x&&t.y===y&&nodeAvailable({adventure:{gathered}},t,now)))return false;
+  if(WORLD_NODES.some(n=>n.x===x&&n.y===y&&n.type!=='plant_fiber'&&nodeAvailable({adventure:{gathered}},n,now)))return false;
   return true;
 }
 export function findPath(from,to,bridge=false,gathered={}){
@@ -44,7 +53,8 @@ export function findPath(from,to,bridge=false,gathered={}){
   const path=[];while(seen.get(k)){const [x,y]=k.split(',').map(Number);path.unshift({x,y});k=key(...seen.get(k));}
   return path;
 }
-const TW=48,TH=24,RESPAWN=5*60*1000;
+const TW=48,TH=24,RESPAWN=RESOURCE_RESPAWN;
+export const WORLD_HOUSES=Object.freeze([{id:'house_mara',x:6,y:7,kind:'house',label:'Casa de Mara'},{id:'house_lia',x:21,y:7,kind:'house',label:'Taller de Lía'}]);
 const color={
   avatar:{h:'#61402e',s:'#f8ce99',j:'#e8b04b',p:'#274b65'},
   orange:{h:'#693721',s:'#ffd2a1',j:'#cb6b45',p:'#4e4661'},
@@ -52,17 +62,18 @@ const color={
   violet:{h:'#392a49',s:'#dfb18d',j:'#a47bd0',p:'#4c4667'}
 };
 const hash=(x,y)=>((x*1789+y*3247+x*y*1297)>>>0)%19;
+// Todo árbol pintado es un árbol del mundo: sin atrezo que no responda.
 export const WORLD_DECOR=Object.freeze((()=>{
  const out=[];
  for(let y=2;y<WORLD_SIZE.height-2;y++)for(let x=2;x<WORLD_SIZE.width-2;x++){
-   if(Math.abs(x-15)<2||hash(x,y)>2)continue;
+   if(Math.abs(x-15)<3||y>=9&&y<=11||hash(x,y)!==0)continue;
+   if(WORLD_HOUSES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<3))continue;
    if(WORLD_NPCS.some(n=>Math.abs(n.x-x)<3&&Math.abs(n.y-y)<3))continue;
-   if(WORLD_NODES.some(n=>n.x===x&&n.y===y))continue;
-   out.push({id:'bosque_'+x+'_'+y,x,y,kind:'scenery'});
+   if(WORLD_NODES.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<2))continue;
+   out.push({id:'bosque_'+x+'_'+y,x,y,type:'wood',species:(x+y)%2?'pine':'oak',qty:(x+y)%2?2:3,kind:'node'});
  }
  return out;
 })());
-
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const sprite=(ctx,x,y,palette,phase=0,facing=1)=>{
  const c=color[palette]||color.avatar;
