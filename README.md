@@ -1,4 +1,19 @@
-# CRAFTERRA 0.9.0 — Biomas, cuevas y fauna interactiva
+# CRAFTERRA 0.10.0 — Terreno con textura y relieve
+
+- **Praderas:** hierba irregular, pequeñas zonas de tierra, variación de tono y briznas integradas en el suelo.
+- **Bosques:** suelo oscuro con hojarasca, raíces dibujadas a escala de textura y musgo.
+- **Sierras rocosas:** estratos, picaduras y grietas con iluminación distinta a la pradera.
+- **Río:** ondulaciones y reflejos de superficie; orillas con transición húmeda.
+- **Cuevas:** pizarra rugosa, grietas y sombras en las paredes; suelos independientes de los del valle.
+- **Casas/talleres:** madera con juntas y vetas, suelo de piedra trabajado.
+- **Volumen:** bordes de suelo biselados y pequeñas caras laterales más oscuras; sombras de contacto bajo árboles, animales, edificios y personajes.
+- **Rendimiento móvil:** 32 variaciones deterministas por material, generadas una sola vez en caché Canvas y reutilizadas con \`drawImage\`; soporte de pantalla Retina limitado a 2×.
+- **Sin imágenes externas:** texturas procedurales locales y disponibles sin conexión. No crean objetos coleccionables falsos ni alteran rutas, colisiones o recursos.
+
+Pruebas: \`node tests/terrain-textures.mjs\` y el conjunto completo de pruebas de aventura y PWA. La calidad visual y los FPS en Safari iPhone deben comprobarse en hardware real.
+
+---
+
 
 **El Valle del Origen ahora tiene cuatro entornos con recursos propios:** praderas, bosques, sierras rocosas y cuevas. Los minerales ya no aparecen sobre el césped; se extraen de vetas situadas en montañas o en dos galerías subterráneas accesibles.
 
