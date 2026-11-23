@@ -1,6 +1,6 @@
 import {TREE_SPECIES,ROOM_OBJECTS,HOUSE_ROOMS,availableActions,completeWorldAction,performRoomAction,hasBowl,nodeAvailable} from '../js/world-actions.js';
 import assert from 'node:assert/strict';
-import {WORLD_SIZE,WORLD_NODES,WORLD_NPCS,WORLD_DECOR,isWalkable,findPath} from '../js/adventure-world.js';
+import {WORLD_SIZE,WORLD_NODES,WORLD_NPCS,WORLD_TREES,isWalkable,findPath} from '../js/adventure-world.js';
 import {TOOL_RULES,toolUses,pickTool,syncTools,wearTool,gatheringPlan,canGather,applyHarvest} from '../js/adventure-rules.js';
 
 assert.equal(WORLD_SIZE.width,30);
@@ -15,12 +15,12 @@ assert.ok(findPath({x:9,y:10},{x:22,y:10},true).length>0,'can cross after bridge
 assert.equal(findPath({x:9,y:10},{x:15,y:12},true).length,0,'no swimming across river');
 const ids=new Set([...WORLD_NODES,...WORLD_NPCS].map(e=>e.id));
 assert.equal(ids.size,WORLD_NODES.length+WORLD_NPCS.length,'unique NPC and node IDs');
-assert.ok(WORLD_DECOR.length>0,'scenery trees populated');
+assert.ok(WORLD_TREES.length>0,'scenery trees populated');
 for(const node of WORLD_NODES){
   assert.equal(isWalkable(node.x,node.y,true),node.type==='plant_fiber','trees and rocks block walking; low plants do not');
   assert.ok([[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy])=>isWalkable(node.x+dx,node.y+dy,true)),'resource approach '+node.id);
 }
-for(const tree of WORLD_DECOR)assert.equal(isWalkable(tree.x,tree.y,true),false,'decorative tree solid '+tree.id);
+for(const tree of WORLD_TREES)assert.equal(isWalkable(tree.x,tree.y,true),false,'decorative tree solid '+tree.id);
 for(const npc of WORLD_NPCS)assert.equal(isWalkable(npc.x,npc.y,true),true,'NPC home has walkable terrain');
 for(const kind of ['wood','stone','plant_fiber'])assert.ok(WORLD_NODES.filter(n=>n.type===kind).length>=3,'available resource '+kind);
 const state={stock:{stone_axe:1,iron_axe:1,stone_pickaxe:1,iron_pickaxe:1},toolDurability:{},discovered:{},xp:0,adventure:{gathered:{}}};
@@ -59,7 +59,7 @@ console.log('Crafterra 0.4: walkability, pathways, gathering and durability OK')
 
 assert.equal(TREE_SPECIES.pine.label,'Pino');
 assert.equal(TREE_SPECIES.oak.label,'Roble');
-assert.ok(WORLD_DECOR.every(t=>t.kind==='node'&&t.type==='wood'),'no decorative trees');
+assert.ok(WORLD_TREES.every(t=>t.kind==='node'&&t.type==='wood'),'no decorative trees');
 assert.equal(isWalkable(6,7,true),false,'first house has a solid footprint');
 assert.equal(isWalkable(21,7,true),false,'second house has a solid footprint');
 assert.ok(Object.keys(HOUSE_ROOMS).length===2,'two playable houses');
