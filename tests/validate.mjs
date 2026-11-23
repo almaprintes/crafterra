@@ -20,12 +20,12 @@ for(const id of STATIONS)ok(ids.has(id),`Estación inexistente: ${id}`);
 const source=await readFile(new URL('../js/data.js',import.meta.url),'utf8');ok(!source.includes('R.length<'),'Existe relleno automático de recetas');ok(!source.includes("'zinc'")&&!source.includes("'nickel'")&&!source.includes("'flower'"),'Referencias heredadas inválidas');
 const sw=await readFile(new URL('../sw.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
-for(const file of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.4.0b-adventure',
- './js/adventure-world.js?v=0.4.0b','./js/adventure-rules.js?v=0.4.0','./css/adventure-world.css?v=0.4.0',
+for(const file of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.5.0-adventure',
+ './js/adventure-world.js?v=0.5.0','./js/adventure-rules.js?v=0.5.0','./js/world-actions.js?v=0.5.0','./css/adventure-world.css?v=0.5.0',
  './js/config.js','./js/data.js','./js/db.js','./js/engine.js','./js/providers.js'])
  ok(sw.includes(file),'Falta '+file+' en caché');
 ok(html.includes('class="adventure-world"'),'Falta el nuevo mundo isométrico en index');
-ok(html.includes('js/app.js?v=0.4.0b-adventure'),'Falta versión nueva en el arranque');
+ok(html.includes('js/app.js?v=0.5.0-adventure'),'Falta versión nueva en el arranque');
 console.log(JSON.stringify({status:'OK',objects:ITEMS.length,recipes:RECIPES.length,
  reachable:reachable.size,collections:COLLECTIONS.length,puzzles:PUZZLES.length,
  missions:MISSIONS.length,achievements:ACHIEVEMENTS.length,stations:STATIONS.length},null,2));
