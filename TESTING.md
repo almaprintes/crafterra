@@ -1,4 +1,30 @@
-# CRAFTERRA 0.8.1 — optimización de la pantalla Crear
+# CRAFTERRA 0.9.0 — biomas, caza y cuevas: pruebas manuales
+
+## Comprobación en iPhone y Android
+
+1. Salir de la aldea hacia la sierra del norte: el color y la textura deben cambiar de hierba a roca; las vetas solo deben verse allí.
+2. En las praderas, comprobar que hay pinos, robles, fibras, bayas, hierbas, ovejas y conejos, pero no menas de hierro flotando sobre el césped.
+3. Acercarse a una oveja: recoger lana suelta y confirmar que **la oveja permanece visible**, con el vellón más fino, y que su siguiente cosecha queda bloqueada temporalmente.
+4. Con cuchillo o tijeras, verificar que las acciones producen 2 o 3 lanas y consumen **un uso**, nunca toda la herramienta.
+5. Capturar un conejo sin armas; confirmar carne + piel cruda, desaparición temporal de esa presa y ausencia de botín al pasar sobre la zona.
+6. En el bosque, cazar un ciervo con lanza o arco: produce carne, piel cruda y hueso. Arco con flechas consume **1 flecha**; sin flechas no se puede cazar.
+7. Buscar la **Cueva de la sierra**, al oeste del río. Entrar, pasear entre vetas, extraer hierro/cobre/carbón y volver a salir.
+8. Cruzar el puente ya reparado, alcanzar la **Gruta de los cristales**, entrar, encontrar estaño, plata, oro y cuarzo. Los minerales avanzados requieren pico de hierro.
+9. Dentro de una cueva, guardar/cerrar/reabrir el juego. Confirmar que la escena interior y la posición siguen siendo las correctas.
+10. Acercarse a Lía y entrar en su taller. Utilizar la curtiduría con piel cruda + agua + madera tosca. Confirmar que se obtiene cuero tras terminar la barra.
+11. Fundir hierro y forjar tijeras en el horno; probar que comienzan con 100 usos.
+12. Comprobar las misiones, el puente, el inventario, las monedas y las recetas antiguas para descartar regresiones.
+13. Revisar los menús con pictogramas y textos de requisitos; los animales no deben confundirse con rocas ni árboles.
+14. Repetir con modo avión después de haber cargado la PWA al menos una vez, para validar los nuevos módulos offline.
+
+## Automáticas
+
+\`node tests/biomes.mjs\` verifica los hábitats y vetas, las entradas de las dos cuevas, la accesibilidad, la lana con regeneración, la captura/caza, las armas con flechas, las tijeras y el curtido. La CI también ejecuta todos los tests de versiones anteriores y comprueba la sintaxis de los módulos.
+
+**No confundir test automático con prueba física:** la interacción visual y la ergonomía en Safari iPhone siguen pendientes de evidencias reales.
+
+---
+
 
 ## Diagnóstico basado en grabación real de iPhone (23/11/2026)
 
