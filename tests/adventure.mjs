@@ -130,6 +130,7 @@ console.log('Crafterra 0.5: tree species, bowls, ores and interactive house acti
 assert.equal(FUEL_HEAT.rough_wood,3,'rough wood has fuel value');
 assert.equal(FUEL_HEAT.wood,5,'processed wood can burn but is better reserved for crafting');
 assert.ok(FUEL_HEAT.charcoal>FUEL_HEAT.wood,'charcoal is more energy dense');
+assert.ok(FUEL_HEAT.charcoal-STATION_PROCESSES.charcoal.heat<FUEL_HEAT.wood,'making charcoal cannot create extra total energy');
 assert.equal(RESOURCE_ROLES.rough_wood.uses.includes('Combustible'),true);
 assert.equal(STATION_PROCESSES.refine_basic.inputs.rough_wood,2);
 assert.equal(STATION_PROCESSES.refine_saw.inputs.rough_wood,1);
