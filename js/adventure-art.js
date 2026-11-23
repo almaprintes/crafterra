@@ -14,6 +14,12 @@ const art={
  door:'<path d="M18 11h37v54H18z" fill="#6a4f3b" stroke="#d6ba8a" stroke-width="3"/><path d="M24 18h25v44H24z" fill="url(#wood)"/><path d="M27 22h19v16H27z" fill="none" stroke="#f0bc79" stroke-width="2"/><circle cx="43" cy="45" r="3" fill="#ffe58c"/>',
  bed:'<path d="M8 39h56v16H8z" fill="url(#wood)" stroke="#725038" stroke-width="2"/><path d="M8 32h56v13H8z" fill="#d0b978"/><rect x="12" y="30" width="19" height="12" rx="4" fill="#fff0d0"/><path d="M38 32h23v12H38z" fill="#63aaac"/><path d="M12 55v8M57 55v8" stroke="#a16a43" stroke-width="5"/>',
  basket:'<path d="M11 31h50l-6 30H17z" fill="#c8914d" stroke="#664b2b" stroke-width="2"/><path d="M18 34l8 26m10-26v26m11-26-8 26" stroke="#805d35" stroke-width="3"/><path d="M21 31Q26 10 36 10t15 21" fill="none" stroke="#e5bc7f" stroke-width="5"/><circle cx="28" cy="29" r="8" fill="#dd5060"/><circle cx="42" cy="27" r="8" fill="#b5d374"/><circle cx="36" cy="34" r="8" fill="#f2b35c"/>',
+ sheep:'<g><path d="M16 48h5v12h-5zm14 0h5v12h-5zm17 0h5v12h-5z" fill="#786e62"/><ellipse cx="33" cy="39" rx="22" ry="17" fill="#e7e9db" stroke="#b6c8c3" stroke-width="2"/><circle cx="16" cy="32" r="10" fill="#f4f2e2"/><circle cx="29" cy="23" r="11" fill="#f7f6e6"/><circle cx="40" cy="25" r="10" fill="#fff9e9"/><rect x="46" y="31" width="14" height="14" rx="5" fill="#8a746b"/><circle cx="57" cy="37" r="2" fill="#1a2632"/></g>',
+ rabbit:'<g><ellipse cx="33" cy="48" rx="22" ry="12" fill="#b89b79"/><path d="M37 17q1-13 9-10l-1 31h-8zM48 17q6-11 10-6l-4 30-8-2z" fill="#cdb18f"/><path d="M42 13v18M52 16l-2 15" stroke="#e6b5b6" stroke-width="3"/><circle cx="48" cy="40" r="12" fill="#c9ad8a"/><circle cx="55" cy="38" r="2.7" fill="#263341"/><circle cx="13" cy="48" r="7" fill="#eee2d4"/></g>',
+ deer:'<g><path d="M18 45h6v18h-6zm17 0h6v18h-6zm12-1h5v18h-5z" fill="#73523c"/><rect x="15" y="34" width="39" height="17" rx="7" fill="#b68859"/><path d="M45 37l8-21 8 4-8 23z" fill="#9b7149"/><path d="M49 14l-4-9M49 14l-12-4M55 15l8-11M55 15l12-3" stroke="#e6c395" stroke-width="4" stroke-linecap="round"/><circle cx="59" cy="29" r="2.2" fill="#142e34"/></g>',
+ hide:'<g><path d="M36 10l10 10 14-2-4 16 7 14-16 3-11 13-13-13-15-4 6-14-3-15 14 2z" fill="#bb8e62" stroke="#65472f" stroke-width="3"/><path d="M28 27l9-8 10 9-5 22-15-9z" fill="#ddbb88" opacity=".7"/></g>',
+ wool:'<g><circle cx="25" cy="28" r="13" fill="#eef3e4"/><circle cx="43" cy="27" r="16" fill="#f6f9ed"/><circle cx="27" cy="44" r="18" fill="#dce4d6"/><circle cx="45" cy="45" r="14" fill="#edf4e6"/><path d="M19 40Q35 18 51 42" fill="none" stroke="#a7c7c1" stroke-width="2"/></g>',
+ cave:'<g><path d="M7 57l9-31 20-16 21 17 10 30z" fill="#899995" stroke="#d0d4be" stroke-width="2"/><path d="M20 57q0-31 17-31 18 0 18 31z" fill="#132b39"/><path d="M27 53q5-15 12-17" stroke="#5aa3a5" stroke-width="3" opacity=".8"/></g>',
  shield:'<path d="M36 8l26 9-3 27-23 22-23-22-3-27z" fill="url(#steel)" stroke="#c8deea" stroke-width="2"/><path d="M36 13v47l19-18 2-21z" fill="#a7c2c7"/><path d="M25 35l8 7 15-18" fill="none" stroke="#f9df93" stroke-width="6" stroke-linecap="round"/>'
 };
 const palette={
@@ -24,10 +30,18 @@ const palette={
  bowl:['#2c768a','#153f58','#a0f4ff'],ingot:['#526b88','#1e3048','#edf7ff'],
  gem:['#30758b','#1e3a54','#bbfdff'],saw:['#566a77','#26394b','#dbedff'],
  door:['#786342','#253747','#f4d08f'],bed:['#76634b','#25354b','#f4d08f'],
- basket:['#786644','#2a433c','#f7d482'],shield:['#4c6477','#23314a','#e3efff']
+ basket:['#786644','#2a433c','#f7d482'],shield:['#4c6477','#23314a','#e3efff'],
+ sheep:['#5a7473','#2d4652','#eee9d1'],rabbit:['#78644d','#3f3c36','#e9cba4'],deer:['#7c5a41','#34333a','#efc39a'],
+ wool:['#688587','#354e60','#f2f8dc'],hide:['#78553d','#3d3a33','#f5c387'],cave:['#4f6676','#192b3a','#a8d0c9']
 };
 export function actionKind(id='',label=''){
  const k=String(id).toLowerCase(),n=String(label).toLowerCase();
+ if(k.includes('cave')||n.includes('cueva')||n.includes('gruta'))return'cave';
+ if(k.includes('shear')||k.includes('wool')||n.includes('lana'))return'wool';
+ if(k.includes('rabbit')||n.includes('conejo'))return'rabbit';
+ if(k.includes('sheep')||n.includes('oveja'))return'sheep';
+ if(k.includes('deer')||n.includes('ciervo'))return'deer';
+ if(k.includes('hide')||n.includes('piel')||n.includes('curtir'))return'hide';
  if(k==='chop'||k.includes('axe'))return'axe';
  if(k==='hit'||k.includes('rough_wood')||k.includes('wood'))return'log';
  if(k==='mine'||k.includes('pickaxe'))return'pick';
