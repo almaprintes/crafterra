@@ -1,4 +1,22 @@
-# CRAFTERRA 0.7.0 — De la piedra a los metales
+# CRAFTERRA 0.8.0 — Interfaz ilustrada y trabajo activo
+
+## Experiencia móvil más cercana a un juego
+
+- **Tarjetas de acción con imágenes SVG ilustradas**, dibujadas para el juego y listas para funcionar sin conexión. Hachas, picos, martillos, madera, piedra, metales, fuego, cuencos, puertas y otras acciones tienen pictogramas con volumen, luces y textura.
+- **Menú contextual estilo juego**: sustituye las ventanas de párrafos y botones de texto por un panel inferior compacto y tarjetas visuales con título corto y requisito/coste secundario.
+- **Más terreno visible**: cabecera de la era comprimida, mapa más alto y HUD translúcido con recursos y durabilidad en pequeños iconos.
+- **Acciones con animación en el mundo**: barra y anillo de trabajo, herramienta oscilante, impactos, destellos y partículas al cortar, picar, tallar y forjar.
+- **Participación táctil real**: durante un trabajo puedes pulsar **¡GOLPEA!** para acelerar el proceso en pequeños incrementos (limitados para evitar abuso). Si te apartas, la acción se cancela y no entrega recursos ni descuenta materiales.
+- **Pensado para Safari iPhone y Android**: iconos SVG sin librerías externas; botones táctiles grandes, panel desplazable y soporte vertical/horizontal. No se modifican las partidas guardadas ni el catálogo de 243 objetos y 240 recetas.
+
+## Comprobación
+\`node tests/adventure-ui.mjs\` valida que las imágenes se generan offline, que cada SVG tiene gradientes independientes y que la interacción no pierde las reglas de extracción/fabricación. Se conserva la batería de pruebas anterior.
+
+**Pendiente:** verificar acabado y comodidad táctil en un teléfono real y seguir evolucionando el arte de los personajes, casas, mapas y animaciones, que todavía no tiene el nivel final de producción.
+
+---
+
+## CRAFTERRA 0.7.0 — De la piedra a los metales
 
 PWA móvil de exploración isométrica con recursos interactivos, talleres, inventario y progreso guardado. Publicación directa desde \`main\` mediante GitHub Pages.
 
