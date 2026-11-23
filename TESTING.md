@@ -1,4 +1,37 @@
-# CRAFTERRA 0.5.1 · Batería de pruebas
+# CRAFTERRA 0.7 — pruebas de cantería y metalurgia
+
+## Automatizadas
+
+- \`node tests/validate.mjs\` — catálogo de 243 objetos y 240 recetas; referencias y caché offline.
+- \`node tests/adventure.mjs\` — rutas, recolección, árbol, agua, casas y herramientas.
+- \`node tests/metallurgy.mjs\` — estaciones accesibles, piedra, menas, preparación, horno, aleaciones, forja, herramientas, costes, tiempos y persistencia del calor.
+- GitHub Actions añade comprobaciones de sintaxis de los módulos principales.
+
+## Pruebas manuales pendientes en iPhone y Android
+
+1. Abrir una partida anterior. Revisar inventario, puente, dinero, herramientas y progreso. Ningún recurso antiguo debe perderse.
+2. Localizar la **mesa de cantería** cerca de la aldea. Comprobar que impide atravesarla y se puede tocar desde sus lados.
+3. Entrar en **Tallar piedra**: completar una transformación 2 piedras → piedra tallada. Con martillo de piedra, comprobar que consume solo una piedra y un uso.
+4. Montar un **pico de piedra** con mango, piedra tallada y cuerda. Confirmar 10/10 usos.
+5. Picar la veta de hierro: obtener 2 minerales. Prepararlos en la cantería para lograr un mineral de hierro preparado.
+6. Abrir el **horno/forja del valle** sin cruzar el puente. Comprobar menús separados de Combustible, Fundición y Forja.
+7. Alimentarlo con madera tosca, madera normal, carbón vegetal y carbón mineral; comprobar sus aportes 3/5/7/12 y la capacidad máxima 24.
+8. Intentar fundir hierro con menos de 8 unidades de calor: mostrar requisito, no consumir mineral.
+9. Fundir mineral preparado: verificar barra de trabajo, 1 lingote obtenido y 8 calor descontados al completar.
+10. Forjar un martillo de hierro con mango, lingote y martillo de piedra. Confirmar que el martillo de piedra solo pierde un uso.
+11. Fabricar hacha y pico de hierro: 100 usos por herramienta y 1 uso del martillo de hierro por proceso.
+12. Extraer cuarzo, oro o plata con pico de hierro. Comprobar que un pico de piedra no permite extraerlos.
+13. Preparar y fundir cobre y estaño, crear bronce. Repetir con hierro y carbón para hacer acero.
+14. Interrumpir cualquier trabajo moviéndote: no debe entregar resultado ni consumir calor o materiales.
+15. Salir del juego y reabrir: comprobar que el horno conserva calor, las herramientas conservan desgaste y que no se duplica ningún recurso.
+16. Repetir en vertical y horizontal; comprobar botones, barras de trabajo, FPS y claridad de los requisitos.
+17. Probar actualización desde la pantalla de inicio en iPhone y ejecución sin conexión, sin borrar datos.
+18. Comprobar que las recetas antiguas del laboratorio siguen funcionando; la unificación de ambos sistemas de fundición física aún no está completada.
+
+**Estado:** estas son verificaciones manuales propuestas, no resultados ya observados en un móvil real. No afirmar que se superaron hasta recoger evidencia.
+
+---
+
 
 ## Automatizadas
 - `node tests/validate.mjs`: datos, relaciones, alcanzabilidad y caché offline.
