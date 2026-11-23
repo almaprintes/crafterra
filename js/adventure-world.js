@@ -216,22 +216,69 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     persist();onProgress();updateHud();notify('¡Puente reparado! +120 monedas');
     showDialog('Misión completada','¡Has reparado el puente! Cruza a la otra orilla y busca a Lía, la inventora.');
   }
+function enterRoom(id){
+    const a=adventure();
+    if(!HOUSE_ROOMS[id])return;
+    a.x=player.x;a.y=player.y;a.scene=id;
+    player={...(a.roomPositions[id]||{x:5,y:6})};
+    path=[];pending=null;harvest=null;held=null;
+    el('#adv-work').hidden=true;
+    cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
+    savePosition();updateHud();notify('Has entrado en '+HOUSE_ROOMS[id].name);
+  }
+  function leaveRoom(){
+    const a=adventure();
+    a.roomPositions[a.scene]={...player};a.scene=null;
+    player={x:a.x,y:a.y};path=[];pending=null;harvest=null;held=null;
+    cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
+    savePosition();updateHud();notify('Has salido al Valle del Origen');
+  }
+  function beginWork(e,option){
+    if(!option?.enabled){notify(option?.need||'No puedes hacerlo todavía');return;}
+    if(!available(e))return;
+    harvest={node:e,actionId:option.id,elapsed:0,ms:option.ms,plan:option};
+    path=[];pending=null;
+    el('#adv-work').hidden=false;
+    el('#adv-work-label').textContent=option.label+' · '+(option.ms/1000).toFixed(1)+' s';
+    el('#adv-work-bar').style.width='0%';
+    updateHud();
+  }
+  function roomStation(e){
+    const a=adventure(),s=state();
+    if(e.id==='workbench'){onCraft();return;}
+    const r=performRoomAction(s,a.scene,e.id);
+    if(r.ok){persist();onProgress();updateHud();}
+    showDialog(e.label,r.ok?r.message:r.reason);
+  }
   function interact(e){
     if(!e||!near(e))return;
     const a=adventure(),s=state();
-    if(e.kind==='scenery'){notify('🌳 Este árbol es decorativo. Los talables tienen una marca dorada.');return;}
+    if(a.scene){
+      if(e.kind==='exit'){leaveRoom();return;}
+      if(e.kind==='station')roomStation(e);
+      return;
+    }
+    if(e.kind==='house'){
+      showDialog(e.label,'La puerta está abierta. Dentro encontrarás estaciones y tareas diferentes.',[
+        {label:'🚪 Entrar',run:()=>enterRoom(e.id)},
+        {label:'Quedarme fuera',action:'close'}]);
+      return;
+    }
     if(e.kind==='bridge'){repair();return;}
-
     if(e.kind==='node'){
       if(!available(e)||harvest)return;
-      const plan=gatheringPlan(s,e.type);
-      // Ningún recurso se obtiene al caminar encima. Se necesita una acción y tiempo.
-      path=[];pending=null;
-      harvest={node:e,elapsed:0,ms:plan.ms,plan};
-      el('#adv-work').hidden=false;
-      el('#adv-work-label').textContent=(e.type==='wood'?'🪓 Cortando madera':e.type==='stone'?'⛏ Picando roca':'🌿 Recogiendo fibras')+' · '+plan.label+' · '+(plan.ms/1000).toFixed(1)+' s';
-      el('#adv-work-bar').style.width='0%';
-      updateHud();return;
+      const options=availableActions(s,e);
+      if(!options.length)return;
+      const name=e.type==='wood'?(TREE_SPECIES[e.species]||TREE_SPECIES.pine).label:
+        e.type==='water'?'Orilla del río':e.type==='stone'?'Roca':e.type==='plant_fiber'?'Planta fibrosa':
+        'Veta de '+({iron:'hierro',copper:'cobre',tin:'estaño',coal:'carbón',quartz:'cuarzo',silver:'plata',gold:'oro'}[e.type]||e.type);
+      showDialog(name,e.type==='water'?'Necesitas un cuenco de madera o arcilla. El recipiente se conserva después de llenarlo.':
+        e.type==='wood'?'Elige entre cortar madera útil con un hacha o golpear el tronco para conseguir madera tosca.':
+        'Selecciona cómo quieres obtener el recurso.',[
+        ...options.map(o=>({label:o.label+' · '+(o.ms/1000).toFixed(1)+' s'+(o.tool?' ('+o.tool.replaceAll('_',' ')+')':''),
+          enabled:o.enabled,need:o.need,run:()=>beginWork(e,o)})),
+        {label:'Cancelar',action:'close'}]);
+      return;
     }
     if(e.id==='mara'){
       if(!a.metMara){a.metMara=true;persist();onProgress();}
@@ -297,7 +344,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       }
     }
   }
-  function tickGather(dt){
+function tickGather(dt){
     if(!harvest)return;
     const h=harvest;
     if(!near(h.node)||!available(h.node)){harvest=null;el('#adv-work').hidden=true;return;}
@@ -305,13 +352,15 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     el('#adv-work-bar').style.width=Math.min(100,100*h.elapsed/h.ms)+'%';
     if(h.elapsed<h.ms)return;
     harvest=null;el('#adv-work').hidden=true;
-    const result=applyHarvest(state(),h.node,Date.now(),RESPAWN);
-    if(!result.ok)return;
+    const result=completeWorldAction(state(),h.node,h.actionId,Date.now());
+    if(!result.ok){notify(result.reason);return;}
     savePosition();onProgress();
-    const name={wood:'madera',stone:'piedra',plant_fiber:'fibra vegetal'}[h.node.type];
-    notify('+'+result.received+' '+name+(result.wear?.broken?' · '+h.plan.label+' agotada':''));updateHud();
+    const names={wood:'madera',rough_wood:'madera tosca',stone:'piedra',plant_fiber:'fibra',water:'agua',
+      iron:'hierro',copper:'cobre',tin:'estaño',coal:'carbón',quartz:'cuarzo',silver:'plata',gold:'oro',resin:'resina'};
+    const earned=Object.entries(result.received).map(([id,q])=>'+'+q+' '+(names[id]||id)).join(' · ');
+    notify(earned+(result.wear?.broken?' · herramienta agotada':''));
+    updateHud();
   }
-
   function worldObjects(){
     const objects=[...WORLD_DECOR];
     objects.push({kind:'house',x:6,y:7},{kind:'house2',x:21,y:7});
