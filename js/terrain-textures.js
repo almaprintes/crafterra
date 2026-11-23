@@ -1,6 +1,7 @@
 // CRAFTERRA · Texturas y relieve del mundo isométrico.
 // Todo el detalle es procedimental, determinista y cacheado en pequeños sprites.
 // No se descargan imágenes, no se crean objetos decorativos, no se altera la física.
+import{MATERIAL_ATLAS_URI,MATERIAL_ORDER,MATERIAL_CELL_SIZE}from './material-art-data.js?v=0.11.0';
 export const TILE_WIDTH=48;
 export const TILE_HEIGHT=24;
 const SPRITE_HEIGHT=36;
@@ -17,6 +18,15 @@ const TEXTURE_COUNTS=Object.freeze({meadow:65,forest:78,rocky:72,river:34,cave:9
 // 32 variants / biome: lots of detail with a fixed offscreen atlas (~1.6 MB).
 const VARIANTS=32;
 const atlas=new Map();
+let referenceImage=null,referenceReady=false,referenceError=false;
+function loadReferenceArt(){
+ if(referenceImage||referenceError||typeof Image==='undefined')return;
+ referenceImage=new Image();
+ referenceImage.onload=()=>{referenceReady=true;atlas.clear();};
+ referenceImage.onerror=()=>{referenceError=true;};
+ referenceImage.src=MATERIAL_ATLAS_URI;
+}
+
 const uint=v=>v>>>0;
 function hash32(x,y,seed=0){
  let h=uint(Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(seed|0,2246822519)+0x9e3779b9);
@@ -60,6 +70,18 @@ function makeAtlasSprite(type,variant){
  g.save();
  pathTop(g);g.clip();
  g.fillStyle=pal.base;g.fillRect(0,2,48,26);
+ // Real pixel-art material crop derived from the approved mockup, not a
+ // flattened whole-screen illustration. The existing mask stays walkable.
+ if(referenceReady){
+  const refType=type==='workshop'?'rocky':type;
+  const index=MATERIAL_ORDER.indexOf(refType);
+  if(index>=0){
+   g.save();g.globalAlpha=.90;
+   g.drawImage(referenceImage,index*MATERIAL_CELL_SIZE,0,MATERIAL_CELL_SIZE,MATERIAL_CELL_SIZE,0,2,48,26);
+   g.restore();
+  }
+ }
+
  // Sun from northwest and subtle dirt/stain color variation; pixel-art finish.
  const light=g.createLinearGradient(4,3,44,28);
  light.addColorStop(0,'#ffffff20');light.addColorStop(.56,'#ffffff00');light.addColorStop(1,'#10263336');
@@ -132,12 +154,13 @@ function makeAtlasSprite(type,variant){
  }
  g.restore();g.globalAlpha=1;
  // Upper-left rim + lower-right inset shadow emphasize material thickness.
- g.strokeStyle='#f8f8e51e';g.lineWidth=1;
+ g.strokeStyle=type==='meadow'||type==='forest'?'#f8f8e50a':'#f8f8e51e';g.lineWidth=1;
  g.beginPath();g.moveTo(1,14.5);g.lineTo(24,3.4);g.lineTo(47,14.5);g.stroke();
- g.strokeStyle='#061d2c39';g.beginPath();g.moveTo(47,15.5);g.lineTo(24,26.5);g.lineTo(1,15.5);g.stroke();
+ g.strokeStyle=type==='meadow'||type==='forest'?'#061d2c12':'#061d2c39';g.beginPath();g.moveTo(47,15.5);g.lineTo(24,26.5);g.lineTo(1,15.5);g.stroke();
  return canvas;
 }
 function cachedSprite(type,variant){
+ loadReferenceArt();
  const key=type+':'+variant;
  if(!atlas.has(key) && typeof document!=='undefined'){
   atlas.set(key,makeAtlasSprite(type,variant));
