@@ -19,10 +19,12 @@ const TEXTURE_COUNTS=Object.freeze({meadow:65,forest:78,rocky:72,river:34,cave:9
 const VARIANTS=32;
 const atlas=new Map();
 let referenceImage=null,referenceReady=false,referenceError=false;
+let textureRevision=0;
+export function terrainTextureRevision(){return textureRevision;}
 function loadReferenceArt(){
  if(referenceImage||referenceError||typeof Image==='undefined')return;
  referenceImage=new Image();
- referenceImage.onload=()=>{referenceReady=true;atlas.clear();};
+ referenceImage.onload=()=>{referenceReady=true;atlas.clear();textureRevision++;};
  referenceImage.onerror=()=>{referenceError=true;};
  referenceImage.src=MATERIAL_ATLAS_URI;
 }
