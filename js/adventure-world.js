@@ -204,11 +204,16 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
   }
   function entities(){
     const scene=adventure().scene;
-    if(scene)return ROOM_OBJECTS[scene].map(x=>({...x}));
+    if(scene)return [
+      ...ROOM_OBJECTS[scene].map(x=>({...x})),
+      ...(CAVE_NODES[scene]||[]).filter(available).map(n=>({...n,kind:'node'}))
+    ];
     return [
       ...actors.map(n=>({...n,kind:'npc'})),
       ...WORLD_NODES.filter(available).map(n=>({...n,kind:'node'})),
       ...WORLD_TREES.filter(available).map(n=>({...n,kind:'node'})),
+      ...WORLD_ANIMALS.filter(available).map(n=>({...n,kind:'node'})),
+      ...CAVE_ENTRANCES,
       ...WORLD_HOUSES,
       ...WORLD_WORKSTATIONS,
       WORLD_CAMPFIRE,
@@ -219,7 +224,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
   function near(e){return Math.hypot(player.x-e.x,player.y-e.y)<=1.65;}
   function nearby(){return entities().map(e=>({...e,d:Math.hypot(player.x-e.x,player.y-e.y)})).sort((a,b)=>a.d-b.d)[0];}
   function updateHud(){
-    const a=adventure(),s=state(),scene=a.scene,region=scene?HOUSE_ROOMS[scene].name:'VALLE DEL ORIGEN';
+    const a=adventure(),s=state(),scene=a.scene,region=scene?HOUSE_ROOMS[scene].name:biomeLabel(Math.round(player.x),Math.round(player.y)).toUpperCase();
     const heading=el('#adv-region');
     if(heading.textContent!==region)heading.textContent=region;
     const goal=scene?'EXPLORA EL INTERIOR':a.completed?((s.stock?.iron_pickaxe||0)>0?'FORJA DOMINADA · EXPLORA':'META: FORJAR PICO DE HIERRO'):!a.metMara?'BUSCA A MARA':!a.bridge?'REPARA EL PUENTE':'HABLA CON LÍA';
@@ -243,14 +248,15 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
     }
     const nearbyEntity=nearby();
     const kind=nearbyEntity&&nearbyEntity.d<2.2?(nearbyEntity.kind==='npc'?'shield':
-      nearbyEntity.kind==='house'||nearbyEntity.kind==='exit'?'door':
+      nearbyEntity.kind==='house'||nearbyEntity.kind==='cave'||nearbyEntity.kind==='exit'?'door':
       nearbyEntity.kind==='workshop'?(nearbyEntity.station==='stonework'?'stone':'forge'):
       nearbyEntity.kind==='fire'?'fire':nearbyEntity.kind==='station'?actionKind(nearbyEntity.id):
       nearbyEntity.kind==='bridge'?'shield':actionKind(nearbyEntity.type,nearbyEntity.label||'')):'gem';
     const label=nearbyEntity&&nearbyEntity.d<2.2?(nearbyEntity.kind==='npc'?'HABLAR':
-      nearbyEntity.kind==='house'?'ENTRAR':nearbyEntity.kind==='exit'?'SALIR':
+      nearbyEntity.kind==='house'||nearbyEntity.kind==='cave'?'ENTRAR':nearbyEntity.kind==='exit'?'SALIR':
       nearbyEntity.kind==='workshop'||nearbyEntity.kind==='station'?'USAR':
       nearbyEntity.kind==='fire'?'FOGATA':nearbyEntity.kind==='bridge'?'PUENTE':
+      nearbyEntity.type==='animal'?(nearbyEntity.species==='sheep'?'LANA':'CAZAR'):
       nearbyEntity.type==='water'?'AGUA':nearbyEntity.type==='wood'?'CORTAR':
       nearbyEntity.type==='plant_fiber'?'RECOGER':'EXTRAER'):'EXPLORAR';
     const btn=el('#adv-interact');
@@ -258,7 +264,8 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       btn.dataset.signature=kind+'|'+label;
       btn.innerHTML=actionArt(kind,'sm')+'<span>'+label+'</span>';
     }
-    const tip=scene?'TOCA UNA ESTACIÓN O LA PUERTA':'TOCA ÁRBOLES, VETAS Y TALLERES PARA ACTUAR';
+    const tip=scene?.startsWith('cave_')?'PICA VETAS Y REGRESA POR LA SALIDA':scene?'TOCA UNA ESTACIÓN O LA PUERTA':
+      'PRADERAS: FIBRAS Y FAUNA · SIERRAS: ROCA Y VETAS';
     if(el('#adv-tip').textContent!==tip)el('#adv-tip').textContent=tip;
   }
 
@@ -359,7 +366,7 @@ function enterRoom(id){
     if(!available(e))return;
     harvest={node:e,actionId:option.id,elapsed:0,ms:option.ms,plan:option};
     path=[];pending=null;
-    const kind=option.id==='mine'?'pick':option.id==='hit'?'log':actionKind(option.id,option.label);
+    const kind=e.type==='animal'?e.species:option.id==='mine'?'pick':option.id==='hit'?'log':actionKind(option.id,option.label);
     activateWork(option.label,option.ms,kind);
     updateHud();
   }
@@ -416,6 +423,7 @@ function enterRoom(id){
     if(e.id==='workbench'){onCraft();return;}
     if(e.id==='hearth'){showStationMenu('fire','house_mara','🔥 Hogar de Mara',null,e);return;}
     if(e.id==='sawmill'){showStationMenu('sawmill','house_lia','🪚 Banco de carpintería',null,e);return;}
+    if(e.id==='tannery'){showStationMenu('tannery','house_lia','Curtiduría de Lía',null,e);return;}
     const r=performRoomAction(s,a.scene,e.id);
     if(r.ok){persist();onProgress();updateHud();}
     showDialog(e.label,r.ok?r.message:r.reason);
@@ -425,11 +433,11 @@ function enterRoom(id){
     const a=adventure(),s=state();
     if(a.scene){
       if(e.kind==='exit'){leaveRoom();return;}
-      if(e.kind==='station')roomStation(e);
-      return;
+      if(e.kind==='station'){roomStation(e);return;}
+      if(e.kind!=='node')return;
     }
-    if(e.kind==='house'){
-      showDialog(e.label,'La puerta está abierta. Dentro encontrarás estaciones y tareas diferentes.',[
+    if(e.kind==='house'||e.kind==='cave'){
+      showDialog(e.label,e.kind==='cave'?'La entrada lleva a galerías subterráneas con piedra y minerales.':'La puerta está abierta. Dentro encontrarás estaciones y tareas diferentes.',[
         {label:'🚪 Entrar',run:()=>enterRoom(e.id)},
         {label:'Quedarme fuera',action:'close'}]);
       return;
@@ -442,13 +450,16 @@ function enterRoom(id){
       const options=availableActions(s,e);
       if(!options.length)return;
       const name=e.type==='wood'?(TREE_SPECIES[e.species]||TREE_SPECIES.pine).label:
+        e.type==='animal'?ANIMAL_SPECIES[e.species]?.name||'Animal':
         e.type==='water'?'Orilla del río':e.type==='stone'?'Roca':e.type==='plant_fiber'?'Planta fibrosa':
+        e.type==='berries'?'Arbusto de bayas':e.type==='herbs'?'Hierbas silvestres':e.type==='mushroom'?'Setas de bosque':
         'Veta de '+({iron:'hierro',copper:'cobre',tin:'estaño',coal:'carbón',quartz:'cuarzo',silver:'plata',gold:'oro'}[e.type]||e.type);
       showDialog(name,e.type==='water'?'Necesitas un cuenco de madera o arcilla. El recipiente se conserva después de llenarlo.':
-        e.type==='wood'?'Elige entre cortar madera útil con un hacha o golpear el tronco para conseguir madera tosca.':
+        e.type==='wood'?'Cortar con hacha produce madera, golpearlo da madera tosca.':
+        e.type==='animal'?(e.species==='sheep'?'Obtén lana sin lastimar a la oveja. Las tijeras aprovechan mejor el vellón.':'La caza requiere tiempo y herramienta; obtendrás carne y piel cruda.'):
         'Selecciona cómo quieres obtener el recurso.',[
         ...options.map(o=>({
-          id:o.id,title:o.label,label:o.label,art:o.id==='mine'?'pick':o.id==='hit'?'log':actionKind(o.id,o.label),
+          id:o.id,title:o.label,label:o.label,art:e.type==='animal'?e.species:o.id==='mine'?'pick':o.id==='hit'?'log':actionKind(o.id,o.label),
           detail:o.enabled?(o.ms/1000).toFixed(1)+' S'+(o.tool?' · CON HERRAMIENTA':' · A MANO'):o.need,
           enabled:o.enabled,need:o.need,run:()=>beginWork(e,o)
         })),
@@ -469,7 +480,8 @@ function enterRoom(id){
 
 function roomWalkable(x,y){
     const room=adventure().scene;
-    return x>=1&&x<=9&&y>=1&&y<=7&&!ROOM_OBJECTS[room].some(o=>o.kind==='station'&&o.x===x&&o.y===y);
+    return x>=1&&x<=9&&y>=1&&y<=7&&!ROOM_OBJECTS[room].some(o=>o.kind==='station'&&o.x===x&&o.y===y)
+      &&!(CAVE_NODES[room]||[]).some(n=>n.x===x&&n.y===y&&available(n));
   }
   function roomPath(from,to){
     const start=[Math.round(from.x),Math.round(from.y)],goal=[Math.round(to.x),Math.round(to.y)],k=(x,y)=>x+','+y;
@@ -619,11 +631,12 @@ function worldObjects(){
     const scene=adventure().scene;
     if(scene)return [
       ...ROOM_OBJECTS[scene].map(o=>({...o,kind:o.kind})),
+      ...(CAVE_NODES[scene]||[]).filter(available).map(n=>({...n,kind:'resource'})),
       {kind:'player',x:player.x,y:player.y}
     ].sort((a,b)=>(a.x+a.y)-(b.x+b.y));
     const objects=[];
-    for(const n of [...WORLD_TREES,...WORLD_NODES])if(available(n))objects.push({...n,kind:'resource'});
-    objects.push(...WORLD_HOUSES,...WORLD_WORKSTATIONS,WORLD_CAMPFIRE);
+    for(const n of [...WORLD_TREES,...WORLD_NODES,...WORLD_ANIMALS])if(available(n))objects.push({...n,kind:'resource'});
+    objects.push(...WORLD_HOUSES,...WORLD_WORKSTATIONS,...CAVE_ENTRANCES,WORLD_CAMPFIRE);
     for(const n of actors)objects.push({...n,kind:'npc'});
     objects.push({kind:'bridgeart',x:15,y:10},{kind:'player',x:player.x,y:player.y});
     return objects.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
@@ -741,8 +754,8 @@ function worldObjects(){
     let hit=null,min=29;
     for(const e of entities()){
       const p=project(e.x,e.y);
-      const tall=e.type==='wood'||e.kind==='npc'||e.kind==='house'||e.kind==='station'||e.kind==='workshop';
-      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:e.kind==='workshop'?29:30):12;
+      const tall=e.type==='wood'||e.type==='animal'||e.kind==='npc'||e.kind==='house'||e.kind==='station'||e.kind==='workshop'||e.kind==='cave';
+      const shift=tall?(e.kind==='house'?45:e.kind==='station'?39:e.kind==='workshop'?29:e.kind==='cave'?28:e.type==='animal'?12:30):12;
       const radius=tall?43:27;
       const d=Math.hypot(x-p.x,y-(p.y-shift));
       if(d<radius&&d<min+15){hit=e;min=d;}
