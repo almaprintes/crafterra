@@ -10,9 +10,9 @@ for(const id of ['craftBoard','combineBoard','inventoryFilter','inventoryGrid','
  assert.ok(html.includes('id="'+id+'"'),'missing functional element '+id);
 }
 assert.ok(html.includes('class="craft-slots"'),'exactly two crafting positions should be visible');
-assert.ok(html.includes('css/craft-layout.css?v=0.8.1'),'mobile redesign must be loaded');
+assert.ok(html.includes('css/craft-layout.css?v=0.8.2'),'mobile redesign must be loaded');
 assert.ok(sw.includes('./css/craft-layout.css?v=0.8.1'),'workshop redesign must be available offline');
-assert.ok(html.includes('js/app.js?v=0.8.1-craft'),'cache bust changed app startup');
+assert.ok(html.includes('js/app.js?v=0.8.2-drag'),'cache bust changed app startup');
 assert.ok(sw.includes('./js/app.js?v=0.8.1-craft'),'precache changed startup');
 assert.ok(/#view-craft\.view\.active\s*\{[^}]*overflow-y:auto/.test(css),'single document-level craft scroll');
 assert.ok(/#view-craft #inventoryGrid\s*\{[^}]*max-height:none;[^}]*overflow:visible/.test(css),'inventory may never have its own vertical scroll');
