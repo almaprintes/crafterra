@@ -26,4 +26,18 @@ assert.ok(app.includes("$('#inventoryFilter').onchange=renderInventoryItems"),'i
 assert.ok(app.includes("$('#itemSearch').oninput=renderInventoryItems"),'search filters displayed inventory directly');
 assert.ok(app.includes("visible.sort("),'owned and alphabetical inventory ordering');
 assert.ok(app.includes("b.dataset.pieces=String(Math.min(board.length,2))"),'board never renders extra pieces offscreen');
-console.log('CRAFTERRA 0.8.1: one-scroll workshop, fixed 2-slot crafting, accessible inventory filters and PWA cache OK');
+assert.ok(app.includes("const inventory=$('#view-craft .inventory')"),'return area resolves to the whole materials inventory');
+assert.ok(app.includes("el.setPointerCapture(ev.pointerId)"),'finger movement captured outside board');
+assert.ok(app.includes("el.addEventListener('pointercancel',cancel)"),'interrupted gestures are safe');
+assert.ok(app.includes("Math.hypot(dx,dy)<8"),'tap is distinct from real drag');
+assert.ok(app.includes("ghost=el.cloneNode(true)"),'dragging shows an independent visual preview');
+assert.ok(app.includes("document.body.append(ghost)"),'drag preview escapes clipped board');
+assert.ok(app.includes("const returned=didDrag&&inInventory(e.clientX,e.clientY)"),'inventory drop target detected on release');
+assert.ok(app.includes("board.splice(idx,1)"),'return removes selected item from board');
+assert.ok(app.includes("}else if(didDrag&&target"),'piece-on-piece merging remains intact');
+assert.ok(!/board\.splice\(idx,1\)[\s\S]{0,90}S\.stock/.test(app),'return must not change inventory stock');
+assert.ok(css.includes('.craft-drag-ghost'),'floating item preview has styles');
+assert.ok(css.includes('.inventory.craft-drop-target'),'inventory highlights while dragging over it');
+assert.ok(css.includes('pointer-events:none!important'),'ghost cannot intercept drop hit-testing');
+
+console.log('CRAFTERRA 0.8.2: one-scroll workshop, drag-to-return without stock loss, pointer cancellation and fusion gestures OK');
