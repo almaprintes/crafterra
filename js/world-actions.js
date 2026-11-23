@@ -39,6 +39,8 @@ export function nodeAvailable(s,node,now=Date.now()){
 }
 export function availableActions(s,node){
  if(!node)return [];
+ // Ningún mineral se extrae de una pradera: el hábitat es una regla, no solo un color.
+ if(Number.isFinite(node.x)&&Number.isFinite(node.y)&&!isBiomeResource(node))return [];
  if(node.type==='animal'){
    const species=ANIMAL_SPECIES[node.species];
    if(!species)return [];
