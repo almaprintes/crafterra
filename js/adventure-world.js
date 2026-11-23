@@ -86,13 +86,13 @@ const drawBridge=(ctx,x,y,built)=>{
   else{ctx.fillStyle='#385d6a';ctx.fillRect(x-6,y-8,14,17);ctx.fillStyle='#cd9879';ctx.fillRect(x-25,y-13,3,10);ctx.fillRect(x+23,y-13,3,10);}
 };
 
-export function mountIsometricWorld(root,{getState,persist,onCraft,notify}){
+export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProgress=()=>{}}){
   root.innerHTML='<canvas class="adventure-canvas" aria-label="Mapa isométrico interactivo de Crafterra"></canvas>'+
     '<div class="adventure-hud"><b>🌿 VALLE DEL ORIGEN</b><small id="adv-objective"></small></div>'+
     '<div class="adventure-inventory" id="adv-inventory"></div>'+
     '<div class="adventure-bottom"><div class="adventure-dpad">'+
-    '<button aria-label="Mover arriba" data-dir="0,-1">▲</button>'+
-    '<div><button aria-label="Mover izquierda" data-dir="-1,0">◀</button><button aria-label="Mover abajo" data-dir="0,1">▼</button><button aria-label="Mover derecha" data-dir="1,0">▶</button></div>'+
+    '<button aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
+    '<div><button aria-label="Mover izquierda" data-dir="-1,1">◀</button><button aria-label="Mover abajo" data-dir="1,1">▼</button><button aria-label="Mover derecha" data-dir="1,-1">▶</button></div>'+
     '</div><button id="adv-interact" class="adventure-action">✦ Interactuar</button><button id="adv-workshop" class="adventure-craft">⚒ Taller</button></div>'+
     '<div class="adventure-dialog" hidden><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p><div id="adv-dialog-actions"></div></div>'+
     '<div class="adventure-hint">Toca un lugar para caminar · Toca personas y recursos para interactuar</div>';
@@ -147,7 +147,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify}){
     }
     s.stock.plank-=2;s.stock.rope-=1;
     a.bridge=true;s.coins=(Number(s.coins)||0)+120;
-    persist();updateHud();notify('¡Puente reparado! +120 monedas');
+    persist();onProgress();updateHud();notify('¡Puente reparado! +120 monedas');
     showDialog('Misión completada','¡Has reparado el puente! Cruza a la otra orilla y busca a Lía, la inventora.');
   }
   function interact(e){
@@ -158,16 +158,16 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify}){
       if(!available(e))return;
       s.stock=s.stock||{};s.stock[e.type]=(s.stock[e.type]||0)+e.qty;
       if(!s.discovered[e.type]){s.discovered[e.type]=Date.now();s.xp+=20;}
-      a.gathered[e.id]=Date.now();persist();notify('+'+e.qty+' '+({wood:'madera',stone:'piedra',plant_fiber:'fibra vegetal'}[e.type]||e.type));updateHud();return;
+      a.gathered[e.id]=Date.now();persist();onProgress();notify('+'+e.qty+' '+({wood:'madera',stone:'piedra',plant_fiber:'fibra vegetal'}[e.type]||e.type));updateHud();return;
     }
     if(e.id==='mara'){
-      if(!a.metMara){a.metMara=true;persist();}
+      if(!a.metMara){a.metMara=true;persist();onProgress();}
       showDialog('Mara · Habitante de la aldea',a.bridge?'¡Qué maravilla! Gracias a ti hemos recuperado el camino. Busca a Lía al otro lado del río.':'Nuestro puente cayó durante la última tormenta. Necesitamos a alguien que sepa fabricar. Consigue 2 tablones y 1 cuerda para repararlo. ¡El Taller sigue abierto!', [{label:'Ir al taller',action:'craft'},{label:'Voy a explorar',action:'close'}]);return;
     }
     if(e.id==='taro'){showDialog('Taro · Guardabosques',a.bridge?'¡Buen trabajo! El bosque oriental vuelve a estar conectado con la aldea.':'El río no se puede cruzar por aquí. Si te falta material para reparar el puente, recoge troncos, rocas y fibras por el valle.');return;}
     if(e.id==='lia'){
       if(!a.bridge){showDialog('Lía · Inventora','¿Cómo has llegado hasta aquí? El puente del valle sigue sin reparar.');return;}
-      if(!a.completed){a.completed=true;s.coins=(Number(s.coins)||0)+250;persist();notify('Capítulo 1 completado · +250 monedas');}
+      if(!a.completed){a.completed=true;s.coins=(Number(s.coins)||0)+250;persist();onProgress();notify('Capítulo 1 completado · +250 monedas');}
       showDialog('Lía · Inventora','¡Has devuelto la conexión al valle! Encontré planos de máquinas de una civilización olvidada. Esta será nuestra próxima aventura: recuperar sus conocimientos.');return;
     }
   }
@@ -269,7 +269,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify}){
   }
   document.addEventListener('keydown',ev=>{
     if(!root.closest('.view')?.classList.contains('active')||dialogOpen)return;
-    const map={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
+    const map={ArrowUp:[-1,-1],ArrowDown:[1,1],ArrowLeft:[-1,1],ArrowRight:[1,-1]};
     if(map[ev.key]){ev.preventDefault();stepDir(...map[ev.key]);}
     if(ev.key===' '||ev.key==='Enter'){const n=nearby();if(n&&n.d<2.2)interact(n);}
   });
