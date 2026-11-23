@@ -254,12 +254,14 @@ function renderWorld(){
  }
  isoWorld.refresh();
  const a=S.adventure||{};
- $('#missionHint').textContent=a.completed?'Capítulo I completado · El valle vuelve a estar conectado':
+ $('#missionHint').textContent=a.completed?'Capítulo I completo · Cantería y forja disponibles en el valle':
    !a.metMara?'Nueva aventura: encuentra a Mara en la aldea':
    !a.bridge?'Misión: fabricar 2 tablones y 1 cuerda para reparar el puente':
    'Misión: cruza el río y habla con Lía';
  $('#questStrip').innerHTML=a.completed?
-   '<b>Valle del Origen recuperado</b><span>Próximo capítulo en desarrollo. Sigue explorando y fabricando.</span><strong>✓</strong>':
+   ((S.stock?.iron_pickaxe||0)>0?
+   '<b>Valle recuperado · Maestro de la forja</b><span>Ya has fabricado un pico de hierro. Puedes extraer minerales raros.</span><strong>⚒️</strong>':
+   '<b>Objetivo opcional: el primer pico de hierro</b><span>Pica 2 minerales de hierro, prepáralos en Cantería y fúndelos en el Horno. Después forja tus herramientas.</span><strong>⚒️</strong>'):
    !a.metMara?'<b>Un encuentro en la aldea</b><span>Habla con Mara para comenzar la historia.</span><strong>CAP. I</strong>':
    !a.bridge?'<b>El puente roto</b><span>2 tablones: '+(S.stock?.plank||0)+'/2 · 1 cuerda: '+(S.stock?.rope||0)+'/1</span><strong>+120 ◆</strong>':
    '<b>La inventora del otro lado</b><span>Busca a Lía cruzando el puente reparado.</span><strong>+250 ◆</strong>';
