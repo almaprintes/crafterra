@@ -1,3 +1,27 @@
+# CRAFTERRA 0.5.1 · Batería de pruebas
+
+## Automatizadas
+- `node tests/validate.mjs`: datos, relaciones, alcanzabilidad y caché offline.
+- `node tests/adventure.mjs`: caminos, puente, obstáculos, dos tipos de árboles, madera tosca, agua con cuenco, minería y actividades de casas.
+
+## Comprobación manual esencial en móvil
+1. Pasea entre árboles: todos deben ser interactivos; no atravesar el tronco mientras está presente.
+2. Pino y roble deben ser visualmente distintos. Con hacha, madera normal; a golpes, madera tosca; robles con resina adicional al cortar.
+3. Comprueba que obtener cada recurso exige tiempo y completar la barra; caminar no entrega materiales.
+4. Construye un cuenco y recoge agua del río. Debe poder reutilizarse; sin cuenco debe explicar el requisito.
+5. Pica piedra de zonas habilitadas. Extrae cobre/hierro con pico normal y cuarzo/plata/oro con pico de hierro.
+6. Toca la casa de Mara, entra, camina por el interior, usa cama, despensa y hogar, y sal por la puerta.
+7. Entra al taller de Lía, transforma 2 maderas toscas en 1 madera, abre el crafteo y repara una herramienta desgastada.
+8. Guarda y recarga desde el interior. Verifica que posición y escena se recuperan; salir devuelve a la ubicación exterior.
+9. Comprueba que la pantalla de World, Crear, Archivo, Retos y Tienda siguen funcionando y mantienen inventario y monedas.
+10. Comprueba que la misión del puente se completa y que Lía solo entrega la recompensa una vez.
+11. Prueba tamaños de los botones, selección táctil de estaciones, FPS, batería, vertical/horizontal y uso sin conexión.
+12. Comprueba actualización de PWA desde la versión anterior sin limpiar el progreso.
+
+**Pendiente:** estas pruebas de interacción en dispositivos físicos no están automatizadas. No se debe afirmar que ya se han superado en iPhone.
+
+---
+
 # Pruebas de CRAFTERRA 0.4.0
 
 ## Automatizadas
