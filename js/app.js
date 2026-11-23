@@ -1,6 +1,6 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./data.js?v=0.2.26-almaprintad';import{CONFIG}from'./config.js?v=0.4.0';import{initDB,save,reset,exportSave}from'./db.js?v=0.2.26-almaprintad';import{initialState,normalizeState,merge,item,eraFor}from'./engine.js?v=0.4.0';import{RewardedAdsProvider,StoreProvider}from'./providers.js?v=0.4.0';
 import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
-import{mountIsometricWorld}from'./adventure-world.js?v=0.4.0';
+import{mountIsometricWorld}from'./adventure-world.js?v=0.4.0b';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.4.0';
 let isoWorld=null;
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
