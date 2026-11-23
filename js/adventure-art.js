@@ -57,9 +57,13 @@ export function actionKind(id='',label=''){
  if(n.includes('golpear'))return'log';
  return'gem';
 }
+let artSequence=0;
 export function actionArt(kind='gem',size='md'){
  const chosen=kind==='ore'?'stone':kind==='forge'?'hammer':kind;
  const motif=art[chosen]||art.gem,p=palette[kind]||palette[chosen]||palette.gem;
  const defs='<defs><linearGradient id="bg" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="'+p[0]+'"/><stop offset="1" stop-color="'+p[1]+'"/></linearGradient><linearGradient id="steel" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#f8ffff"/><stop offset=".5" stop-color="#acc8d1"/><stop offset="1" stop-color="#587589"/></linearGradient><linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9c17a"/><stop offset=".55" stop-color="#aa7044"/><stop offset="1" stop-color="#634630"/></linearGradient><linearGradient id="flame" x1=".2" x2=".8" y1="1" y2="0"><stop stop-color="#ff692f"/><stop offset=".6" stop-color="#ffc74e"/><stop offset="1" stop-color="#fff1a3"/></linearGradient><linearGradient id="gem" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#caffff"/><stop offset=".5" stop-color="#70d4f4"/><stop offset="1" stop-color="#338fc7"/></linearGradient><radialGradient id="halo"><stop stop-color="'+p[2]+'" stop-opacity=".5"/><stop offset="1" stop-color="'+p[2]+'" stop-opacity="0"/></radialGradient></defs>';
- return '<svg class="adv-art adv-art-'+size+'" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+defs+'<rect x="2" y="2" width="68" height="68" rx="16" fill="url(#bg)"/><circle cx="35" cy="29" r="33" fill="url(#halo)"/><path d="M8 55Q35 43 64 55v9Q35 73 8 62" fill="#081522" opacity=".34"/><path d="M8 8Q33 1 59 8" stroke="#fff" stroke-width="2" opacity=".22" fill="none"/>'+motif+'<rect x="3" y="3" width="66" height="66" rx="15" stroke="#fff" stroke-opacity=".23" fill="none"/></svg>';
+ const svg='<svg class="adv-art adv-art-'+size+'" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+defs+'<rect x="2" y="2" width="68" height="68" rx="16" fill="url(#bg)"/><circle cx="35" cy="29" r="33" fill="url(#halo)"/><path d="M8 55Q35 43 64 55v9Q35 73 8 62" fill="#081522" opacity=".34"/><path d="M8 8Q33 1 59 8" stroke="#fff" stroke-width="2" opacity=".22" fill="none"/>'+motif+'<rect x="3" y="3" width="66" height="66" rx="15" stroke="#fff" stroke-opacity=".23" fill="none"/></svg>';
+ const suffix='adv'+(++artSequence).toString(36);
+ return svg.replace(/id="(bg|steel|wood|flame|gem|halo)"/g,(_,id)=>'id="'+id+'-'+suffix+'"')
+   .replace(/url\(#(bg|steel|wood|flame|gem|halo)\)/g,(_,id)=>'url(#'+id+'-'+suffix+')');
 }
