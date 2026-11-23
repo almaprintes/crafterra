@@ -23,6 +23,8 @@ jobs:
         run: node tests/metallurgy.mjs
       - name: Verificar interfaz premium y acción
         run: node tests/adventure-ui.mjs
+      - name: Validar taller sin scroll anidado
+        run: node tests/craft-layout.mjs
       - name: Comprobar sintaxis del arranque y motor
         run: |
           node --check js/app.js
