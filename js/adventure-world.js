@@ -130,7 +130,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
     '<button class="adv-left" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
     '</div><button id="adv-interact" class="adventure-action">✦ Interactuar</button><button id="adv-workshop" class="adventure-craft">⚒ Taller</button></div>'+
     '<div class="adventure-dialog" hidden><h3 id="adv-speaker"></h3><p id="adv-dialog-text"></p><div id="adv-dialog-actions"></div></div>'+
-    '<div class="adventure-hint">Toca un lugar para caminar · Toca personas y recursos para interactuar</div>';
+    '<div class="adventure-hint">Toca para caminar · Árboles con marca dorada: talar · La herramienta reduce el tiempo</div>';
   const canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d',{alpha:false});
   if(!ctx){notify('No se pudo iniciar la vista gráfica.');return{refresh(){}};}
   const el=q=>root.querySelector(q);
@@ -210,7 +210,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,notify,onProg
       if(!a.metMara){a.metMara=true;persist();onProgress();}
       showDialog('Mara · Habitante de la aldea',a.bridge?'¡Qué maravilla! Gracias a ti hemos recuperado el camino. Busca a Lía al otro lado del río.':'Nuestro puente cayó durante la última tormenta. Necesitamos a alguien que sepa fabricar. Consigue 2 tablones y 1 cuerda para repararlo. ¡El Taller sigue abierto!', [{label:'Ir al taller',action:'craft'},{label:'Voy a explorar',action:'close'}]);return;
     }
-    if(e.id==='taro'){showDialog('Taro · Guardabosques',a.bridge?'¡Buen trabajo! El bosque oriental vuelve a estar conectado con la aldea.':'El río no se puede cruzar por aquí. Si te falta material para reparar el puente, recoge troncos, rocas y fibras por el valle.');return;}
+    if(e.id==='taro'){showDialog('Taro · Guardabosques',a.bridge?'¡Buen trabajo! El bosque oriental vuelve a estar conectado con la aldea.':'El río no se puede cruzar por aquí. Si te falta material para el puente, corta árboles con marca dorada y pica rocas. Las hachas y picos de piedra duran 10 usos; los de hierro, 100.');return;}
     if(e.id==='lia'){
       if(!a.bridge){showDialog('Lía · Inventora','¿Cómo has llegado hasta aquí? El puente del valle sigue sin reparar.');return;}
       if(!a.completed){a.completed=true;s.coins=(Number(s.coins)||0)+250;persist();onProgress();notify('Capítulo 1 completado · +250 monedas');}
