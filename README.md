@@ -1,4 +1,28 @@
-# CRAFTERRA 0.4.0 · El Valle del Origen
+# CRAFTERRA 0.5.1 — Un mundo en el que todo sirve para algo
+
+**De una piedra a las estrellas.** Aventura isométrica PWA, con progreso y fabricación integrados.
+
+## Interacciones reales del Valle del Origen
+- **Sin árboles decorativos:** todos los árboles presentes en el mapa son interactivos. Pinos y robles tienen apariencia y rendimiento diferentes.
+- **Dos calidades de madera:** el hacha obtiene madera normal, golpear un tronco a mano obtiene **madera tosca**. En el taller de Lía se transforman dos maderas toscas en una madera normal. Los robles dan también resina al cortarlos.
+- **Río:** tocando el agua y acercándote a la orilla, el cuenco de madera o arcilla permite recoger agua. El cuenco se conserva; sin él no se puede llenar.
+- **Piedra y minerales:** solo se extraen de las rocas y vetas concretas, con acción temporizada. Hierro, cobre, estaño y carbón requieren pico; cuarzo, plata y oro requieren uno de hierro.
+- **Casas transitables:** casa de Mara (cama, despensa diaria, cocina) y taller de Lía (mesa de crafteo, tratamiento de madera y reparación de herramientas), cada una con su propia vista interior, movimiento y puerta de salida.
+- **Personajes, puente y recursos:** todos tienen interacción. La vegetación baja aporta fibras; no se recogen materiales automáticamente por caminar junto a ellos.
+- **Herramientas persistentes:** piedra 10 usos, hierro 100; la herramienta se desgasta al terminar el trabajo y puede reutilizarse.
+- **Guardado:** posición exterior e interior, recursos agotados, avance del puente, inventario y durabilidad se mantienen con el sistema anterior.
+
+El inventario suma **238 objetos** (incluida la madera tosca, obtenida en el mundo) y conserva las **233 recetas** anteriores, sin alterar sus identificadores. La nueva pieza se puede refinar en el taller de la inventora.
+
+## Estado
+Esta es la **primera región prototipo**, no un mundo abierto completo. El siguiente paso es validar la experiencia en Safari de iPhone y perfeccionar gráficos, interiores, movimiento e historia. No se añaden servicios externos ni pagos; la web se publica desde main en GitHub Pages.
+
+## Pruebas
+`node tests/validate.mjs` valida datos y caché; `node tests/adventure.mjs` valida rutas, recolección, herramientas, agua, minerales e instalaciones interiores. El flujo `Crafterra - validar main` en GitHub Actions ejecuta ambas pruebas.
+
+---
+
+## Información histórica del proyecto
 
 PWA de exploración isométrica, descubrimiento y fabricación. De una piedra a las estrellas.
 
