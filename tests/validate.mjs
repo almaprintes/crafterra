@@ -26,8 +26,8 @@ for(const id of STATIONS)ok(ids.has(id),`Estación inexistente: ${id}`);
 const source=await readFile(new URL('../js/data.js',import.meta.url),'utf8');ok(!source.includes('R.length<'),'Existe relleno automático de recetas');ok(!source.includes("'zinc'")&&!source.includes("'nickel'")&&!source.includes("'flower'"),'Referencias heredadas inválidas');
 const sw=await readFile(new URL('../sw.js',import.meta.url),'utf8');
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
-for(const file of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.8.0-premium',
- './js/adventure-world.js?v=0.8.0','./js/adventure-art.js?v=0.8.0','./js/adventure-rules.js?v=0.7.0','./js/world-actions.js?v=0.7.0','./js/material-economy.js?v=0.7.0','./css/adventure-world.css?v=0.8.0-premium',
+for(const file of ['./index.html','./manifest.webmanifest','./js/app.js?v=0.8.0-premium22',
+ './js/adventure-world.js?v=0.8.0','./js/adventure-art.js?v=0.8.0','./js/adventure-rules.js?v=0.7.0','./js/world-actions.js?v=0.7.0','./js/material-economy.js?v=0.7.0','./css/adventure-world.css?v=0.8.0-premium2',
  './js/config.js','./js/data.js','./js/db.js','./js/engine.js','./js/providers.js'])
  ok(sw.includes(file),'Falta '+file+' en caché');
 ok(html.includes('class="adventure-world"'),'Falta el nuevo mundo isométrico en index');
