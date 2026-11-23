@@ -1,7 +1,7 @@
 import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'../js/data.js';
 import{readFile}from'node:fs/promises';
 const ok=(v,m)=>{if(!v)throw Error(m)};
-ok(ITEMS.length===237,`Objetos: ${ITEMS.length}`);
+ok(ITEMS.length===238,`Objetos: ${ITEMS.length}`);
 ok(RECIPES.length===233,`Recetas explícitas: ${RECIPES.length}`);
 ok(COLLECTIONS.length>=20,`Colecciones: ${COLLECTIONS.length}`);
 ok(PUZZLES.length===15,`Puzles: ${PUZZLES.length}`);
@@ -11,7 +11,7 @@ const ids=new Set(ITEMS.map(x=>x.id));ok(ids.size===ITEMS.length,'IDs de objeto 
 ok(!ids.has('redstone'),'Cristal rojo sigue en el catálogo');
 const names=ITEMS.map(x=>x.name);ok(new Set(names).size===names.length,'Nombres de objeto duplicados');
 const pairs=new Set;for(const r of RECIPES){ok(ids.has(r.a)&&ids.has(r.b)&&ids.has(r.result),`Referencia rota ${r.id}`);const p=[r.a,r.b].sort().join('|');ok(!pairs.has(p),`Par duplicado ${p}`);pairs.add(p)}
-const reachable=new Set(['stone','wood','water','fire','earth']);let change=true;while(change){change=false;for(const r of RECIPES)if(reachable.has(r.a)&&reachable.has(r.b)&&!reachable.has(r.result)){reachable.add(r.result);change=true}}
+const reachable=new Set(['stone','wood','rough_wood','water','fire','earth']);let change=true;while(change){change=false;for(const r of RECIPES)if(reachable.has(r.a)&&reachable.has(r.b)&&!reachable.has(r.result)){reachable.add(r.result);change=true}}
 ok(reachable.size===ITEMS.length,`${ITEMS.length-reachable.size} objetos no alcanzables`);
 for(const c of COLLECTIONS)for(const id of c.items)ok(ids.has(id),`Colección ${c.name}: ${id} inexistente`);
 for(const m of MISSIONS)ok(ids.has(m.target),`Misión ${m.name}: objetivo inexistente`);
