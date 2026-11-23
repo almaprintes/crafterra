@@ -693,6 +693,32 @@ function worldObjects(){
     return objects.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
   }
   function drawInside(scene){
+    if(CAVE_NODES[scene]){
+      ctx.fillStyle='#101f2b';ctx.fillRect(0,0,w,h);
+      const phase=performance.now()/1000;
+      for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
+        const p=project(x,y),wall=x===0||y===0||x===10||y===8;
+        const palette=wall?(x+y)%2?'#424f58':'#56616a':(x+y)%2?'#566575':'#4c5865';
+        diamond(ctx,p.x,p.y,palette,'#374451');
+        if(wall){ctx.fillStyle='#9aa29b';ctx.fillRect(p.x-7,p.y-9,11,4);}
+        if(!wall&&hash(x,y)%6===0){ctx.fillStyle='#8da7a0aa';ctx.fillRect(p.x+4,p.y-1,6,2);}
+      }
+      for(const o of worldObjects()){
+        const p=project(o.x,o.y);
+        if(o.kind==='player'){sprite(ctx,p.x,p.y,'avatar',harvest?workPhase:walkPhase,facing);continue;}
+        if(o.kind==='resource'){
+          drawOre(ctx,p.x,p.y,o);
+          ctx.fillStyle='#f6db9e';ctx.fillRect(p.x-2,p.y-28,5,5);
+        }else if(o.kind==='exit'){
+          ctx.fillStyle='#283e45';ctx.fillRect(p.x-21,p.y-33,42,33);
+          ctx.fillStyle='#dbbb83';ctx.fillRect(p.x-13,p.y-29,26,27);
+          ctx.fillStyle='#2b4a50';ctx.fillRect(p.x-9,p.y-26,18,22);
+          ctx.fillStyle='#f4e2ac';ctx.font='bold 10px system-ui';ctx.textAlign='center';
+          ctx.fillText('SALIDA',p.x,p.y-42);
+        }
+      }
+      return;
+    }
     ctx.fillStyle=scene==='house_mara'?'#57483f':'#303f58';ctx.fillRect(0,0,w,h);
     const home=scene==='house_mara';
     for(let y=0;y<=8;y++)for(let x=0;x<=10;x++){
@@ -703,7 +729,7 @@ function worldObjects(){
     for(const o of worldObjects()){
       const p=project(o.x,o.y);
       if(o.kind==='player'){sprite(ctx,p.x,p.y,'avatar',harvest?workPhase:walkPhase,facing);continue;}
-      const icon={exit:'🚪',bed:'🛏',pantry:'🧺',hearth:'🔥',workbench:'⚒',sawmill:'🪚',repair:'🔧'}[o.id]||'⚙';
+      const icon={exit:'🚪',bed:'🛏',pantry:'🧺',hearth:'🔥',workbench:'⚒',sawmill:'🪚',repair:'🔧',tannery:'🧵'}[o.id]||'⚙';
       ctx.fillStyle=o.kind==='exit'?'#486a52':home?'#78513a':'#3e6573';
       ctx.fillRect(p.x-18,p.y-22,36,21);
       ctx.fillStyle='#e2c597';ctx.fillRect(p.x-18,p.y-25,36,5);
@@ -720,11 +746,17 @@ function worldObjects(){
     if(a.scene){drawInside(a.scene);paintEffects();return;}
     for(let y=0;y<WORLD_SIZE.height;y++)for(let x=0;x<WORLD_SIZE.width;x++){
       const p=project(x,y);if(p.x<-TW||p.x>w+TW||p.y<-65||p.y>h+45)continue;
-      const river=x===15;
-      const base=river?'#4c92ba':x>15?'#77ac72':y<6?'#a5b873':'#8bbd75';
-      const fill=river?(hash(x,y)%2?'#5aa9cc':base):(hash(x,y)%4===0?'#a1c77c':base);
-      diamond(ctx,p.x,p.y,fill,river?'#69b9d7':'#7daa73');
+      const area=biomeAt(x,y),river=area==='river';
+      const config=BIOMES[area],base=river?'#4c92ba':config.ground;
+      const fill=river?(hash(x,y)%2?'#5aa9cc':base):
+        area==='rocky'?(hash(x,y)%3===0?'#aab5a9':base):
+        area==='forest'?(hash(x,y)%4===0?'#3c815b':base):
+        (hash(x,y)%4===0?'#b1d58b':base);
+      diamond(ctx,p.x,p.y,fill,river?'#69b9d7':config.edge);
       if(river){ctx.fillStyle='#b4ddda';ctx.fillRect(p.x-10+hash(x,y)%6,p.y-1,7,2);}
+      if(area==='rocky'&&hash(x,y)%4===0){ctx.fillStyle='#d7d4c3';ctx.fillRect(p.x-7,p.y-3,8,2);ctx.fillStyle='#4e6669';ctx.fillRect(p.x+5,p.y+2,4,2);}
+      if(area==='meadow'&&hash(x,y)%5===0){ctx.fillStyle='#f5dd81';ctx.fillRect(p.x-2,p.y-1,2,2);}
+      if(area==='forest'&&hash(x,y)%4===0){ctx.fillStyle='#b9c982';ctx.fillRect(p.x+2,p.y-2,5,2);}
     }
     for(const o of worldObjects()){
       const p=project(o.x,o.y);if(p.x<-80||p.x>w+80||p.y<-95||p.y>h+65)continue;
@@ -745,19 +777,20 @@ function worldObjects(){
         if(fuel){ctx.fillStyle='#f8aa3e';ctx.fillRect(p.x-6,p.y-25,12,16);ctx.fillStyle='#fbed74';ctx.fillRect(p.x-2,p.y-19,6,11);}
         ctx.fillStyle='#fff6d1';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('🔥 '+fuel+'/'+MAX_FIRE_HEAT,p.x,p.y-32);
       }
+      if(o.kind==='cave')drawCaveEntrance(ctx,p.x,p.y,o.label);
       if(o.kind==='house'){house(ctx,p.x,p.y,o.id==='house_lia');ctx.fillStyle='#fff1b5';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(o.label,p.x,p.y-82);}
       if(o.kind==='bridgeart')drawBridge(ctx,p.x,p.y,a.bridge);
       if(o.kind==='resource'){
         if(o.type==='wood')tree(ctx,p.x,p.y,o.species);
-        if(o.type==='stone')rock(ctx,p.x,p.y);
+        if(o.type==='stone')drawOre(ctx,p.x,p.y,o);
+        if(o.type==='animal')drawAnimal(ctx,p.x,p.y,o.species,performance.now()/1000);
         if(o.type==='plant_fiber')grass(ctx,p.x,p.y);
-        if(isOre(o)){
-          rock(ctx,p.x,p.y);
-          ctx.fillStyle=({iron:'#b3c0cd',copper:'#f19b64',tin:'#f4dfa8',coal:'#343f52',quartz:'#8ae5e7',silver:'#dceaff',gold:'#f4c74a'})[o.type]||'#ffffff';
-          ctx.fillRect(p.x-5,p.y-13,7,7);ctx.fillRect(p.x+5,p.y-10,4,4);
-          ctx.font='bold 9px system-ui';ctx.fillStyle='#173646';ctx.textAlign='center';ctx.fillText(({iron:'Fe',copper:'Cu',tin:'Sn',coal:'C',quartz:'Qz',silver:'Ag',gold:'Au'})[o.type],p.x,p.y-20);
+        if(o.type==='berries'||o.type==='herbs'||o.type==='mushroom'){
+          grass(ctx,p.x,p.y);ctx.fillStyle=o.type==='berries'?'#ec6f83':o.type==='mushroom'?'#d6a486':'#c6dc87';
+          ctx.fillRect(p.x-6,p.y-10,6,5);ctx.fillRect(p.x+5,p.y-7,5,4);
         }
-        ctx.fillStyle='#fff2ae';ctx.fillRect(p.x-3,p.y-(o.type==='wood'?57:25),6,5);
+        if(isOre(o))drawOre(ctx,p.x,p.y,o);
+        ctx.fillStyle='#fff2ae';ctx.fillRect(p.x-3,p.y-(o.type==='wood'?57:o.type==='animal'?48:25),6,5);
       }
       if(o.kind==='npc'){
         sprite(ctx,p.x,p.y,o.palette,o.phase,o.facing);
