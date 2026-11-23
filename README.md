@@ -1,19 +1,32 @@
-# CRAFTERRA v0.6.0 — Economía de materiales y combustible
+# CRAFTERRA 0.7.0 — De la piedra a los metales
 
-## Nuevo: madera tosca y hogueras útiles
-- **Receta básica:** 2 maderas toscas → 1 madera. Disponible en el laboratorio como combinación r234 y en el banco de carpintería de Lía.
-- **Receta con herramienta:** madera tosca + sierra → 1 madera (r235). La sierra no desaparece; gasta 1 uso de sus 100.
-- **Combustibles:** madera tosca +3 calor, madera +5, carbón vegetal +7, carbón mineral +12. La hoguera tiene una capacidad máxima de 24.
-- **Procesos físicos:** cocinar carne o pescado cuesta 2 calor; carbonizar una madera cuesta 3 calor y produce 1 carbón vegetal.
-- **Dos fuegos independientes:** hogar de Mara y hoguera comunitaria en el valle. Su combustible y calor se conservan al guardar.
-- **Hoguera reutilizable:** en la aventura, cocinar consume calor y comida, nunca destruye el fuego o la instalación. En el laboratorio, las estaciones conocidas dejan de gastarse como ingredientes.
-- Se conserva todo el catálogo anterior: **238 objetos y 235 recetas explícitas**, incluyendo las dos rutas nuevas.
+PWA móvil de exploración isométrica con recursos interactivos, talleres, inventario y progreso guardado. Publicación directa desde \`main\` mediante GitHub Pages.
 
-**Reglas oficiales y balance:** [RESOURCE_ECONOMY.md](RESOURCE_ECONOMY.md). Allí están los usos de madera, piedra, fibras, agua, minerales, combustible y la lista de sistemas aún pendientes de convertir en instalaciones físicas.
+## Primer circuito completo de metalurgia
 
-**Comprobación:** \`node tests/validate.mjs\` y \`node tests/adventure.mjs\`. GitHub Actions también verifica la sintaxis de los motores.
+- **Mesa de cantería:** talla piedra, monta hacha y pico de piedra de 10 usos, y prepara mineral de hierro, cobre, estaño, plata u oro.
+- **Vetas concretas:** el pico de piedra extrae minerales básicos; el pico de hierro permite extraer los más difíciles. Recogerlos exige completar el trabajo.
+- **Horno y forja del valle:** añade madera o carbón para generar calor, funde el mineral preparado, crea bronce y acero y fabrica martillos, hachas y picos de hierro.
+- **Herramientas reutilizables:** las de hierro duran 100 usos; la forja consume lingote, mango, calor y un uso del martillo correspondiente.
+- **Acceso inmediato al sistema:** ambas instalaciones públicas están en el lado inicial del río. Tienen colisiones y acciones reales; no son decorado.
+- **Interfaz:** menús organizados por tallado, mineral, combustible, fundición y herramientas, con requisitos visibles. Procesos temporizados y resultados solo tras terminar.
+- **Guardado:** los nuevos materiales, los usos de herramientas y el calor almacenado persisten con los datos del jugador.
+
+**Secuencia de juego:** recoger piedra → obtener piedra tallada y mango → fabricar pico de piedra → extraer hierro de una veta → preparar mineral → alimentar horno → fundir hierro → forjar martillo de hierro → forjar pico o hacha de hierro.
+
+**Catálogo actual:** 243 objetos, 240 recetas de descubrimiento. Las recetas antiguas siguen disponibles por compatibilidad, aunque la metalurgia física del valle exige combustible y etapas de transformación.
+
+## Verificaciones y reglas
+
+- \`node tests/validate.mjs\` — integridad del catálogo y PWA.
+- \`node tests/adventure.mjs\` — mundo, recolección, durabilidad, agua, árboles y casas.
+- \`node tests/metallurgy.mjs\` — progresión física desde piedra hasta hierro, aleaciones, combustible y guardado.
+- [RESOURCE_ECONOMY.md](RESOURCE_ECONOMY.md) — referencia de costes, usos de materiales y decisiones pendientes.
+- [TESTING.md](TESTING.md) — pruebas manuales pendientes para Safari iPhone y Android.
 
 ---
+
+## Sistemas ya incluidos desde versiones anteriores
 
 **De una piedra a las estrellas.** Aventura isométrica PWA, con progreso y fabricación integrados.
 
