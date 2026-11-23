@@ -358,7 +358,7 @@ function renderHeader(coinOverride=null){
  $('#eraLabel').textContent=`ERA ${['I','II','III','IV','V','VI','VII'][e]}`;
  $('#eraName').textContent=CONFIG.eras[e][0]
 }
-function showView(v){if(v!=='world'&&expSheetOpen)toggleExpeditions(false);$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
+function showView(v){if(v!=='world'&&expSheetOpen)toggleExpeditions(false);$$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
 function renderWorld(){
  if(!S)return;
  if(!isoWorld){
