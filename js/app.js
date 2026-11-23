@@ -3,6 +3,7 @@ import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvi
 import{mountIsometricWorld}from'./adventure-world.js?v=0.11.0';
 import{actionArt}from'./adventure-art.js?v=0.9.0';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.9.0';
+import{captureRuntimeFault,runtimeDiagnosticReport,clearRuntimeFaults}from'./runtime-diagnostics.js?v=0.11.1';
 // La navegación principal también usa ilustraciones, no glifos de una fuente.
 const NAV_ART=Object.freeze({world:'island',craft:'hammer',book:'gem',goals:'shield',shop:'ingot'});
 for(const button of document.querySelectorAll('nav button[data-view]')){
@@ -1283,6 +1284,13 @@ function settings(){
      <button id="importBtn">⬆️ Importar partida</button>
      <input id="importSaveInput" type="file" accept=".json,application/json" hidden>
    </section>
+   <section class="settings-save-card">
+     <small>ESTABILIDAD · DIAGNÓSTICO LOCAL</small>
+     <h3>Revisar un cierre inesperado</h3>
+     <p>El informe contiene errores del juego y la última escena. No se envía automáticamente.</p>
+     <button id="diagnosticBtn">⬇️ Exportar diagnóstico</button>
+     <button id="clearDiagnosticBtn">Limpiar historial de errores</button>
+   </section>
    <button id="resetBtn">Reiniciar progreso</button>
    <a href="tools/recipe-editor.html">Editor de recetas</a>
    <p>Sonido y vibración respetan las preferencias del dispositivo. Todo el progreso se guarda localmente.</p>
@@ -1303,6 +1311,16 @@ function settings(){
   const input=$('#importSaveInput');
   $('#importBtn').onclick=()=>input.click();
   input.onchange=e=>{const file=e.target.files?.[0];if(file)importSaveFile(file)};
+  $('#diagnosticBtn').onclick=()=>{
+    const report={...runtimeDiagnosticReport(),gameVersion:CONFIG.version};
+    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download='crafterra-diagnostico-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.append(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast('Diagnóstico exportado. No se envió ninguna información.');
+  };
+  $('#clearDiagnosticBtn').onclick=()=>{clearRuntimeFaults();toast('Historial de errores local vaciado');};
   $('#resetBtn').onclick=async()=>{
    if(confirm('¿Reiniciar todo el progreso?')){await reset();location.reload()}
   }
@@ -1337,4 +1355,10 @@ const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){sho
 const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems;$('#expeditionPanel').addEventListener('change',e=>{if(e.target.id==='expTierSelect')selectExpTier(e.target.value);});}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){
  const importedOK=localStorage.getItem('crafterra_import_success')==='1';
- if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}setInterval(tickExpeditions,1000);boot();
+ if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}window.addEventListener('error',event=>{
+  if(event.error)captureRuntimeFault(event.error,{stage:'global-error'});
+});
+window.addEventListener('unhandledrejection',event=>{
+  captureRuntimeFault(event.reason,{stage:'unhandled-promise'});
+});
+setInterval(tickExpeditions,1000);boot();
