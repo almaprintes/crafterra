@@ -472,6 +472,7 @@ function enterRoom(id){
   }
   function interact(e){
     if(!e||!near(e))return;
+    if(guidedTarget?.id===e.id)guidedTarget=null;
     const a=adventure(),s=state();
     if(a.scene){
       if(e.kind==='exit'){leaveRoom();return;}
@@ -574,7 +575,7 @@ function roomWalkable(x,y){
   // Guía contextual: llegar andando, sin teletransportar ni fabricar gratis.
   // En interiores, conduce a la salida y continúa la ruta al volver al valle.
   function guideTo(action){
-    if(!action||!['resource','station'].includes(action.kind))return false;
+    if(!action||!['resource','station','npc','bridge'].includes(action.kind))return false;
     cameraPan.recenter();
     if(dialogOpen)closeDialog();
     if(adventure().scene&&action.kind==='station'){
@@ -590,6 +591,10 @@ function roomWalkable(x,y){
     let options=[];
     if(action.kind==='station'){
       options=WORLD_WORKSTATIONS.filter(e=>e.station===action.station);
+    }else if(action.kind==='npc'&&!scene){
+      options=actors.filter(e=>e.id===action.id).map(e=>({...e,kind:'npc'}));
+    }else if(action.kind==='bridge'&&!scene){
+      options=entities().filter(e=>e.kind==='bridge');
     }else if(scene&&CAVE_NODES[scene]){
       options=CAVE_NODES[scene].filter(e=>e.type===action.resource&&available(e))
         .map(e=>({...e,kind:'node'}));
@@ -623,7 +628,7 @@ function roomWalkable(x,y){
       ...best.e,guideProcess:action.process,guideGroup:action.group
     }:best.e;
     moveTo(target.x,target.y,target);
-    notify(action.kind==='station'?'Voy contigo a '+best.e.label+'.':'Sigue el camino hasta el recurso señalado.');
+    notify(action.kind==='station'?'Voy contigo a '+best.e.label+'.':action.kind==='npc'?'Te acompaño hasta '+best.e.name+'.':action.kind==='bridge'?'Te acompaño hasta el puente.':'Sigue el camino hasta el recurso señalado.');
     return true;
   }
   function stepDir(dx,dy){
