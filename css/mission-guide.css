@@ -1,0 +1,104 @@
+/* CRAFTERRA 0.12 — guía contextual. Sin desplazamientos anidados en Mundo. */
+#view-world #questStrip.adventure-quest{grid-template-columns:minmax(0,1fr) 80px;gap:5px;padding:6px 8px}
+#view-world #questStrip .quest-summary{min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center}
+#view-world #questStrip .quest-summary b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-world #questStrip .quest-summary small{color:#f9dfbb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+#view-world #questStrip .quest-help{
+ grid-column:2;grid-row:1;align-self:center;width:100%;
+ min-height:34px;display:flex;align-items:center;justify-content:center;gap:4px;
+ border:1px solid #ffebb1;border-radius:9px;
+ background:linear-gradient(135deg,#d1a05a,#7d5135);
+ box-shadow:inset 0 1px #fff7d475,0 3px 0 #50351e;
+ font-size:11px;font-weight:950;color:#fff5d5;letter-spacing:.4px;
+}
+#view-world #questStrip .quest-help:active{transform:translateY(2px)}
+#view-world #ironGuidePanel.quest-guide-sheet{
+ position:absolute;z-index:17;top:auto;bottom:5px;left:6px;right:6px;
+ width:auto;max-height:min(80%,650px);min-height:0;
+ display:flex;flex-direction:column;gap:7px;
+ padding:12px 12px 13px;
+ border:2px solid #ebcf9f;border-radius:17px;
+ background:linear-gradient(145deg,#24546cfb,#102e45fd 63%,#10263dfb);
+ box-shadow:0 0 0 4px #0a2036bd,0 13px 34px #03101dbe,inset 0 2px #e0f5d36b;
+ color:#fbf4df;overflow:hidden!important;
+}
+#view-world #ironGuidePanel[hidden]{display:none!important}
+.quest-guide-head{display:flex;align-items:center;gap:9px;min-height:37px;flex:0 0 auto}
+.quest-guide-head .adv-art-sm{width:38px;height:38px;flex:none}
+.quest-guide-head>div{flex:1;min-width:0}
+.quest-guide-head small{font-size:9px;letter-spacing:1.5px;color:#93e8c0;font-weight:900}
+.quest-guide-head b{display:block;font-size:15px;line-height:1.15}
+.quest-guide-close{border:1px solid #e5d8b3;border-radius:50%;width:32px;height:32px;flex:none;background:#193e52;color:#ffedcf;font-size:22px;line-height:24px}
+.quest-guide-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex:0 0 auto}
+.quest-guide-step{
+ position:relative;display:flex;align-items:center;gap:5px;
+ min-width:0;min-height:41px;padding:4px 5px;
+ border:1px solid #7299a3;border-radius:9px;
+ background:#102e43b8;color:#d3e3da;
+}
+.quest-guide-step .adv-art-xs{width:24px;height:24px;flex:none}
+.quest-guide-step span{font-size:9px;line-height:1.14;font-weight:800;overflow-wrap:anywhere}
+.quest-guide-step.done{border-color:#70bf96;background:#215948a3}
+.quest-guide-step.active{border:2px solid #ffe4a3;background:#705639a8;color:#fff7d4}
+.quest-guide-step::after{content:'';position:absolute;top:1px;right:3px;font-size:10px}
+.quest-guide-step.done::after{content:'✓';color:#c4ffcf}
+.quest-guide-focus{display:flex;flex-direction:column;gap:5px;min-height:0;flex:0 1 auto;padding:9px;border:1px solid #6f9eab;border-radius:13px;background:linear-gradient(140deg,#153a50,#143244)}
+.quest-guide-focus>small{font-size:10px;letter-spacing:1.2px;color:#a5e2d8;font-weight:900}
+.quest-guide-focus>h3{font-size:16px;line-height:1.18;color:#ffdfa3;margin:0}
+.quest-guide-focus>p{font-size:11px;line-height:1.35;color:#d6e7dd;margin:0;max-height:47px;overflow:hidden}
+.quest-guide-recipe{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.quest-guide-recipe>span{border:1px solid #7f9ca7;background:#0a2839;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:850}
+.quest-guide-recipe>span.missing{border-color:#f3bd86;color:#ffd4ad}
+.quest-guide-recipe>span.ready{border-color:#70cb9a;color:#b8ffd8}
+.quest-guide-extra{font-size:10px;line-height:1.27;color:#f2dda5}
+.quest-guide-progress{display:flex;justify-content:space-between;gap:8px;align-items:center;flex:0 0 auto}
+.quest-guide-progress small{font-size:10px;color:#c7e0d2}
+.quest-guide-progress b{font-size:11px;color:#ffe1a6}
+.quest-guide-go{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ flex:0 0 auto;width:100%;min-height:47px;
+ padding:7px;border-radius:12px;border:1px solid #ceffd0;
+ color:#fff9e6;background:linear-gradient(155deg,#56cc95,#247f63);
+ box-shadow:inset 0 1px #edffee,0 4px 0 #104735;
+ font-weight:950;font-size:14px;
+}
+.quest-guide-go .adv-art-xs{width:26px;height:26px}
+.quest-guide-go:disabled{opacity:.63}
+.quest-guide-footer{font-size:10px;line-height:1.25;color:#bfd9d0;max-height:27px;overflow:hidden}
+#view-craft .craft-header-tools{display:flex;align-items:center;gap:5px;flex:none}
+#view-craft #recipesBtn{
+ padding:9px 9px;min-height:35px;
+ border:1px solid #f0dda2;border-radius:10px;
+ color:#ffebc0;background:linear-gradient(140deg,#81663e,#304658);
+ font-size:11px;font-weight:900;white-space:nowrap;
+}
+#view-craft .panel-title h2{max-width:170px}
+.recipe-book-intro{font-size:12px;color:#cde4dc;margin:3px 0 9px}
+.recipe-book-cards{display:grid;grid-template-columns:1fr;gap:8px;padding:4px 2px}
+.recipe-book-card{display:flex;align-items:center;gap:8px;padding:8px;border-radius:11px;border:1px solid #729aab;background:#123c50}
+.recipe-book-card .adv-art-sm{width:30px;height:30px}
+.recipe-book-card>div{flex:1;min-width:0}
+.recipe-book-card b{font-size:12px;display:block}
+.recipe-book-card small{font-size:10px;color:#bddbd1;display:block;line-height:1.35}
+.recipe-book-card button{font-size:11px;font-weight:850;border:1px solid #d0dcaa;background:#2e806b;border-radius:8px;padding:7px 10px;color:#fff4dc}
+.recipe-book-card button:disabled{opacity:.46}
+.recipe-book-header{display:flex;gap:8px;align-items:center}
+.recipe-book-header input{min-width:0;flex:1;padding:8px;font-size:13px;border-radius:8px;border:1px solid #83a7b0;background:#193c4d;color:#fff}
+@media(max-height:730px){
+ #view-world #ironGuidePanel.quest-guide-sheet{max-height:90%;padding:7px 8px;gap:5px}
+ .quest-guide-step{min-height:34px;padding:3px}
+ .quest-guide-step span{font-size:8px}
+ .quest-guide-step .adv-art-xs{width:20px;height:20px}
+ .quest-guide-head{min-height:29px}
+ .quest-guide-head b{font-size:13px}
+ .quest-guide-focus{padding:7px;gap:4px}
+ .quest-guide-focus>h3{font-size:14px}
+ .quest-guide-go{min-height:37px;font-size:12px}
+}
+@media(max-width:380px){
+ #view-world #ironGuidePanel.quest-guide-sheet{left:3px;right:3px;padding:8px}
+ .quest-guide-step{gap:2px}
+ .quest-guide-step span{font-size:8px}
+ .quest-guide-focus>p{font-size:10px}
+ #view-craft #recipesBtn{padding:7px 6px;font-size:10px}
+}
