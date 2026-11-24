@@ -17,6 +17,8 @@ jobs:
           node-version: '22'
       - name: Verificar catálogo y PWA
         run: node tests/validate.mjs
+      - name: Verificar guía de misiones y recetario
+        run: node tests/mission-guide.mjs
       - name: Verificar navegación inferior y cinco pantallas
         run: node tests/navigation.mjs
       - name: Probar arrastre de cámara en iPhone y toque para caminar
@@ -42,6 +44,7 @@ jobs:
           node --check js/app.js
           node --check js/adventure-world.js
           node --check js/world-camera.js
+          node --check js/mission-guide.js
           node --check js/terrain-textures.js
           node --check js/world-art-premium.js
           node --check js/material-art-data.js
