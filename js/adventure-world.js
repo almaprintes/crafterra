@@ -2,6 +2,7 @@ import{gatheringPlan}from './adventure-rules.js?v=0.9.0';
 import{actionArt,actionKind}from './adventure-art.js?v=0.9.0';
 import{drawTerrainTile,drawContactShadow,terrainTextureRevision}from './terrain-textures.js?v=0.11.1';
 import{safeCanvasDpr,targetFrameInterval,captureRuntimeFault,noteRuntimeScene}from './runtime-diagnostics.js?v=0.11.1';
+import{createCameraPan}from './world-camera.js?v=0.11.3';
 import{drawPremiumTree,drawPremiumRock,drawPremiumHouse,drawPremiumCave,drawPremiumForge,drawPremiumBridge}from './world-art-premium.js?v=0.11.0';
 import{BIOMES,ORE_TYPES,CAVE_ENTRANCES,CAVE_NODES,WORLD_ANIMALS,ANIMAL_SPECIES,biomeAt,biomeLabel,isBiomeResource}from './world-biomes.js?v=0.9.0';
 import{stationOptions,runStationProcess,heatOf,MAX_FIRE_HEAT}from './material-economy.js?v=0.9.0';
@@ -182,6 +183,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions
     '<div class="adventure-work" id="adv-work" hidden><div class="adv-work-row"><span id="adv-work-art">'+actionArt('pick','sm')+'</span><div class="adv-work-copy"><b id="adv-work-label">Trabajando...</b><small>TOCA EL GOLPE PARA ACELERAR</small></div></div>'+
       '<div class="adventure-work-track"><span id="adv-work-bar"></span></div>'+
       '<button type="button" id="adv-strike" class="adv-strike" aria-label="Dar un golpe de trabajo">'+actionArt('hammer','sm')+'<span>¡GOLPEA!</span></button></div>'+
+    '<button id="adv-recenter" class="adv-recenter" type="button" aria-label="Centrar la cámara en el personaje" hidden><span aria-hidden="true">◎</span><b>CENTRAR</b></button>'+
     '<div class="adventure-bottom"><div class="adventure-dpad" aria-label="Controles de movimiento">'+
     '<button class="adv-up" type="button" aria-label="Mover arriba" data-dir="-1,-1">▲</button>'+
     '<button class="adv-left" type="button" aria-label="Mover izquierda" data-dir="-1,1">◀</button><button class="adv-down" type="button" aria-label="Mover abajo" data-dir="1,1">▼</button><button class="adv-right" type="button" aria-label="Mover derecha" data-dir="1,-1">▶</button>'+
@@ -201,6 +203,22 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions
   const floorCache=new Map();let floorCacheRevision=-1;
   const actors=WORLD_NPCS.map(n=>({...n,homeX:n.x,homeY:n.y,phase:0,facing:1,idle:0,steps:[]}));
   const state=()=>getState();
+  const cameraPan=createCameraPan({
+    getCamera:()=>cam,
+    setCamera:next=>{cam.x=next.x;cam.y=next.y;},
+    getViewport:()=>({width:w,height:h,rect:canvas.getBoundingClientRect()}),
+    getBounds:()=>adventure().scene?{width:11,height:9}:WORLD_SIZE,
+    onStart:()=>{
+      // A gesture on the landscape is not a movement command.
+      path=[];pending=null;held=null;
+    },
+    onPan:()=>{lastDrawAt=-Infinity;},
+    onMode:free=>{
+      el('#adv-recenter').hidden=!free;
+      canvas.classList.toggle('camera-free',free);
+    }
+  });
+
   function adventure(){
     const s=state();
     if(!s.adventure||typeof s.adventure!=='object')s.adventure={x:9,y:10,metMara:false,bridge:false,completed:false,gathered:{}};
@@ -358,6 +376,7 @@ function enterRoom(id){
     path=[];pending=null;harvest=null;held=null;
     el('#adv-work').hidden=true;
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
+    cameraPan.recenter();
     savePosition();noteRuntimeScene(id);updateHud();notify('Has entrado en '+HOUSE_ROOMS[id].name);
   }
   function leaveRoom(){
@@ -365,6 +384,7 @@ function enterRoom(id){
     a.roomPositions[a.scene]={...player};a.scene=null;
     player={x:a.x,y:a.y};path=[];pending=null;harvest=null;held=null;
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
+    cameraPan.recenter();
     savePosition();noteRuntimeScene('valley');updateHud();notify('Has salido al Valle del Origen');
   }
   function activateWork(label,ms,kind){
@@ -821,8 +841,8 @@ function worldObjects(){
       if(!path.length&&held)stepDir(...held);
       walkNPCs(dt);tickGather(dt);tickEffects(dt);
       const desiredX=(player.x-player.y)*TW/2,desiredY=(player.x+player.y)*TH/2;
-      cam.x+=(desiredX-cam.x)*Math.min(1,dt*8);cam.y+=(desiredY-cam.y)*Math.min(1,dt*8);
-      const moving=!!path.length||!!held;
+      if(!cameraPan.isManual){cam.x+=(desiredX-cam.x)*Math.min(1,dt*8);cam.y+=(desiredY-cam.y)*Math.min(1,dt*8);}
+      const moving=!!path.length||!!held||cameraPan.isPanning;
       const interval=targetFrameInterval(moving,!!harvest,!!fx.length);
       if(t-lastDrawAt>=interval){
         draw();
@@ -848,7 +868,20 @@ function worldObjects(){
       requestAnimationFrame(tick);
     }
   }
+  // Safari pointer events: 9px differentiates an intentional tap from a drag.
+  canvas.addEventListener('pointerdown',ev=>{
+    if(dialogOpen)return;
+    if(cameraPan.down(ev)){
+      try{canvas.setPointerCapture(ev.pointerId);}catch(_){}
+    }
+  });
+  canvas.addEventListener('pointermove',ev=>cameraPan.move(ev),{passive:false});
+  canvas.addEventListener('pointerup',ev=>cameraPan.end(ev));
+  canvas.addEventListener('pointercancel',ev=>cameraPan.end(ev));
+  canvas.addEventListener('lostpointercapture',ev=>cameraPan.end(ev));
+  el('#adv-recenter').addEventListener('click',()=>cameraPan.recenter());
   canvas.addEventListener('click',ev=>{
+    if(cameraPan.ignoreClick())return;
     const r=canvas.getBoundingClientRect(),x=(ev.clientX-r.left)*w/r.width,y=(ev.clientY-r.top)*h/r.height;
     let hit=null,min=29;
     for(const e of entities()){
