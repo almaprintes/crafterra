@@ -36,7 +36,7 @@ for(const id of ['quarry','shallow','deep','crystal','forest','hunt','river']){
  assert.ok(app.includes("id:'"+id+"'"),'missing expedition '+id);
 }
 for(const id of ['mining','forest','hunt','river'])assert.ok(app.includes("id:'"+id+"',label:"),'missing category '+id);
-assert.ok(app.includes("onExpeditions:()=>toggleExpeditions()"),'gameplay expedition callback missing');
+assert.ok(app.includes("onExpeditions:()=>{")&&app.includes('toggleExpeditions();}'),'gameplay expedition callback remains wired and can close the quest guide');
 assert.ok(app.includes('function toggleExpeditions('),'single expedition sheet lifecycle');
 assert.ok(app.includes('function renderExpeditionPanel()'),'live expedition panel renderer');
 assert.ok(app.includes('function selectExpTier('),'all mining tiers available in the same panel');
