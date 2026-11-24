@@ -59,7 +59,7 @@ assert.equal(getIronQuestGuide(forged).completed,true);
 assert.equal(next(forged).id,'finished');
 assert.equal(getIronQuestGuide(forged).completedCount,6);
 // First ingot + remaining concentrate should never be counted as two missing ingots.
-const partial=state({stone_pickaxe:1,iron_hammer:1,iron_concentrate:1});
+const partial=state({stone_pickaxe:1,iron_hammer:1,iron_concentrate:1,coal:1});
 assert.equal(ironQuestTotals(partial).oreNeeded,0);
 assert.equal(next(partial).id,'fuel');
 const progress=state({stone_pickaxe:1,iron_ingot:1,crafted:{iron_concentrate:1}});
