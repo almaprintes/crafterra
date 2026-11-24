@@ -70,5 +70,6 @@ assert.ok(world.includes("cameraPan.recenter();"),'changing scene restores playe
 assert.ok(css.includes('touch-action:none!important'),'iPhone WebKit must not interpret panning as page scroll');
 assert.ok(css.includes('.adv-recenter[hidden]'),'recenter control hidden until free camera');
 assert.ok(sw.includes('world-camera.js?v=0.11.3'),'new camera code must be available offline');
-assert.ok(html.includes('js/app.js?v=0.11.3-camera'),'PWA must load camera release');
+const currentApp=html.match(/js\/app\.js\?v=([\w.-]+)/)?.[1];
+assert.ok(currentApp&&sw.includes('./js/app.js?v='+currentApp),'PWA page and offline cache must load the same camera-capable app');
 console.log('CRAFTERRA 0.11.3: touch tap-to-walk vs drag-to-pan, bounded free camera, click suppression, scene reset and offline cache OK');
