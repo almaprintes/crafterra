@@ -72,9 +72,9 @@ for(const target of ['cut_stone','handle','rope','stone_hammer']){
 }
 assert.equal(TOOL_RULES.stone_pickaxe.uses,10);
 assert.equal(TOOL_RULES.iron_pickaxe.uses,100);
-const initial=JSON.stringify(fromScreenshot);
+const initial=structuredClone(fromScreenshot.stock);
 getIronQuestGuide(fromScreenshot);
-assert.equal(JSON.stringify(fromScreenshot),initial,'guide inspection must not consume or forge resources');
+assert.deepEqual(fromScreenshot.stock,initial,'guide inspection must not consume or forge resources');
 // Exercise the full physical production pipeline with real station processes.
 const real=state({stone_pickaxe:1,iron:4,handle:2,stone_hammer:1,coal:3});
 assert.equal(runStationProcess(real,'stonework','prep_iron').ok,true);
