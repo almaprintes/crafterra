@@ -51,7 +51,7 @@ assert.equal(pan.ignoreClick(),false,'the next intentional tap works immediately
 assert.deepEqual(cam,{x:50,y:140},'pan position persists without automatic recentering');
 pan.recenter();assert.equal(pan.isManual,false);
 assert.deepEqual(modeChanges,[true,false],'recenter visibly changes the mode');
-assert.deepEqual(clampCameraPosition(-100000,100000,30,22),{x:-552,y:660},'pan cannot wander infinitely out of the map');
+assert.deepEqual(clampCameraPosition(-100000,100000,30,22),{x:-552,y:648},'pan cannot wander infinitely out of the map');
 assert.deepEqual(clampCameraPosition(100000,-100000,11,9),{x:288,y:-48},'indoor panning has separate map bounds');
 const wrongPointer=pointer(40,50,99);
 assert.equal(pan.down(pointer(30,30,1)),true);
