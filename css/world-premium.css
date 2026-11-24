@@ -222,3 +222,39 @@
  .exp-tile-label strong{font-size:8px}
  .exp-config{min-height:32px}
 }
+
+
+/* 0.11.3 · Desplazamiento táctil libre del mundo. No desplaza la página. */
+#world.adventure-world canvas.adventure-canvas{
+  touch-action:none!important;
+  overscroll-behavior:none;
+  cursor:grab;
+}
+#world.adventure-world canvas.adventure-canvas.camera-free{cursor:grab}
+#world.adventure-world canvas.adventure-canvas:active{cursor:grabbing}
+#view-world #world.adventure-world .adv-recenter{
+  position:absolute;
+  z-index:9;
+  right:12px;
+  bottom:92px;
+  display:flex;align-items:center;gap:5px;
+  min-height:36px;padding:5px 10px;
+  border:1px solid #e8e4b7;
+  border-radius:12px;
+  background:linear-gradient(145deg,#315f6ceb,#173c54f5);
+  box-shadow:0 3px 0 #092638,0 5px 16px #051c2c8c,inset 0 1px #fff7dc63;
+  color:#fff1cd;
+  font-size:10px;font-weight:950;letter-spacing:.8px;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+#view-world #world.adventure-world .adv-recenter[hidden]{display:none!important}
+#view-world #world.adventure-world .adv-recenter>span{
+  width:21px;height:21px;display:grid;place-items:center;
+  border:1px solid #e9dca7a8;border-radius:50%;
+  font-size:23px;font-weight:700;line-height:1;
+}
+#view-world #world.adventure-world .adv-recenter:active{transform:translateY(2px);filter:brightness(1.12)}
+@media(max-height:520px) and (orientation:landscape){
+  #view-world #world.adventure-world .adv-recenter{bottom:52px;min-height:30px;font-size:9px}
+}
