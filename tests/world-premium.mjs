@@ -24,7 +24,7 @@ assert.ok(world.includes("drawTerrainTile(ctx,p.x,p.y,area,x,y"),'world still us
 assert.ok(terrain.includes('referenceImage.src=MATERIAL_ATLAS_URI'),'generated material art decoded locally');
 assert.ok(terrain.includes('g.drawImage(referenceImage'),'actual raster texture embedded into diamond tiles');
 assert.ok(!terrain.includes('fetch('),'textures cannot depend on a CDN');
-assert.ok(html.includes('css/world-premium.css?v=0.11.0'),'fullscreen layout must load');
+assert.ok(html.includes('css/world-premium.css?v=0.11.3'),'fullscreen layout must load');
 assert.ok(html.includes('id="expeditionPanel"')&&html.includes('hidden></section>'),'expeditions hidden until summoned');
 assert.ok(/#view-world\.view\.active\s*\{[^}]*overflow:hidden!important/.test(css),'world screen cannot scroll');
 assert.ok(/#view-world #world\.adventure-world\s*\{[^}]*flex:1 1 auto/.test(css),'canvas must fill available height');
