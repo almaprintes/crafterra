@@ -28,7 +28,7 @@ assert.equal(next(toolReady).action.resource,'iron');
 assert.equal(ironQuestTotals(toolReady).oreNeeded,4,'without an iron hammer, two full ingots require four ores');
 assert.equal(next(state({stone_pickaxe:1,iron:2})).id,'prep_iron');
 const prepared=state({stone_pickaxe:1,iron_concentrate:1});
-assert.equal(next(prepared).id,'fuel','the furnace must be heated before smelting');
+assert.equal(next(prepared).id,'gather_wood','without fuel, the guide must first direct the player to collect burnable wood');
 assert.equal(next(state({stone_pickaxe:1,iron_concentrate:1,coal:1})).id,'fuel');
 assert.equal(next(state({stone_pickaxe:1,iron_concentrate:1,coal:1})).action.process,'fuel_coal');
 const heated=state({stone_pickaxe:1,iron_concentrate:1});
