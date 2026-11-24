@@ -12,7 +12,7 @@ assert.ok(fn.includes("$$('.view').forEach"),'all views must be selected, not th
 assert.ok(!/(^|[^$])\$\('\.view'\)\.forEach/.test(fn),'querySelector returns one element, never an array');
 const names=['world','craft','book','goals','shop'];
 for(const name of names)assert.ok(html.includes('data-view="'+name+'"'),'footer must contain '+name);
-let sheetOpen=false,closeCount=0;
+let sheetOpen=false,closeCount=0,guideOpen=true,guideCloseCount=0;
 const views=names.map(name=>({id:'view-'+name,classList:{active:false,toggle(key,active){this[key]=active;}}}));
 const buttons=names.map(name=>({dataset:{view:name},classList:{active:false,toggle(key,active){this[key]=active;}}}));
 const renders=[];
@@ -20,6 +20,8 @@ const sandbox={
  $$:selector=>selector==='.view'?views:selector==='nav button'?buttons:[],
  $:selector=>{throw Error('Using single-element selector in footer: '+selector);},
  expSheetOpen:true,
+ ironGuideOpen:true,
+ toggleIronGuide(open){guideCloseCount++;guideOpen=open;sandbox.ironGuideOpen=open;},
  toggleExpeditions(open){closeCount++;sheetOpen=open;sandbox.expSheetOpen=open;},
  renderCraft(){renders.push('craft');},renderBook(){renders.push('book');},
  renderGoals(){renders.push('goals');},renderShop(){renders.push('shop');},
@@ -37,6 +39,8 @@ for(const name of names){
 }
 assert.equal(closeCount,1,'leaving the world closes the expedition overlay');
 assert.equal(sheetOpen,false);
+assert.equal(guideCloseCount,1,'leaving Mundo also closes the optional quest guide');
+assert.equal(guideOpen,false);
 assert.ok(app.includes("const v=e.target.closest('[data-view]')?.dataset.view;if(v)showView(v)"),
  'footer event delegation must still be wired');
 assert.ok(workflow.includes('tests/navigation.mjs'),'footer test must run on every push');
