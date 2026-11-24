@@ -2,6 +2,7 @@ import{ITEMS,RECIPES,COLLECTIONS,MISSIONS,PUZZLES,ACHIEVEMENTS,STATIONS}from'./d
 import{ALMAPRINT_PROMO_BASE64}from'./promo-almaprint-data.js?v=0.2.30-embeddedvideo';
 import{mountIsometricWorld}from'./adventure-world.js?v=0.11.3';
 import{actionArt}from'./adventure-art.js?v=0.9.0';
+import{getIronQuestGuide,IRON_QUEST_STAGES}from'./mission-guide.js?v=0.12.0';
 import{isReusableTool,syncTools,wearTool,toolCharge,toolUses}from'./adventure-rules.js?v=0.9.0';
 import{captureRuntimeFault,runtimeDiagnosticReport,clearRuntimeFaults}from'./runtime-diagnostics.js?v=0.11.1';
 // La navegación principal también usa ilustraciones, no glifos de una fuente.
@@ -10,7 +11,7 @@ for(const button of document.querySelectorAll('nav button[data-view]')){
  const icon=button.querySelector('i');
  if(icon)icon.innerHTML=actionArt(NAV_ART[button.dataset.view]||'gem','xs');
 }
-let isoWorld=null;
+let isoWorld=null,ironGuideOpen=false;
 let S,board=[],filter='Todos',goal='missions',bookMode='items',pendingHint=null,dailyRun=null;const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];const ads=new RewardedAdsProvider,store=new StoreProvider;
 const ART={stone:'stone',wood:'wood',water:'water',fire:'fire',earth:'earth',cut_stone:'cut_stone',handle:'handle',coal:'coal',flint:'flint',campfire:'campfire',rope:'rope',iron:'iron',copper:'copper',tin:'tin',clay:'clay',sand:'sand',glass:'glass',salt:'salt',sulfur:'sulfur',gold:'gold',silver:'silver',quartz:'quartz',amethyst:'amethyst',emerald:'emerald',diamond:'diamond',lapis:'lapis',obsidian:'obsidian',bone:'bone',leather:'leather',plant_fiber:'plant_fiber',fabric:'fabric',wool:'wool',feather:'feather',resin:'resin',charcoal:'charcoal',ash:'ash',wax:'wax',herbs:'herbs',mushroom:'mushroom',bark:'bark',stick:'stick',plank:'plank',beam:'beam',nail:'nail',wire:'wire',gear:'gear',chain:'chain',hinge:'hinge',screw:'screw',spring:'spring',iron_ingot:'iron_ingot',copper_ingot:'copper_ingot',tin_ingot:'tin_ingot',gold_ingot:'gold_ingot',silver_ingot:'silver_ingot',bronze:'bronze',steel:'steel',metal_plate:'metal_plate',metal_pipe:'metal_pipe',rivet:'rivet',stone_axe:'stone_axe',stone_pickaxe:'stone_pickaxe',flint_knife:'flint_knife',stone_hammer:'stone_hammer',iron_axe:'iron_axe',iron_pickaxe:'iron_pickaxe',iron_hammer:'iron_hammer',saw:'saw',shovel:'shovel',tongs:'tongs',stone_spear:'stone_spear',iron_spear:'iron_spear',bow:'bow',arrow:'arrow',iron_sword:'iron_sword',dagger:'dagger',mace:'mace',wood_shield:'wood_shield',iron_shield:'iron_shield',iron_helmet:'iron_helmet',brick:'brick',mortar:'mortar',stone_block:'stone_block',workbench:'workbench',kiln:'kiln',forge:'forge',anvil:'anvil',barrel:'barrel',chest:'chest',wood_crate:'wood_crate',torch:'torch',lantern:'lantern',candle:'candle',table:'table',chair:'chair',bed:'bed',shelf:'shelf',wardrobe:'wardrobe',bench:'bench',rug:'rug',wood_bowl:'wood_bowl',clay_bowl:'clay_bowl',clay_jug:'clay_jug',glass_bottle:'glass_bottle',wood_bucket:'wood_bucket',pot:'pot',pan:'pan',wood_spoon:'wood_spoon',mortar_pestle:'mortar_pestle',grill:'grill',wheat:'wheat',flour:'flour',bread:'bread',raw_meat:'raw_meat',cooked_meat:'cooked_meat',fish:'fish',cooked_fish:'cooked_fish',apple:'apple',berries:'berries',honey:'honey',carrot:'carrot',potato:'potato',onion:'onion',tomato:'tomato',corn:'corn',egg:'egg',milk:'milk',cheese:'cheese',seeds:'seeds',compost:'compost',oil:'oil',alcohol:'alcohol',coal_powder:'coal_powder',sulfur_powder:'sulfur_powder',bone_powder:'bone_powder',herbal_extract:'herbal_extract',healing_potion:'healing_potion',energy_potion:'energy_potion',antidote:'antidote',ink:'ink',paper:'paper',parchment:'parchment',book:'book',map:'map',writing_quill:'writing_quill',ruler:'ruler',drawing_compass:'drawing_compass',magnifying_glass:'magnifying_glass',compass:'compass',hourglass:'hourglass',pulley:'pulley',wood_wheel:'wood_wheel',reinforced_wheel:'reinforced_wheel',crank:'crank',lever:'lever',axle:'axle',bearing:'bearing',simple_mechanism:'simple_mechanism',advanced_mechanism:'advanced_mechanism',lock:'lock',key:'key',padlock:'padlock',bell:'bell',piping:'piping',valve:'valve',hand_pump:'hand_pump',bellows:'bellows',hand_mill:'hand_mill',press:'press',loom:'loom',wood_door:'wood_door',reinforced_door:'reinforced_door',window:'window',ladder:'ladder',fence:'fence',stone_wall:'stone_wall',brick_wall:'brick_wall',wood_floor:'wood_floor',roof:'roof',stone_pillar:'stone_pillar',stone_arch:'stone_arch',wood_bridge:'wood_bridge',stone_bridge:'stone_bridge',cart:'cart',wheelbarrow:'wheelbarrow',raft:'raft',boat:'boat',oar:'oar',sail:'sail',anchor:'anchor',backpack:'backpack',canteen:'canteen',sack:'sack',tent:'tent',bedroll:'bedroll',firestarter:'firestarter',repair_kit:'repair_kit',grappling_rope:'grappling_rope',spyglass:'spyglass',explorer_lantern:'explorer_lantern',polished_lens:'polished_lens',prism:'prism',magnet:'magnet',copper_coil:'copper_coil',precision_spring:'precision_spring',precision_gear:'precision_gear',clockwork:'clockwork',cable:'cable',insulator:'insulator',switch:'switch',primitive_battery:'primitive_battery',dynamo:'dynamo',simple_motor:'simple_motor',bulb:'bulb',electric_lamp:'electric_lamp',fuse:'fuse',connector:'connector',electric_panel:'electric_panel',generator:'generator',electromagnet:'electromagnet',thermometer:'thermometer',barometer:'barometer',microscope:'microscope',telescope:'telescope',balance:'balance',graduated_cylinder:'graduated_cylinder',flask:'flask',distiller:'distiller',reagent:'reagent',science_kit:'science_kit',advanced_alloy:'advanced_alloy',optical_glass:'optical_glass',precision_mechanism:'precision_mechanism',advanced_motor:'advanced_motor',accumulator:'accumulator',complex_machine:'complex_machine',tech_core:'tech_core'};const GLYPH={rough_wood:'🪵',water:'💧',fire:'🔥',steam:'♨️',seed:'🌱',campfire:'🔥',axe:'🪓',wheat:'🌾',kiln:'🏺',torch:'🔥',handle:'🪵',hammer:'🔨',pickaxe:'⛏️',saw:'🪚',wheel:'🛞',axle:'⚙️',gear:'⚙️',door:'🚪',window:'🪟',roof:'🏠',shelter:'⛺',house:'🏠',field:'🌾',flour:'🌾',dough:'🥣',bread:'🍞',workbench:'🛠️',forge:'⚒️',mill:'🌬️',pulley:'⚙️',cart:'🛒',machine:'⚙️',factory:'🏭',magnet:'🧲',wire:'〰️',coil:'🌀',generator:'⚡',electricity:'⚡',filament:'💡',bulb:'💡',battery:'🔋',motor:'⚙️',vehicle:'🚙',bridge:'🌉',lens:'🔎',microscope:'🔬',telescope:'🔭',laboratory:'🧪',experiment:'⚗️',workshop:'🛠️',electric_shop:'⚡',computer:'💻',chip:'🔳',radio:'📻',antenna:'📡',signal:'📶',star_map:'🌌',observatory:'🔭',fuel:'⛽',rocket:'🚀',space_pad:'🛰️',satellite:'🛰️',pressure:'🌡️',time:'⏳',life:'🧬',heat:'🌡️',motion:'💨',technology:'🤖',automaton:'🤖',moon_bread:'🥖',eternal_flame:'🔥',sky_garden:'🌿',oracle:'🔮'};const icon=it=>ART[it.id]?`<span class="item-art"><img src="assets/items/${ART[it.id]}.webp" alt="" draggable="false"></span>`:`<span class="item-glyph" aria-hidden="true">${GLYPH[it.id]||({Naturaleza:'🌿',Calor:'🔥',Herramientas:'🛠️',Materiales:'🧱',Agricultura:'🌱',Minerales:'💎',Construcción:'🏗️',Estaciones:'⚙️',Mecánica:'⚙️',Transporte:'🛞',Electricidad:'⚡',Energía:'⚡',Ciencia:'🧪',Tecnología:'💻',Conceptos:'✨',Espacio:'🚀',Secretos:'🔮'}[it.category]||'✨')}</span>`;
 // Expedition categories are gameplay systems, not passive blocks below the map.
@@ -358,7 +359,7 @@ function renderHeader(coinOverride=null){
  $('#eraLabel').textContent=`ERA ${['I','II','III','IV','V','VI','VII'][e]}`;
  $('#eraName').textContent=CONFIG.eras[e][0]
 }
-function showView(v){if(v!=='world'&&expSheetOpen)toggleExpeditions(false);$$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
+function showView(v){if(v!=='world'&&ironGuideOpen)toggleIronGuide(false);if(v!=='world'&&expSheetOpen)toggleExpeditions(false);$$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='craft')renderCraft();if(v==='book')renderBook();if(v==='goals')renderGoals();if(v==='shop')renderShop();if(v==='world')renderWorld()}
 function renderWorld(){
  if(!S)return;
  if(!isoWorld){
@@ -366,7 +367,7 @@ function renderWorld(){
      getState:()=>S,
      persist:()=>persist(),
      onCraft:()=>showView('craft'),
-     onExpeditions:()=>toggleExpeditions(),
+     onExpeditions:()=>{if(ironGuideOpen)toggleIronGuide(false);toggleExpeditions();},
      notify:toast,
      onProgress:()=>renderWorld()
    });
@@ -377,14 +378,137 @@ function renderWorld(){
    !a.metMara?'Nueva aventura: encuentra a Mara en la aldea':
    !a.bridge?'Misión: fabricar 2 tablones y 1 cuerda para reparar el puente':
    'Misión: cruza el río y habla con Lía';
+ const guide=getIronQuestGuide(S);
  $('#questStrip').innerHTML=a.completed?
-   ((S.stock?.iron_pickaxe||0)>0?
-   '<b>Valle recuperado · Maestro de la forja</b><span>Ya has fabricado un pico de hierro. Puedes extraer minerales raros.</span><strong>⚒️</strong>':
-   '<b>Objetivo opcional: el primer pico de hierro</b><span>Pica 2 minerales de hierro, prepáralos en Cantería y fúndelos en el Horno. Después forja tus herramientas.</span><strong>⚒️</strong>'):
-   !a.metMara?'<b>Un encuentro en la aldea</b><span>Habla con Mara para comenzar la historia.</span><strong>CAP. I</strong>':
-   !a.bridge?'<b>El puente roto</b><span>2 tablones: '+(S.stock?.plank||0)+'/2 · 1 cuerda: '+(S.stock?.rope||0)+'/1</span><strong>+120 ◆</strong>':
-   '<b>La inventora del otro lado</b><span>Busca a Lía cruzando el puente reparado.</span><strong>+250 ◆</strong>';
+   '<div class="quest-summary"><b>'+(guide.completed?'✓ Pico de hierro conseguido':'⚒ Tu primer pico de hierro')+'</b>'+
+   '<small>'+(guide.completed?'Objetivo cumplido · explora libremente':guide.summary)+'</small></div>'+
+   '<button type="button" class="quest-help" data-quest-guide="1">📖 GUÍA</button>':
+   !a.metMara?'<div class="quest-summary"><b>Un encuentro en la aldea</b><small>Habla con Mara para comenzar la historia.</small></div><button type="button" class="quest-help" data-quest-story="mara">AYUDA</button>':
+   !a.bridge?'<div class="quest-summary"><b>El puente roto</b><small>Tablones '+(S.stock?.plank||0)+'/2 · cuerda '+(S.stock?.rope||0)+'/1</small></div><button type="button" class="quest-help" data-quest-story="bridge">AYUDA</button>':
+   '<div class="quest-summary"><b>La inventora</b><small>Cruza el puente y habla con Lía.</small></div><button type="button" class="quest-help" data-quest-story="lia">AYUDA</button>';
+ renderIronGuidePanel();
  renderExpeditionPanel();
+}
+function toggleIronGuide(open=!ironGuideOpen){
+ ironGuideOpen=!!open;
+ if(ironGuideOpen&&expSheetOpen)toggleExpeditions(false);
+ renderIronGuidePanel();
+}
+const safeText=text=>String(text||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+function renderIronGuidePanel(){
+ const panel=$('#ironGuidePanel');if(!panel||!S)return;
+ panel.hidden=!ironGuideOpen;
+ if(!ironGuideOpen)return;
+ const g=getIronQuestGuide(S),next=g.next;
+ const stages=g.stages.map(step=>
+  '<div class="quest-guide-step'+(step.done?' done':'')+(step.active?' active':'')+'">'+
+   actionArt(step.art,'xs')+'<span>'+safeText(step.name)+'</span></div>').join('');
+ const ingredients=next.ingredients.map(i=>{
+  const have=stockOf(i.id);
+  return '<span class="'+(have>=i.count?'ready':'missing')+'">'+safeText(i.name)+' '+have+'/'+i.count+'</span>';
+ }).join('');
+ const extras=(next.heat?'<span>♨ '+g.totals.heat+'/'+next.heat+' calor</span>':'')+
+  (next.tool?'<span>⚒ '+safeText(next.tool)+'</span>':'');
+ const progress=g.completedCount+'/'+g.stageCount;
+ panel.innerHTML='<div class="quest-guide-head">'+actionArt('pick','sm')+
+   '<div><small>ASISTENTE DE AVENTURA · '+progress+'</small><b>'+safeText(g.title)+'</b></div>'+
+   '<button type="button" class="quest-guide-close" data-guide-close="1" aria-label="Cerrar guía">×</button></div>'+
+   '<div class="quest-guide-steps">'+stages+'</div>'+
+   '<div class="quest-guide-focus"><small>SIGUIENTE PASO · '+(next.stage+1)+'/6</small>'+
+   '<h3>'+safeText(next.title)+'</h3><p>'+safeText(next.description)+'</p>'+
+   ((ingredients||extras)?'<div class="quest-guide-recipe">'+ingredients+extras+'</div>':'')+
+   (next.instruction?'<div class="quest-guide-extra">'+safeText(next.instruction)+'</div>':'')+
+   '</div>'+
+   '<div class="quest-guide-progress"><small>Materiales: hierro '+g.totals.iron+
+     ' · preparado '+g.totals.prepared+' · lingotes '+g.totals.ingots+'</small><b>'+progress+'</b></div>'+
+   '<button type="button" class="quest-guide-go" data-guide-next="1" '+(g.completed?'disabled':'')+'>'+
+   actionArt(next.action.kind==='craft'?'hammer':next.action.kind==='resource'?'pick':'door','xs')+
+   safeText(next.cta)+'</button>'+
+   '<small class="quest-guide-footer">'+safeText(g.footer)+'</small>';
+}
+function performGuideNext(){
+ const g=getIronQuestGuide(S),act=g.next.action;
+ if(act.kind==='finished'){toggleIronGuide(false);return}
+ if(act.kind==='craft'){
+  toggleIronGuide(false);
+  prepareRecipe(act.result,true);
+  return;
+ }
+ toggleIronGuide(false);
+ showView('world');
+ const ok=isoWorld?.guideTo(act);
+ if(!ok)toast('No he encontrado un acceso. Prueba desde otra zona del mapa.');
+}
+function prepareRecipe(result,guided=false){
+ const choices=RECIPES.filter(r=>r.result===result&&r.a&&r.b&&
+  (guided||S.knownRecipes?.[r.id]));
+ if(!choices.length){toast('Receta todavía no aprendida.');return false}
+ const recipe=choices.find(r=>{
+  const need={};for(const id of [r.a,r.b])need[id]=(need[id]||0)+1;
+  return Object.entries(need).every(([id,q])=>{
+   return stockOf(id)>=q&&(!isReusableTool(id)||toolCharge(S,id)>0);
+  });
+ });
+ if(!recipe){
+  const r=choices[0],need=[r.a,r.b];
+  toast('Aún faltan ingredientes: '+need.map(x=>item(x)?.name||x).join(' + '));
+  return false;
+ }
+ board=[recipe.a,recipe.b];
+ close();
+ showView('craft');
+ renderBoard();
+ toast('Receta preparada: '+item(result).name+'. Pulsa FUSIONAR.');
+ return true;
+}
+function recipeBookList(query=''){
+ const results=$('#recipeBookResults');if(!results)return;
+ const known=RECIPES.filter(r=>r.a&&r.b&&
+   (S.knownRecipes?.[r.id]||['cut_stone','handle','rope','stone_hammer'].includes(r.result)));
+ const unique=[...new Map(known.map(r=>[r.id,r])).values()];
+ const norm=query.trim().toLocaleLowerCase('es');
+ const list=unique.filter(r=>(item(r.result)?.name||'').toLocaleLowerCase('es').includes(norm)||
+   (item(r.a)?.name||'').toLocaleLowerCase('es').includes(norm)||
+   (item(r.b)?.name||'').toLocaleLowerCase('es').includes(norm));
+ results.innerHTML=list.slice(0,80).map(r=>{
+  const needs={};for(const id of [r.a,r.b])needs[id]=(needs[id]||0)+1;
+  const can=Object.entries(needs).every(([id,q])=>stockOf(id)>=q&&(!isReusableTool(id)||toolCharge(S,id)>0));
+  return '<article class="recipe-book-card">'+actionArt('hammer','sm')+
+   '<div><b>'+safeText(item(r.result)?.name||r.result)+'</b><small>'+
+   safeText([r.a,r.b].map(id=>item(id)?.name||id).join(' + '))+'</small></div>'+
+   '<button type="button" data-recipe-prepare="'+r.id+'" '+(!can?'disabled':'')+'>'+
+   (can?'PREPARAR':'FALTAN')+'</button></article>';
+ }).join('')||'<p>No hay recetas que coincidan con la búsqueda.</p>';
+}
+function openRecipeBook(){
+ const known=RECIPES.filter(r=>S.knownRecipes?.[r.id]).length;
+ modal('<div class="direct-modal"><small>RECETARIO DE AVENTURA</small>'+
+ '<h2>Recetas sin memorizar</h2><p class="recipe-book-intro">Tienes '+known+
+ ' recetas aprendidas. Las de herramientas básicas también aparecen para ayudarte a avanzar. Elige una y dejaré los ingredientes en la mesa, sin gastarlos.</p>'+
+ '<div class="recipe-book-header"><input id="recipeBookSearch" type="search" placeholder="Buscar ingrediente o resultado..." aria-label="Buscar recetas"></div>'+
+ '<div id="recipeBookResults" class="recipe-book-cards"></div></div>');
+ recipeBookList('');
+ $('#recipeBookSearch').addEventListener('input',e=>recipeBookList(e.target.value));
+}
+function showStoryHelp(kind){
+ const states={
+  mara:['Encuentra a Mara','Mara vive en la aldea. Toca «Ir a Mara» y caminarás hasta ella.',{kind:'npc',id:'mara'}],
+  lia:['Busca a Lía','Lía está al otro lado del río. Cruza el puente y habla con ella.',{kind:'npc',id:'lia'}]
+ };
+ if(kind in states){
+  const [title,desc,route]=states[kind];
+  modal('<div class="direct-modal"><small>AYUDA DE LA MISIÓN</small><h2>'+safeText(title)+'</h2><p>'+safeText(desc)+'</p>'+
+   '<button class="primary" data-story-go="'+kind+'">Ir al personaje</button></div>');
+  return;
+ }
+ const plank=stockOf('plank'),rope=stockOf('rope');
+ modal('<div class="direct-modal"><small>AYUDA DE LA MISIÓN</small><h2>Reparar el puente</h2>'+
+ '<p>Necesitas 2 tablones ('+plank+'/2) y 1 cuerda ('+rope+'/1). La cuerda se hace con Fibra vegetal + Fibra vegetal. Los tablones se fabrican con Madera + Hacha de piedra.</p>'+
+ '<button class="primary" data-story-go="bridge">Llévame al puente</button></div>');
+}
+function storyRoute(kind){
+ close();showView('world');
+ isoWorld?.guideTo(kind==='bridge'?{kind:'bridge'}:{kind:'npc',id:kind});
 }
 function stockOf(id){return Math.max(0,Number(S.stock?.[id]||0))}
 function boardQty(id){return board.reduce((n,x)=>n+(x===id?1:0),0)}
@@ -1327,6 +1451,17 @@ function settings(){
  },0)
 }
 function bind(){document.addEventListener('click',e=>{
+const guideOpen=e.target.closest('[data-quest-guide]');
+if(guideOpen){e.preventDefault();toggleIronGuide(true);return}
+if(e.target.closest('[data-guide-close]')){toggleIronGuide(false);return}
+if(e.target.closest('[data-guide-next]')){e.preventDefault();performGuideNext();return}
+const story=e.target.closest('[data-quest-story]');
+if(story){e.preventDefault();showStoryHelp(story.dataset.questStory);return}
+const storyGo=e.target.closest('[data-story-go]');
+if(storyGo){e.preventDefault();storyRoute(storyGo.dataset.storyGo);return}
+const prepared=e.target.closest('[data-recipe-prepare]');
+if(prepared){e.preventDefault();const r=RECIPES.find(v=>v.id===prepared.dataset.recipePrepare);
+ if(r)prepareRecipe(r.result,['cut_stone','handle','rope','stone_hammer'].includes(r.result));return}
 const expClose=e.target.closest('[data-exp-close]');
 if(expClose){e.preventDefault();toggleExpeditions(false);return}
 const expSelect=e.target.closest('[data-exp-select]');
@@ -1352,7 +1487,7 @@ const dr=e.target.closest('[data-direct-route]');if(dr){executeDirectCraft(dr.da
 const dm=e.target.closest('[data-direct-make-missing]');if(dm){craftMissingHere(dm.dataset.directMakeMissing,+dm.dataset.directMissingQty,dm.dataset.directReturn);return}
 const dch=e.target.closest('[data-direct-chain]')?.dataset.directChain;if(dch){showDirectChain(dch);return}
 const dcb=e.target.closest('[data-direct-back]')?.dataset.directBack;if(dcb){showDirectCraft(dcb);return}
-const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems;$('#expeditionPanel').addEventListener('change',e=>{if(e.target.id==='expTierSelect')selectExpTier(e.target.value);});}
+const p=e.target.closest('[data-puzzle]')?.dataset.puzzle;if(p)playPuzzle(p)});$('#clearBoard').onclick=()=>{board=[];renderBoard()};$('#combineBoard').onclick=()=>{if(board.length===2)doMerge(0,1)};$('#inventoryFilter').onchange=renderInventoryItems;$('#modalClose').onclick=close;$('#modal').onclick=e=>{if(e.target.id==='modal')close()};$('#settingsBtn').onclick=settings;$('#recipesBtn').onclick=openRecipeBook;$('#dailyBtn').onclick=openDailyChallenge;$('#itemSearch').oninput=renderInventoryItems;$('#expeditionPanel').addEventListener('change',e=>{if(e.target.id==='expTierSelect')selectExpTier(e.target.value);});}
 function revealApp(){const splash=$('#splash'),app=$('#app');if(app)app.hidden=false;if(splash)splash.remove()}async function boot(){
  const importedOK=localStorage.getItem('crafterra_import_success')==='1';
  if(importedOK)localStorage.removeItem('crafterra_import_success');window.__CRAF_BOOT_STARTED=true;const watchdog=setTimeout(()=>{console.warn('[CRAFTERRA] Arranque lento: liberando interfaz.');if(!S)S=initialState();try{bind();renderHeader();renderWorld()}catch(e){console.error(e)}revealApp()},3000);try{S=normalizeState(await initDB());bind();renderHeader();renderWorld();clearTimeout(watchdog);window.__CRAF_BOOT_OK=true;setTimeout(revealApp,350);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[CRAFTERRA] SW:',e))}catch(e){console.error('[CRAFTERRA] Error de arranque:',e);S=normalizeState(S);try{bind();renderHeader();renderWorld();window.__CRAF_BOOT_OK=true}catch(inner){console.error(inner)}clearTimeout(watchdog);revealApp();toast('Se inició en modo seguro. Tu progreso seguirá guardándose localmente.')}}window.addEventListener('error',event=>{
