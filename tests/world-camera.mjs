@@ -59,7 +59,7 @@ assert.equal(pan.move(wrongPointer),false,'unrelated pointer cannot steal pan ge
 assert.equal(pan.end(wrongPointer),false);
 assert.equal(pan.end(pointer(30,30,1)),false);
 assert.ok(world.includes("import{createCameraPan}from './world-camera.js"),'controller is imported by real game');
-assert.ok(world.includes("id=\\"adv-recenter\\""),'recenter UI is present');
+assert.ok(world.includes('id="adv-recenter"'),'recenter UI is present');
 assert.ok(world.includes("cameraPan.down(ev)"),'pointer down wired to map');
 assert.ok(world.includes("cameraPan.move(ev)"),'pointer move wired to map');
 assert.ok(world.includes("cameraPan.end(ev)"),'pointer up/cancel wired to map');
