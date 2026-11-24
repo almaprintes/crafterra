@@ -202,6 +202,7 @@ export function mountIsometricWorld(root,{getState,persist,onCraft,onExpeditions
   let lastDrawAt=0,lastFaultAt=-Infinity,renderFailures=0,currentDpr=1;
   const floorCache=new Map();let floorCacheRevision=-1;
   const actors=WORLD_NPCS.map(n=>({...n,homeX:n.x,homeY:n.y,phase:0,facing:1,idle:0,steps:[]}));
+  let guidedTarget=null,guideQueue=null;
   const state=()=>getState();
   const cameraPan=createCameraPan({
     getCamera:()=>cam,
@@ -326,7 +327,7 @@ function available(node){return nodeAvailable(state(),node,Date.now());}
       const secondary=b.secondary===true||b.action==='close'||/^(salir|cancelar|volver|continuar|quedarme)/i.test(b.label||'');
       const button=document.createElement('button');
       button.type='button';
-      button.className='adv-choice'+(secondary?' adv-choice-secondary':'');
+      button.className='adv-choice'+(secondary?' adv-choice-secondary':'')+(b.guided?' adv-choice-guided':'');
       button.disabled=b.enabled===false;
       const graphic=document.createElement('span');
       graphic.className='adv-choice-graphic';
@@ -378,6 +379,7 @@ function enterRoom(id){
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
     cameraPan.recenter();
     savePosition();noteRuntimeScene(id);updateHud();notify('Has entrado en '+HOUSE_ROOMS[id].name);
+    if(guideQueue){const target=guideQueue;guideQueue=null;guideTo(target);}
   }
   function leaveRoom(){
     const a=adventure();
@@ -386,6 +388,7 @@ function enterRoom(id){
     cam={x:(player.x-player.y)*TW/2,y:(player.x+player.y)*TH/2};
     cameraPan.recenter();
     savePosition();noteRuntimeScene('valley');updateHud();notify('Has salido al Valle del Origen');
+    if(guideQueue){const target=guideQueue;guideQueue=null;guideTo(target);}
   }
   function activateWork(label,ms,kind){
     const work=el('#adv-work');
@@ -408,7 +411,7 @@ function enterRoom(id){
     updateHud();
   }
   // Menús en dos niveles: evita enormes listas de procesos en una pantalla móvil.
-  function showStationMenu(kind,fireId,title,group=null,node=null){
+  function showStationMenu(kind,fireId,title,group=null,node=null,focus=null){
     const s=state(),opts=stationOptions(s,kind,fireId);
     const heat=kind==='fire'||kind==='foundry'?heatOf(s,fireId):null;
     const sections={
@@ -430,9 +433,11 @@ function enterRoom(id){
       return;
     }
     const displayed=group?opts.filter(o=>group==='fuel'?o.kind==='fuel':o.group===group):opts;
+    if(focus)displayed.sort((a,b)=>Number(b.id===focus)-Number(a.id===focus));
     showDialog(title,describe+(heat===null?'':'\n♨️ Calor '+heat+'/'+MAX_FIRE_HEAT),[
       ...displayed.map(o=>({
         id:o.id,title:o.label,art:o.kind==='fuel'?actionKind(o.fuel,o.label):actionKind(o.id,o.label),
+        guided:o.id===focus,
         label:o.label,
         detail:o.enabled?(o.kind==='fuel'?'+'+o.gain+' CALOR':(o.ms/1000).toFixed(1)+' S · ELABORAR'):o.reason,
         enabled:o.enabled,
@@ -480,7 +485,11 @@ function enterRoom(id){
       return;
     }
     if(e.kind==='fire'){showStationMenu('fire','valley','🔥 Hoguera del valle',null,e);return;}
-    if(e.kind==='workshop'){showStationMenu(e.station,e.id,e.label,null,e);return;}
+    if(e.kind==='workshop'){
+      const focus=e.guideProcess||null;
+      showStationMenu(e.station,e.id,e.label,focus?e.guideGroup:null,e,focus);
+      guidedTarget=null;return;
+    }
     if(e.kind==='bridge'){repair();return;}
     if(e.kind==='node'){
       if(!available(e)||harvest)return;
@@ -561,6 +570,61 @@ function roomWalkable(x,y){
     }
     path=route;pending=pick;
     if(!path.length&&pending){const t=pending;pending=null;interact(t);}
+  }
+  // Guía contextual: llegar andando, sin teletransportar ni fabricar gratis.
+  // En interiores, conduce a la salida y continúa la ruta al volver al valle.
+  function guideTo(action){
+    if(!action||!['resource','station'].includes(action.kind))return false;
+    cameraPan.recenter();
+    if(dialogOpen)closeDialog();
+    if(adventure().scene&&action.kind==='station'){
+      const exit=entities().find(e=>e.kind==='exit');
+      if(!exit){notify('No encuentro la salida de este interior.');return false;}
+      guideQueue=action;
+      guidedTarget={...exit};
+      moveTo(exit.x,exit.y,exit);
+      notify('Salimos del interior para ir a la estación.');
+      return true;
+    }
+    const scene=adventure().scene;
+    let options=[];
+    if(action.kind==='station'){
+      options=WORLD_WORKSTATIONS.filter(e=>e.station===action.station);
+    }else if(scene&&CAVE_NODES[scene]){
+      options=CAVE_NODES[scene].filter(e=>e.type===action.resource&&available(e))
+        .map(e=>({...e,kind:'node'}));
+    }else if(!scene){
+      options=[...WORLD_NODES,...WORLD_TREES].filter(e=>
+        e.type===action.resource&&available(e)).map(e=>({...e,kind:'node'}));
+    }
+    if(!options.length){
+      if(scene){
+        const exit=entities().find(e=>e.kind==='exit');
+        if(exit){guideQueue=action;guidedTarget={...exit};moveTo(exit.x,exit.y,exit);
+          notify('Vamos al valle a buscar el recurso.');return true;}
+      }
+      notify(action.kind==='resource'?'No quedan yacimientos disponibles aquí. Explora otra zona o espera a que se regeneren.':'No encuentro esa estación en este escenario.');
+      return false;
+    }
+    const score=entity=>{
+      const around=[[0,-1],[1,0],[-1,0],[0,1],[1,1],[-1,-1],[1,-1],[-1,1]];
+      const routes=around.map(([dx,dy])=>({x:entity.x+dx,y:entity.y+dy}))
+        .filter(p=>scene?roomWalkable(p.x,p.y):isWalkable(p.x,p.y,adventure().bridge,adventure().gathered))
+        .map(p=>pathTo(p.x,p.y))
+        .filter(path=>path.length||Math.hypot(player.x-entity.x,player.y-entity.y)<2);
+      return routes.length?Math.min(...routes.map(r=>r.length)):Infinity;
+    };
+    const best=options.map(e=>({e,dist:score(e)})).sort((a,b)=>a.dist-b.dist)[0];
+    if(!best||!Number.isFinite(best.dist)){
+      notify('No hay un camino accesible. Busca otra ruta por el terreno.');return false;
+    }
+    guidedTarget={...best.e};
+    const target=action.kind==='station'?{
+      ...best.e,guideProcess:action.process,guideGroup:action.group
+    }:best.e;
+    moveTo(target.x,target.y,target);
+    notify(action.kind==='station'?'Voy contigo a '+best.e.label+'.':'Sigue el camino hasta el recurso señalado.');
+    return true;
   }
   function stepDir(dx,dy){
     if(dialogOpen)return;
@@ -808,6 +872,13 @@ function worldObjects(){
       }
       if(o.kind==='player')sprite(ctx,p.x,p.y,'avatar',harvest?workPhase:walkPhase,facing);
     }
+    if(guidedTarget&&!adventure().scene){
+      const mark=project(guidedTarget.x,guidedTarget.y);
+      ctx.save();ctx.strokeStyle='#ffe7a1';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.ellipse(mark.x,mark.y,24,10,0,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='#ffe9aa';ctx.font='bold 12px system-ui';ctx.textAlign='center';
+      ctx.fillText('◆',mark.x,mark.y-58);ctx.restore();
+    }
     paintEffects();
   }
   function resize(){
@@ -936,7 +1007,7 @@ function worldObjects(){
     if(ev.key===' '||ev.key==='Enter'){const n=nearby();if(n&&n.d<2.2)interact(n);}
   });
   loadPosition();resize();updateHud();requestAnimationFrame(tick);
-  return {refresh(){
+  return {guideTo,refresh(){
     try{updateHud();draw();}
     catch(error){
       captureRuntimeFault(error,{scene:adventure().scene||'valley',stage:'refresh',width:canvas.width,height:canvas.height,dpr:currentDpr});
